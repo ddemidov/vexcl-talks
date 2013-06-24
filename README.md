@@ -10,3 +10,5 @@ C++ based OpenCL development. Multi-device (and multi-platform) computations
 are supported. This talk is an introduction to the VexCL interface.
 
 [Meeting C++](http://meetingcpp.com), Dusseldorf/Neuss, November 9-10, 2012
+
+Slides: https://speakerdeck.com/ddemidov/vexcl-at-meeting-c-plus-plus-2012
