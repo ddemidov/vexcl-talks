@@ -1,0 +1,8 @@
+VexCL: Vector Expression Template Library for OpenCL
+
+VexCL is modern C++ library developed for ease of OpenCL developement. 
+VexCL strives to reduce amount of boilerplate code needed to develop OpenCL
+applications. The library provides convenient and intuitive notation for vector
+arithmetic, reduction, and sparse matrix-vector multiplication. Multi-device
+and even multi-platform computations are supported.  This talk is a brief
+introduction to VexCL interface.

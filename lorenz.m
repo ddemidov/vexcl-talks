@@ -31,7 +31,7 @@ options = odeset('RelTol',eps,'AbsTol',[eps eps eps/10]);
 figure(1)
 set(gca,'FontSize', 18);
 h = plot3(X(:,1),X(:,2),X(:,3));
-set(h, 'color', 'r');
+set(h, 'color', [51,149,48]/255);
 axis equal;
 grid;
 title('Lorenz attractor');
