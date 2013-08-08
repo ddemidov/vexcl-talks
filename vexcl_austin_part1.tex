@@ -1,0 +1,62 @@
+\documentclass[@BEAMER_OPTIONS@]{beamer}
+    @USE_PGFPAGES@
+
+    \usetheme[alternativetitlepage=true,titleline=true]{Torino}
+    \setbeamertemplate{navigation symbols}{}
+    \setbeamertemplate{note page}[plain]
+
+    \usepackage[utf8]{inputenc}
+    \usepackage{graphicx}
+    \usepackage{subfigure}
+    \usepackage{xspace}
+    \usepackage{adjustbox}
+    \usepackage{tikz}
+    \usepgflibrary{arrows}
+    \usetikzlibrary{shadows,decorations.pathreplacing,patterns,shapes}
+    \tikzstyle{every picture}=[semithick,>=stealth,remember picture]
+    \usepackage{listings}
+    \lstset{
+        language=C++,
+        basicstyle=\footnotesize\rmfamily,
+        numbers=left,
+        numberstyle=\tiny,
+        aboveskip=-0.02\baselineskip,
+        belowskip=-0.02\baselineskip,
+        columns=flexible,
+        extendedchars=false,
+        showstringspaces=false
+        }
+    \newcommand{\code}[1]{\lstinline|#1|}
+    \newcommand{\additive}{\hspace{1cm}\footnotesize(\emph{Additive expressions only})}
+    \newcommand{\Cpp}{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}\xspace}
+    \newcommand{\ghribbon}{
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[anchor=north east,yshift=4pt,xshift=4pt] at (current page.north east) {
+                \href{https://github.com/ddemidov/vexcl}{\includegraphics[width=2cm]{forkme}}
+            };
+        \end{tikzpicture}
+    }
+
+    \title{VexCL --- a Vector Expression Template Library for OpenCL}
+
+    \author{Denis Demidov}
+    \institute{
+        Supercomputer Center of Russian Academy of Sciences \\
+        Kazan Federal University
+    }
+    \date{October 2013, Austin, Texas}
+
+
+\begin{document}
+
+%----------------------------------------------------------------------------
+\begin{frame}{}
+    \titlepage
+\end{frame}
+
+\note{ }
+
+\end{document}
+
+
+% vim: et
