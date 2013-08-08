@@ -34,10 +34,10 @@ for i = 1:length(ex)
     hold on
 end
 
-set(h1(2), 'color', chameleon(3));
-set(h2(2), 'color', chameleon(3));
 set(h1(4), 'color', chameleon(3), 'markerfacecolor', chameleon(3));
 set(h2(4), 'color', chameleon(3), 'markerfacecolor', chameleon(3));
+set(h1(2), 'color', chameleon(3));
+set(h2(2), 'color', chameleon(3));
 
 subplot(1, 2, 1);
 xlim([1e2 1e7])

@@ -6,6 +6,7 @@
     \setbeamertemplate{note page}[plain]
 
     \usepackage[utf8]{inputenc}
+    \usepackage[russian]{babel}
     \usepackage{graphicx}
     \usepackage{subfigure}
     \usepackage{xspace}
@@ -37,14 +38,15 @@
         \end{tikzpicture}
     }
 
-    \title{Converting generic \Cpp algorithms to OpenCL with VexCL library}
+    \title{Автоматическая генерация вычислительных ядер OpenCL\newline
+с помощью библиотеки VexCL}
 
-    \author{Denis Demidov}
+    \author{Денис Демидов}
     \institute{
-        Supercomputer Center of Russian Academy of Sciences \\
-        Kazan Federal University
+        Казанский Федеральный Университет,\\
+        Межведомственный суперкомпьютерный центр РАН
     }
-    \date{GPU-SMP 2013, Changchun, China}
+    \date{Абрау-Дюрсо 2013}
 
 
 \begin{document}
@@ -57,68 +59,62 @@
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}{Modern GPGPU frameworks}
+\begin{frame}{Современные GPGPU платформы}
     \begin{columns}
         \begin{column}{0.45\textwidth}
-            \begin{block}{CUDA}
+            \begin{block}{NVIDIA CUDA}
                 \begin{itemize}
-                    \item Proprietary architecture by NVIDIA
-                    \item Requires NVIDIA hardware
-                    \item More mature, many libraries
+                    \item Проприетарная архитектура
+                    \item Необходимо аппаратное обеспечение NVIDIA
+                    \item Зрелое окружение, большое число библиотек
                         \vspace{\baselineskip}
-                    \item<2> \emph{Kernels are compiled to PTX together with
-                        host program}
+                    \item<2> \emph{Ядра компилируются в псевдо-ассемблер (PTX)
+                        вместе с основной программой}
                 \end{itemize}
             \end{block}
         \end{column}
         \begin{column}{0.45\textwidth}
             \begin{block}{OpenCL}
                 \begin{itemize}
-                    \item Open standard
-                    \item Supports wide range of hardware
-                    \item Code is much more verbose
+                    \item Открытый стандарт
+                    \item Большой диапазон поддерживаемого железа
+                    \item Низкоуровневый программный интерфейс
                         \vspace{\baselineskip}
-                    \item<2> \emph{Kernels are compiled at runtime, adding an
-                        initialization overhead}
+                    \item<2> \emph{Ядра компилируются во время выполнения,
+                            увеличивается время инициализации}
                 \end{itemize}
             \end{block}
         \end{column}
     \end{columns}
     \vspace{\baselineskip}
     \begin{itemize}
-        \item<2> The latter distinction is usually considered to be an OpenCL
-            drawback.
-        \item<2> But it also allows us to generate more efficient kernels at
-            runtime!
+        \item<2> Последнее отличие обычно считается недостатком OpenCL.
+        \item<2> Однако, это позволяет генерировать во время выполнения более
+            эффективные ядра под конкретную задачу!
     \end{itemize}
 \end{frame}
 
-\note[itemize]{
-\item Today, major GPGPU programming frameworks are NVIDIA CUDA and OpenCL
-\item ...
-\item The latter distinction allows one to generate an OpenCL kernel tailored
-    for the problem at hand.  And that is what I am going to talk about today.
-}
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}{}
     \tableofcontents
 \end{frame}
 
-\note{
-}
+\note{ }
 
-\section{VexCL overview}
+\section{Обзор интерфейса VexCL}
 
 %----------------------------------------------------------------------------
-\begin{frame}{VexCL~--- a vector expression template library for OpenCL}
+\begin{frame}{VexCL: библиотека шаблонов векторных выражений для OpenCL}
     \ghribbon
     \begin{itemize}
         \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
             \vspace{\baselineskip}
-        \item Created for ease of \Cpp based OpenCL developement.
-        \item The source code is publicly available under MIT license.
-        \item \emph{This is not a} \Cpp \emph{bindings library!}
+        \item Создана для облегчения разработки \Cpp приложений с применением
+            технологии OpenCL.
+        \item Интуитивная нотация для записи векторных выражений.
+        \item Исходный код доступен под лицензией MIT.
     \end{itemize}
 \end{frame}
 
@@ -135,14 +131,14 @@
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Hello VexCL: vector sum}
-    \begin{exampleblock}{Get all available GPUs:}
+\begin{frame}[fragile]{Hello VexCL: сумма векторов}
+    \begin{exampleblock}{Инициализация контекста:}
         \begin{lstlisting}
 vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
 if ( !ctx ) throw std::runtime_error("GPUs not found");
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Prepare input data, transfer it to device:}
+    \begin{exampleblock}{Подготовка входных данных, перенос на GPU:}
         \begin{lstlisting}[firstnumber=last]
 std::vector<float> a(N, 1), b(N, 2), c(N);
 vex::vector<float> A(ctx, a);
@@ -150,7 +146,8 @@ vex::vector<float> B(ctx, b);
 vex::vector<float> C(ctx, N);
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Launch kernel, get result back to host:}
+    \begin{exampleblock}{Запуск вычислительного ядра, перенос результатов на
+        CPU:}
         \begin{lstlisting}[firstnumber=last]
 C = A + B;
 vex::copy(C, c);
@@ -172,7 +169,7 @@ std::cout << c[42] << std::endl;
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Memory and work splitting}
+\begin{frame}[fragile]{Разделение памяти и работы между устройствами}
     \begin{exampleblock}{}
         \begin{onlyenv}<1|handout:0>
         \begin{lstlisting}[escapechar=!]
@@ -225,47 +222,47 @@ C = A + B;
             }
 
             \uncover<1|handout:0> {
-            \draw[->,chameleon3,style=dashed] (0,3.2) -- (0,1.8)
+            \draw[->,chameleon1,style=dashed] (0,3.2) -- (0,1.8)
                 .. controls +(east:0.5) and +(north west:0.5) ..
                 (1.4,1.5);
-            \draw[->,chameleon3,style=dashed] (8,3.2) -- (8,1.8)
+            \draw[->,chameleon1,style=dashed] (8,3.2) -- (8,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (1.6,1.5);
             }
 
             \uncover<2|handout:0> {
-            \draw[->,chameleon3,style=dashed] (0,3.2) -- (0,1.8)
+            \draw[->,chameleon1,style=dashed] (0,3.2) -- (0,1.8)
                 .. controls +(east:0.5) and +(north west:0.5) ..
                 (1.4,1.5);
-            \draw[->,chameleon3,style=dashed] (4,3.2) -- (4,1.8)
+            \draw[->,chameleon1,style=dashed] (4,3.2) -- (4,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (1.6,1.5);
 
-            \draw[->,chameleon3,style=dashed] (4,3.2) -- (4,1.8)
+            \draw[->,chameleon1,style=dashed] (4,3.2) -- (4,1.8)
                 .. controls +(east:0.1) and +(north west:0.2) ..
                 (4.4,1.5);
-            \draw[->,chameleon3,style=dashed] (8,3.2) -- (8,1.8)
+            \draw[->,chameleon1,style=dashed] (8,3.2) -- (8,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (4.6,1.5);
             }
 
             \uncover<3> {
-            \draw[->,chameleon3,style=dashed] (0,3.2) -- (0,1.8)
+            \draw[->,chameleon1,style=dashed] (0,3.2) -- (0,1.8)
                 .. controls +(east:0.5) and +(north west:0.5) ..
                 (1.4,1.5);
-            \draw[->,chameleon3,style=dashed] (3.5,3.2) -- (3.5,1.8)
+            \draw[->,chameleon1,style=dashed] (3.5,3.2) -- (3.5,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (1.6,1.5);
 
-            \draw[->,chameleon3,style=dashed] (3.5,3.2) -- (3.5,1.8)
+            \draw[->,chameleon1,style=dashed] (3.5,3.2) -- (3.5,1.8)
                 .. controls +(east:0.5) and +(north west:0.2) ..
                 (4.4,1.5);
-            \draw[->,chameleon3,style=dashed] (7,3.2) -- (7,1.8)
+            \draw[->,chameleon1,style=dashed] (7,3.2) -- (7,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (4.6,1.5);
 
-            \draw[->,chameleon3,style=dashed] (7,3.2) -- (7,1.8) -- (7.4,1.5);
-            \draw[->,chameleon3,style=dashed] (8,3.2) -- (8,1.8) -- (7.6,1.5);
+            \draw[->,chameleon1,style=dashed] (7,3.2) -- (7,1.8) -- (7.4,1.5);
+            \draw[->,chameleon1,style=dashed] (8,3.2) -- (8,1.8) -- (7.6,1.5);
             }
         \end{tikzpicture}
     \end{figure}
@@ -289,31 +286,31 @@ C = A + B;
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{What vector expressions are supported?}
+\begin{frame}[fragile]{Допустимые векторные выражения}
     \begin{itemize}
-        \item All vectors in an expression have to be \emph{compatible}:
+        \item Все векторы в выражении должны быть \emph{совместимыми}:
             \begin{itemize}
-                \item Have same size
-                \item Located on same devices
+                \item Иметь один размер
+                \item Быть расположеными на одних и тех же устройствах
             \end{itemize}
-        \item What may be used:
+        \item Что можно использовать в выражениях:
             \begin{columns}
-                \begin{column}{0.42\textwidth}
+                \begin{column}{0.4\textwidth}
                     \begin{itemize}
-                        \item Vectors and scalars
-                        \item Arithmetic, logical operators
-                        \item Built-in OpenCL functions
-                        \item User-defined functions
-                        \item Random number generators
+                        \item Векторы и скаляры
+                        \item Арифм. и логич. операторы
+                        \item Встроенные функции OpenCL
+                        \item Пользовательские функции
+                        \item Генераторы случайных чисел
                     \end{itemize}
                 \end{column}
                 \begin{column}{0.4\textwidth}
                     \begin{itemize}
-                        \item Slicing and permutations
-                        \item Reduction (sum, min, max)
-                        \item Stencil operations
-                        \item Sparse matrix~-- vector products
-                        \item Fast Fourier Transform
+                        \item Временные значения
+                        \item Срезы и перестановки
+                        \item Редукция (сумма, экстремумы)
+                        \item Произв. матрицы на вектор
+                        \item Быстрое преобразование Фурье
                     \end{itemize}
                 \end{column}
             \end{columns}
@@ -337,10 +334,10 @@ y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Each vector expression results in a single OpenCL kernel}
+\begin{frame}[fragile]{Каждое выражение ведет к генерации ядра OpenCL}
     \begin{columns}
         \begin{column}{0.38\textwidth}
-            \begin{exampleblock}{The expression}
+            \begin{exampleblock}{Выражение}
                 \begin{lstlisting}
 x = 2 * y - sin(z);
                 \end{lstlisting}
@@ -348,12 +345,13 @@ x = 2 * y - sin(z);
         \end{column}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
-                \item Boost.Proto is used as an expression template engine.
-                \item Define \code{VEXCL_SHOW_KERNELS} to see the generated code.
+                \item Для работы с выражениями используется Boost.Proto.
+                \item Определите \code{VEXCL_SHOW_KERNELS} для вывода
+                    сгенерированного кода.
             \end{itemize}
         \end{column}
     \end{columns}
-    \begin{exampleblock}{\ldots results in this kernel:}
+    \begin{exampleblock}{\ldots приводит к генерации кода:}
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
@@ -396,7 +394,27 @@ kernel void vexcl_vector_kernel(
 }
 
 %----------------------------------------------------------------------------
-\section{Model problem}
+\begin{frame}{Использование VexCL c обобщенными алгоритмами \Cpp}
+    \begin{description}[\quad]
+        \item[AMGCL] --- алгебраический многосеточный метод решения СЛАУ
+            \begin{itemize}
+                \item \href{https://github.com/ddemidov/amgcl}{https://github.com/ddemidov/amgcl}
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item[Antioch] --- высокопроизводительные химические расчеты
+            \begin{itemize}
+                \item \href{https://github.com/libantioch/antioch}{https://github.com/libantioch/antioch}
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item[Boost.odeint] --- набор обобщенных алгоритмов решения ОДУ
+            \begin{itemize}
+                \item \href{http://odeint.com}{http://odeint.com}
+            \end{itemize}
+    \end{description}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\section{Модельная задача}
 
 \begin{frame}{}
     \tableofcontents[currentsection]
@@ -406,10 +424,10 @@ kernel void vexcl_vector_kernel(
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Parameter study for Lorenz attractor system}
+\begin{frame}[fragile]{Параметрическое исследование системы Лоренца}
     \begin{columns}
         \begin{column}{0.6\textwidth}
-            \begin{block}{Lorenz attractor system}
+            \begin{block}{Система Лоренца}
                 \vspace{-1\baselineskip}
                 \begin{align*}
                     \dot{x} &= -\sigma \left( x - y \right), \\
@@ -419,9 +437,9 @@ kernel void vexcl_vector_kernel(
                 \end{align*}
             \end{block}
             \begin{itemize}
-                \item Let's solve large number of Lorenz systems, each
-                    for a different value of $R$.
-                \item Let's use VexCL and Boost.odeint for that.
+                \item Будем одновременно решать большое число систем Лоренца
+                    для различных значений $R$.
+                \item Будем использовать библиотеки VexCL и Boost.odeint.
             \end{itemize}
         \end{column}
         \begin{column}{0.4\textwidth}
@@ -444,8 +462,8 @@ kernel void vexcl_vector_kernel(
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}{Using Boost.odeint}
-    \begin{block}{ODE in general:}
+\begin{frame}{Использование Boost.odeint}
+    \begin{block}{Общий вид ОДУ:}
         \begin{equation*}
             \frac{\mbox{d} x}{\mbox{d} t } = \dot{x} = f(x , t),
             \quad \quad x(0) = x_0.
@@ -455,12 +473,12 @@ kernel void vexcl_vector_kernel(
     \vspace{\baselineskip}
 
     \begin{description}[\;]
-        \item[Using Boost.odeint:] \quad
+        \item[Порядок применения Boost.odeint:] \quad
         \begin{enumerate}
-            \item Define state type (what is $x$?)
-            \item Provide system function (define $f$)
-            \item Choose integration method
-            \item Integrate over time
+            \item Определить тип переменной состояния (что такое $x$?)
+            \item Определить системную функцию ($f$)
+            \item Выбрать алгоритм интегрирования
+            \item Выполнить интегрирование по времени
         \end{enumerate}
     \end{description}
 \end{frame}
@@ -470,17 +488,17 @@ kernel void vexcl_vector_kernel(
 \item In order to use Boost.odeint, one has to...
 }
 
-\section{Naive implementation}
+\section{Простейшая реализация}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Naive implementation}
-    \begin{exampleblock}{1. State type}
+\begin{frame}[fragile]{Простейшая реализация}
+    \begin{exampleblock}{1. Тип переменной состояния}
         \begin{lstlisting}
 typedef vex::multivector<double, 3> state_type;
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}{2. System functor}
+    \begin{exampleblock}{2. Системная функция}
         \begin{lstlisting}[firstnumber=last]
 struct lorenz_system {
     const vex::vector<double> &R;
@@ -507,8 +525,8 @@ struct lorenz_system {
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Naive implementation}
-    \begin{exampleblock}{3. Stepper (4th order Runge-Kutta)}
+\begin{frame}[fragile]{Простейшая реализация}
+    \begin{exampleblock}{3. Алгоритм (Рунге-Кутта 4го порядка)}
         \begin{lstlisting}[firstnumber=last]
 odeint::runge_kutta4<
         state_type /*state*/,      double /*value*/,
@@ -517,9 +535,9 @@ odeint::runge_kutta4<
         > stepper;
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{4. Integration}
+    \begin{exampleblock}{4. Интегрирование}
         \begin{lstlisting}[firstnumber=last]
-vex::multivector<double,3> X(ctx, n);
+vex::multivector<double, 3> X(ctx, n);
 vex::vector<double> R(ctx, n);
 
 X = 10;
@@ -539,7 +557,7 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Performance of naive implementation\footnote{
+\begin{frame}[fragile]{Производительность простейшей реализации\footnote{
             \emph{Programming CUDA and OpenCL: A Case Study Using Modern C++
             Libraries}.\\
             \hspace{3em}Denis Demidov, Karsten Ahnert, Karl Rupp, Peter
@@ -550,13 +568,13 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
     \end{figure}
     \vspace{-1\baselineskip}
     \begin{itemize}
-        \item GPU-based solution is 10 times faster!
-            \uncover<2->{\alert{But,}}
+        \item Решение на GPU в 10 раз быстрее!
+            \uncover<2->{\alert{Но,}}
             \begin{itemize}
-                \item<2|alert@2> Runge-Kutta method uses 4 temporary state
-                    variables (here stored on GPU).
-                \item<2|alert@2> Single Runge-Kutta step results in several
-                    kernel launches.
+                \item<2|alert@2> Метод Рунге-Кутты использует 4 временных
+                    переменных состояния.
+                \item<2|alert@2> Одна итерация метода приводит к запуску
+                    нескольких ядер OpenCL.
             \end{itemize}
     \end{itemize}
 \end{frame}
@@ -576,18 +594,18 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{What if we did this manually?}
+\begin{frame}[fragile]{Специально написанное ядро}
     \begin{columns}
         \begin{column}{0.45\textwidth}
             \begin{itemize}
-                \item Create monolithic kernel for a single step of Runge-Kutta
-                    method.
-                \item Launch the kernel in a loop.
+                \item Создадим монолитное ядро, соответствующее одной итерации
+                    метода Рунге-Кутты.
+                \item Будем вызывать ядро в цикле интегрирования.
                     \vspace{\baselineskip}
-                \item This is another 10x faster!
-                    \uncover<2->{\alert{But,}}
+                \item Получим 10-кратное ускорение!
                     \begin{itemize}
-                        \item<2|alert@2> We lost odeint's generality.
+                        \item<2|alert@2> Но, мы потеряли универсальность библиотеки
+                            odeint.
                     \end{itemize}
             \end{itemize}
         \end{column} \quad \quad
@@ -642,7 +660,7 @@ kernel void lorenz_ensemble(
     of those. Let Karsten here do the job, right?
 }
 
-\section{Kernel generator}
+\section{Генератор ядер}
 
 %----------------------------------------------------------------------------
 \begin{frame}{}
@@ -652,11 +670,11 @@ kernel void lorenz_ensemble(
 \note{}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Convert Boost.odeint stepper to OpenCL kernel}
+\begin{frame}[fragile]{Генерация OpenCL-кода из алгоритмов Boost.odeint}
     \begin{itemize}
-        \item VexCL provides \code{vex::generator::symbolic<T>} type.
-        \item An instance of the type dumps any arithmetic operations to output
-            stream:
+        \item VexCL включает тип \code{vex::generator::symbolic<T>}.
+        \item Любые арифметические операции с переменными этого типа выводятся
+            в выходной поток:
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
@@ -684,15 +702,15 @@ var1 = sin( ( var1 * var2 ) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Record operations performed by Boost.odeint stepper}
-    \begin{exampleblock}{1. State type}
+\begin{frame}[fragile]{Запишем последовательность действий алгоритма Boost.odeint}
+    \begin{exampleblock}{1. Тип переменной состояния}
         \begin{lstlisting}
 typedef vex::generator::symbolic< double > sym_vector;
 typedef std::array<sym_vector, 3> sym_state;
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}{2. System functor}
+    \begin{exampleblock}{2. Системная функция}
         \begin{lstlisting}[firstnumber=last]
 struct lorenz_system {
     const sym_vector &R;
@@ -716,8 +734,8 @@ struct lorenz_system {
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Record operations performed by Boost.odeint stepper}
-    \begin{exampleblock}{3. Stepper}
+\begin{frame}[fragile]{Запишем последовательность действий алгоритма Boost.odeint}
+    \begin{exampleblock}{3. Алгоритм (Рунге-Кутта 4го порядка)}
         \begin{lstlisting}[firstnumber=last]
 odeint::runge_kutta4<
         sym_state /*state*/,      double /*value*/,
@@ -727,7 +745,7 @@ odeint::runge_kutta4<
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}{4. Record one step of Runge-Kutta method}
+    \begin{exampleblock}{4. Запишем одну итерацию метода Рунге-Кутты}
         \begin{lstlisting}[firstnumber=last]
 std::ostringstream lorenz_body;
 vex::generator::set_recorder(lorenz_body);
@@ -754,8 +772,8 @@ stepper.do_step(std::ref(sys), sym_S, 0, dt);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Generate OpenCL kernel with the recorded sequence}
-    \begin{exampleblock}{5. Generate and use OpenCL kernel}
+\begin{frame}[fragile]{Генерация вычислительного ядра OpenCL}
+    \begin{exampleblock}{5. Сгенерируем и используем ядро OpenCL}
         \begin{lstlisting}[firstnumber=last]
 auto lorenz_kernel = vex::generator::build_kernel(ctx, "lorenz", lorenz_body.str(),
         sym_S[0], sym_S[1], sym_S[2], sym_R);
@@ -781,13 +799,14 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}{The restrictions}
+\begin{frame}{Ограничения}
     \begin{itemize}
-        \item Algorithms have to be embarrassingly parallel.
-        \item Only linear flow is allowed (no conditionals or data-dependent
-            loops).
-        \item Some precision may be lost when converting constants to strings.
-        \item Probably some other corner cases\ldots
+        \item Поддерживаются только строго параллельные (embarrassingly
+            parallel) алгоритмы.
+        \item Допускается только линейная последовательность действий
+            (отсутствие ветвлений или циклов с переменным числом итераций).
+        \item Возможна небольшая потеря точности при преобразовании констант в
+            строки.
     \end{itemize}
 \end{frame}
 
@@ -796,7 +815,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Performance of the generated kernel}
+\begin{frame}[fragile]{Производительность сгенерированного ядра}
     \begin{figure}
         \includegraphics[width=0.9\textwidth]{perfgen}
     \end{figure}
@@ -807,7 +826,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
     acceleration we got from manually coded kernel (Both for CPU and GPU).
 }
 
-\section{Function generator}
+\section{Генератор функций}
 
 %----------------------------------------------------------------------------
 \begin{frame}{}
@@ -817,27 +836,27 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 \note{}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Function generator}
+\begin{frame}[fragile]{Генератор функций}
     \begin{itemize}
-        \item Built on top of symbolic types
-        \item Converts generic \Cpp functor to a VexCL function
+        \item Использует символьные типы
+        \item Генерирует VexCL-функцию из обощенного \Cpp функтора
     \end{itemize}
 
-    \begin{exampleblock}{Simple example: compute square radius for 2D points}
+    \begin{exampleblock}{Пример: вычисление квадрата радиуса для 2D-точек}
         \begin{equation*}
             R^2 = X^2 + Y^2
         \end{equation*}
     \end{exampleblock}
 
     \begin{itemize}
-        \item We want to define a VexCL function \code{sqr()} that may be used
-            in vector expressions like these:
+        \item Необходимо определить VexCL-функцию \code{sqr()}, которую можно
+            будет использовать в векторных выражениях:
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
 R2 = sqr(X, Y);
-R = sqrt(sqr(X, Y));
-Z = sqr(sin(X), cos(Y));
+R  = sqrt(sqr(X, Y));
+Z  = 1 - sqr(sin(X), cos(Y));
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -845,7 +864,7 @@ Z = sqr(sin(X), cos(Y));
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{v1. Provide body for OpenCL function}
+\begin{frame}[fragile]{v1. Явное задание тела OpenCL функции}
     \begin{exampleblock}{}
         \begin{lstlisting}
 vex::vector<double> X(ctx, N), Y(ctx, N), R2(ctx, N);
@@ -857,8 +876,8 @@ R2 = sqr(X, Y);
     \end{exampleblock}
 
     \begin{itemize}
-        \item Easy enough (for simple functions)
-        \item But needs separate code for host-side and OpenCL paths
+        \item Достаточно просто (для простых функций)
+        \item Но требует отдельного кода для CPU и GPU вариантов
     \end{itemize}
 \end{frame}
 
@@ -871,8 +890,8 @@ R2 = sqr(X, Y);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{v2. Using Function generator and a generic functor}
-    \begin{exampleblock}{1. Define generic functor}
+\begin{frame}[fragile]{v2. Используем генератор функций и обобщенный функтор}
+    \begin{exampleblock}{1. Объявим обобщенный функтор}
         \begin{lstlisting}
 struct square_radius {
     template <class T>
@@ -882,7 +901,7 @@ struct square_radius {
 };
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{2. Use it to generate a VexCL function}
+    \begin{exampleblock}{2. Используем его для генерации VexCL-функции:}
         \begin{lstlisting}
 using vex::generator::make_function;
 
@@ -893,7 +912,7 @@ R2 = sqr(X, Y);
     \end{exampleblock}
 
     \begin{itemize}
-        \item Allows to reuse same functor for host-side and OpenCL paths
+        \item Функтор можно использовать как для CPU, так и для GPU-кода
     \end{itemize}
 \end{frame}
 
@@ -909,10 +928,10 @@ R2 = sqr(X, Y);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{v3. Using Function generator and a Boost.Phoenix lambda}
+\begin{frame}[fragile]{v3. Используем генератор функций и библиотеку Boost.Phoenix}
     \begin{itemize}
-        \item Boost.Phoenix lambdas are generic functors in disguise
-        \item Hence, the following is possible:
+        \item Ламбда-функции Boost.Phoenix являются ообщенными функторами
+        \item Поэтому возможен следующий пример вариант:
     \end{itemize}
 
     \begin{exampleblock}{}
@@ -931,20 +950,21 @@ R2 = sqr(X, Y);
 \item And it so happens that Phoenix lambdas are in fact generic functors.
 }
 
-\section{Summary}
+\section{Заключение}
 
 %----------------------------------------------------------------------------
-\begin{frame}{Summary}
+\begin{frame}{Заключение}
     \ghribbon
     \begin{itemize}
-        \item VexCL allows to write compact and readable code
-            without sacrificing performance.
-        \item Its code generator allows to convert generic \Cpp
-            code to OpenCL at runtime:
+        \item VexCL позволяет писать прозрачный и компактный код без потери
+            производительности.
+        \item Генератор кода преобразует обобщенные алгоритмы \Cpp в OpenCL во
+            время выполнения:
             \begin{itemize}
-                \item Reduces global memory I/O
-                \item Reduces number of kernel launches
-                \item Facilitates code reuse
+                \item Уменьшается число обращений к глобальной памяти.
+                \item Снижается число запусков вычислительных ядер.
+                \item Повторно используется код для CPU и GPU вариантов.
+                    программы
             \end{itemize}
             \vspace{\baselineskip}
             \vspace{\baselineskip}

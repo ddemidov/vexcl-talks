@@ -9,10 +9,10 @@ lw = 0.75;
 fs = 10;
 
 ex = [ ...
-    experiment('vexcl_cpu',      'Naive (CPU)',  'ko-', 'w', ms, lw) ...
-    experiment('generated_cpu',  'Generated (CPU)','ko-', 'k', ms, lw) ...
-    experiment('vexcl_1gpu',     'Naive (GPU)',        'ro-', 'w', ms, lw) ...
-    experiment('generated_1gpu', 'Generated (GPU)',    'ro-', 'w', ms, lw) ...
+    experiment('vexcl_cpu',      'Naive (Intel Core i7 930)',  'ko-', 'w', ms, lw) ...
+    experiment('generated_cpu',  'Generated (Intel Core i7 930)','ko-', 'k', ms, lw) ...
+    experiment('vexcl_1gpu',     'Naive (Tesla C2070)',        'ro-', 'w', ms, lw) ...
+    experiment('generated_1gpu', 'Generated (Tesla C2070)',    'ro-', 'w', ms, lw) ...
     ];
 
 subplot(1, 2, 1); set(gca, 'FontSize', fs);
@@ -41,9 +41,10 @@ set(h2(4), 'color', chameleon(3), 'markerfacecolor', chameleon(3));
 subplot(1, 2, 1);
 xlim([1e2 1e7])
 set(gca, 'xtick', [1e2 1e3 1e4 1e5 1e6 1e7])
-xlabel('Problem size');
+xlabel('N');
 ylabel('T (sec)');
 h = legend(ex(:).legend, 'location', 'NorthWest');
+set(h, 'fontsize', 8);
 legend boxoff
 axis square
 
@@ -51,7 +52,7 @@ subplot(1, 2, 2);
 plot([1e4 1e4], [1e-2, 1e2], 'k:');
 xlim([1e2 1e7])
 set(gca, 'xtick', [1e2 1e3 1e4 1e5 1e6 1e7])
-xlabel('Problem size');
+xlabel('N');
 ylabel('T / T(Naive GPU)');
 axis square
 
