@@ -29,7 +29,8 @@
         }
     \newcommand{\code}[1]{\lstinline|#1|}
     \newcommand{\additive}{\hspace{1cm}\footnotesize(\emph{Additive expressions only})}
-    \newcommand{\Cpp}{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}\xspace}
+    \newcommand{\plusplus}{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}\xspace}
+    \newcommand{\Cpp}{C\plusplus}
     \newcommand{\ghribbon}{
         \begin{tikzpicture}[remember picture,overlay]
             \node[anchor=north east,yshift=4pt,xshift=4pt] at (current page.north east) {
@@ -77,7 +78,7 @@
             \end{itemize}
         \item First (?) implementation:
             \begin{itemize}
-                \item Blitz++ \emph{is a \Cpp class library for scientific
+                \item Blitz\plusplus \emph{is a \Cpp class library for scientific
                 computing which provides performance\\
                 on par with Fortran 77/90}.
             \end{itemize}
@@ -86,9 +87,11 @@
                 \item std::valarray, Boost.uBLAS, MTL, Eigen, Armadillo, etc.
             \end{itemize}
             \vspace{\baselineskip}
-        \item<2> How does it work?
+        \item \emph{How does it work?}
     \end{itemize}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Simple example: Vector addition}
@@ -105,6 +108,8 @@ for(size_t i = 0; i < n; ++i)
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{\Cpp allows us to overload operators!}
@@ -127,6 +132,8 @@ const vector operator+(const vector &a, const vector &b) {
             \end{itemize}
     \end{itemize}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Lazy evaluation v0.1}
@@ -157,8 +164,10 @@ const vector& vector::operator=(const vsum &s) {
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Lazy evaluation v0.1}
+\begin{frame}[fragile]{Not general enough}
     \begin{exampleblock}{What happens if we write this?}
         \begin{lstlisting}
 a = x + y + z;
@@ -183,6 +192,8 @@ const vsum operator+(const vector &a, const vector &b) {
         \item<2>[Sidenote:] Clang error messages are awesome!
     \end{description}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile,shrink=2]{Lazy evaluation v0.2}
@@ -218,12 +229,16 @@ const vector& vector::operator=(const Expr &expr) {
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
-\begin{frame}{Last problem}
+\begin{frame}{Still not general enough}
     \begin{itemize}
         \item There are times in life when addition alone is not enough\ldots
     \end{itemize}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Lazy evaluation v0.3}
@@ -256,6 +271,8 @@ const binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Expression templates are trees}
@@ -318,6 +335,8 @@ binary_op<
     \end{columns}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{So far, so good}
     \begin{exampleblock}{It is now possible to:}
@@ -348,6 +367,8 @@ double c = x[42] + y[42];
     \tableofcontents[currentsection]
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}{How does OpenCL work?}
     \begin{enumerate}
@@ -359,9 +380,11 @@ double c = x[42] + y[42];
     \pause
     \begin{itemize}
         \item Source may be read from a file, or stored in a static
-            string, or \alert<2>{generated}.
+            string, or \alert{\emph{generated}}.
     \end{itemize}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Generating kernel source from an expression}
@@ -399,22 +422,31 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Declaring parameters}
-    \begin{exampleblock}{}
+    \begin{exampleblock}{Each terminal knows what parameters it needs:}
         \begin{lstlisting}
 /*static*/ void vector::prm_decl(std::ostream &src, unsigned &pos) {
     src << ",\n    global double * prm" << ++pos;
 }
-
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{An expression just asks its terminals to do the work:}
+        \begin{lstlisting}[firstnumber=last]
 template <class LHS, class OP, class RHS>
-/*static*/ void binary_op<LHS, OP, RHS>::prm_decl(std::ostream &src, unsigned &pos) {
+/*static*/ void binary_op<LHS, OP, RHS>::prm_decl(
+                            std::ostream &src, unsigned &pos)
+{
     LHS::prm_decl(src, pos);
     RHS::prm_decl(src, pos);
 }
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Building expression string}
@@ -448,6 +480,8 @@ template <class LHS, class OP, class RHS>
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Source generation}
     \begin{exampleblock}{}
@@ -475,6 +509,8 @@ template <class Expr>
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Setting kernel arguments}
     \begin{exampleblock}{}
@@ -491,6 +527,8 @@ void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Caching compiled kernels}
@@ -520,6 +558,29 @@ const vector& vector::operator=(const Expr &expr) {
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{What you saw is not what you get}
+    \begin{itemize}
+        \item The actual implementation is a bit more complicated:
+            \begin{itemize}
+                \item There are unary, binary, tetriary expressions.
+                \item There are special terminals requiring either global or
+                    local preambles.
+                \item There are builtin and user-defined functions.
+                \item \ldots
+            \end{itemize}
+        \item Boost.Proto is used to keep the code mess contained.
+            \vspace{\baselineskip}
+        \item But you got the general idea.
+    \end{itemize}
+\end{frame}
+
+\note[itemize] {
+\item You are welcome to look at the actual code for more details.
+}
 
 \end{document}
 
