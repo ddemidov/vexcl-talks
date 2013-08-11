@@ -39,7 +39,7 @@ int main( int argc , char **argv ) {
     n = argc > 1 ? atoi( argv[1] ) : 1024;
 
     vex::Context ctx( vex::Filter::Exclusive( vex::Filter::DoublePrecision && vex::Filter::Env ) );
-    cout << ctx << endl;
+    //cout << ctx << endl;
 
 
     // Custom kernel body will be recorded here:
@@ -88,7 +88,7 @@ int main( int argc , char **argv ) {
     ctx.finish();
     double time = watch.toc();
 
-    std::cout << "t = " << time << std::endl;
+    std::cout << n << " " << time << std::endl;
 
-    cout << X[0] << endl;
+    //cout << X[0] << endl;
 }

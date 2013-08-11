@@ -13,6 +13,8 @@
 #include <boost/numeric/odeint/external/thrust/thrust_operations.hpp>
 #include <boost/numeric/odeint/external/thrust/thrust_resize.hpp>
 
+#include <boost/timer.hpp>
+
 namespace odeint = boost::numeric::odeint;
 
 typedef thrust::device_vector< double > state_type;
@@ -73,33 +75,30 @@ int main( int argc , char* argv[] ) {
     std::vector<double> r(n);
     double Rmin = 0.1, Rmax = 50.0, dR = (Rmax - Rmin) / double(n - 1);
     for(size_t i = 0 ; i < n ; ++i)
-        r[i] = Rmin + i * (Rmax - Rmin) / (n - 1);
+        r[i] = Rmin + i * dR;
 
     state_type R = r;
     state_type X(3 * n);
 
-    thrust::fill(x.begin(), x.end(), 10.0);
+    thrust::fill(X.begin(), X.end(), 10.0);
 
 
     odeint::runge_kutta4<
             state_type, double, state_type, double,
-            thrust_algebra , thrust_operations
+            odeint::thrust_algebra , odeint::thrust_operations
             > stepper;
 
 
     lorenz_system sys(n, R);
 
-    ctx.finish();
-    vex::stopwatch<> watch;
-    odeint::integrate_const(stepper, std::ref(sys), X, 0.0, t_max, dt);
-    ctx.finish();
-    double time = watch.toc();
 
-    std::cout << "t = " << time << std::endl;
+    cudaThreadSynchronize();
+    boost::timer timer;
+    odeint::integrate_const(stepper, boost::ref(sys), X, 0.0, t_max, dt);
+    cudaThreadSynchronize();
+    double time = timer.elapsed();
 
-    cout << X[0] << endl;
+    std::cout << n << " " << time << std::endl;
 
-
-
-    return 0;
+    //std::cout << X[0] << std::endl;
 }

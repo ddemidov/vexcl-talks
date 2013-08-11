@@ -42,7 +42,7 @@ int main( int argc , char **argv ) {
     using namespace std;
 
     vex::Context ctx( vex::Filter::Exclusive( vex::Filter::DoublePrecision && vex::Filter::Env ) );
-    std::cout << ctx << std::endl;
+    //std::cout << ctx << std::endl;
 
     double Rmin = 0.1, Rmax = 50.0, dR = (Rmax - Rmin) / double(n - 1);
 
@@ -65,7 +65,7 @@ int main( int argc , char **argv ) {
     ctx.finish();
     double time = watch.toc();
 
-    std::cout << "t = " << time << std::endl;
+    std::cout << n << " " << time << std::endl;
 
-    cout << X(0)[0] << endl;
+    //cout << X(0)[0] << endl;
 }
