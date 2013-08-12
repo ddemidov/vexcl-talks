@@ -28,7 +28,8 @@ function(add_slides BEAMER_FILE)
                 beamerouterthemedecolines.sty
                 beamerinnerthemefancy.sty
         IMAGES tesla.png radeon.png intel.png forkme.png
-               perfcmp.eps scaling.eps
+               perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
+               lorenz.eps
         DEFAULT_PDF MANGLE_TARGET_NAMES)
 
     if (OUTPUT_NOTES)
@@ -39,7 +40,9 @@ function(add_slides BEAMER_FILE)
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
             IMAGES tesla.png radeon.png intel.png forkme.png
-                   perfcmp.eps scaling.eps
+                   perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
+                   lorenz.eps
+
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endif ()
 endfunction()
