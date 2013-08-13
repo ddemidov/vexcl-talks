@@ -1087,6 +1087,42 @@ kernel void vexcl_vector_kernel(
     \end{exampleblock}
 \end{frame}
 
+\subsection{Slicing}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Slicing}
+    \begin{itemize}
+        \item When working with dense multidimensional matrices, it is general
+            practice to store those in continuous arrays.
+            \begin{itemize}
+                \item An instance of \code{vex::slicer<NDIM>} class allows to
+                    access sub-blocks of such matrix.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{n-by-n matrix and a slicer:}
+        \begin{lstlisting}
+vex::vector<double> x(ctx, n * n);
+vex::slicer<2> slice(vex::extents[n][n]); // Can be used with any vector of appropriate size
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Access row or column of the matrix:}
+        \begin{lstlisting}[firstnumber=last]
+using vex::_;
+y = slice[42](x);       // 42nd row
+y = slice[_][42](x);    // 42nd column
+slice[_][10](x) = y;    // Slices are writeable
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Use ranges to select sub-blocks:}
+        \begin{lstlisting}[firstnumber=last]
+using vex::range;
+z = slice[range(0, 2, n)][range(10, 20)](x);
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
 \subsection{Random number generation}
 
 %----------------------------------------------------------------------------
@@ -1104,17 +1140,18 @@ kernel void vexcl_vector_kernel(
                     applied to element indices.
                 \item Implemented families: Threefry and Philox.
             \end{itemize}
+        \item \code{vex::Random<T,G>}~--- uniform distribution.
+        \item \code{vex::RandomNormal<T,G>}~--- normal distribution.
     \end{itemize}
     \begin{exampleblock}{Monte Carlo $\pi$:}
         \begin{lstlisting}
-vex::Random<double, vex::random::threefry> rnd;          // RandomNormal<> is also available
-vex::Reductor<size_t, vex::SUM> sum(ctx);
-vex::vector<double> x(ctx, n), y(ctx, n);
+vex::Random<double, vex::random::threefry> rnd;
 
 x = 2 * rnd(vex::element_index(), std::rand()) - 1;
 y = 2 * rnd(vex::element_index(), std::rand()) - 1;
 
-double pi = 4.0 * sum(x * x + y * y < 1) / n;
+vex::Reductor<size_t, vex::SUM> sum(ctx);
+double pi = 4.0 * sum( (x * x + y * y) < 1 ) / n;
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -1220,10 +1257,11 @@ double res = max( fabs(r) );
     \begin{exampleblock}{}
         \begin{lstlisting}[numbers=none]
 r = f - vex::make_inline(A * u);
+double res = max( fabs(r) );
         \end{lstlisting}
     \end{exampleblock}
     \pause
-    \begin{exampleblock}{}
+    \begin{exampleblock}{Do not store intermediate results:}
         \begin{lstlisting}[numbers=none]
 double res = max( fabs( f - vex::make_inline(A * u) ) );
         \end{lstlisting}
