@@ -1,4 +1,4 @@
-### VexCL -- a Vector Expression Template Library for OpenCL
+### VexCL - a Vector Expression Template Library for OpenCL
 
 
 VexCL (https://github.com/ddemidov/vexcl) is a modern C++ library created for
