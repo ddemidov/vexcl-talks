@@ -10,13 +10,14 @@ figure(1)
 set(gcf, 'position', [50, 50, 1000, 500]);
 
 ms = 3;
-lw = 0.75;
+lw = 1;
 fs = 10;
 
 ex = [ ...
     experiment('cublas',          'CUBLAS', 'o-', chameleon1, ms, lw) ...
     experiment('vexcl_naive',     'VexCL',  'o-', chameleon3, ms, lw) ...
     experiment('thrust',          'Thrust', 'o-', chameleon2, ms, lw) ...
+    experiment('cpu',             'OpenMP', '--', 'k',        ms, 0.5) ...
     ];
 
 subplot(1, 2, 1); set(gca, 'FontSize', fs);
@@ -35,7 +36,7 @@ for i = 1:length(ex)
     hold on
 
     subplot(1, 2, 2);
-    h2(i) = ex(i).semilogx(ref ./ ex(i).t);
+    h2(i) = ex(i).loglog(ref ./ ex(i).t);
     hold on
 
     subplot(1, 2, 1);
@@ -51,7 +52,7 @@ for i = 1:length(ex)
 
     subplot(1, 2, 2);
     xlim([1e2 1e7])
-    ylim([0.5 2.5])
+    ylim([0.1 10])
     set(gca, 'xtick', [1e2 1e3 1e4 1e5 1e6 1e7])
     xlabel('N');
     ylabel(['T(' ex(1).legend ') / T']);

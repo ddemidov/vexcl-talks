@@ -1707,9 +1707,10 @@ x0 = a1 * x1 + a2 * x2;
     \begin{figure}
         \only<1> {\includegraphics[width=0.9\textwidth]{perfcmp-1}}%
         \only<2> {\includegraphics[width=0.9\textwidth]{perfcmp-2}}%
-        \only<3->{\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
+        \only<3> {\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
+        \only<4->{\includegraphics[width=0.9\textwidth]{perfcmp-4}}%
     \end{figure}
-    \begin{uncoverenv}<4>
+    \begin{uncoverenv}<5>
         \begin{itemize}
             \item Deficiencies of naive implementation:
                 \begin{itemize}
@@ -1948,7 +1949,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Performance of the generated kernel}
     \begin{figure}
-        \includegraphics[width=\textwidth]{perfcmp-4}
+        \includegraphics[width=\textwidth]{perfcmp-5}
     \end{figure}
 \end{frame}
 
