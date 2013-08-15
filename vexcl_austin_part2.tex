@@ -278,20 +278,20 @@ const binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
 \begin{frame}[fragile]{Expression templates are trees}
     \begin{columns}
         \begin{column}{0.45\textwidth}
-            \begin{exampleblock}{This expression:}
+            \begin{exampleblock}{The expression in the RHS of:}
                 \begin{onlyenv}<1>
-                    \begin{lstlisting}[numbers=none]
-x + y
+                    \begin{lstlisting}
+a = x + y;
                     \end{lstlisting}
                 \end{onlyenv}
-                \begin{onlyenv}<2>
-                    \begin{lstlisting}[numbers=none]
-x + y - z
+                \begin{onlyenv}<2->
+                    \begin{lstlisting}
+a = x + y - z;
                     \end{lstlisting}
                 \end{onlyenv}
             \end{exampleblock}
-            \begin{exampleblock}{... has this type:}
-                \begin{uncoverenv}<2>
+            \begin{exampleblock}{... is of type:}
+                \begin{uncoverenv}<2->
                     \begin{lstlisting}[numbers=none]
 binary_op<
                     \end{lstlisting}
@@ -303,7 +303,7 @@ binary_op<
         vector
     >
                 \end{lstlisting}
-                \begin{uncoverenv}<2>
+                \begin{uncoverenv}<2->
                     \begin{lstlisting}[numbers=none]
     , minus
     , vector
@@ -315,7 +315,7 @@ binary_op<
         \begin{column}{0.45\textwidth}
             \begin{figure}
                 \begin{tikzpicture}
-                    \uncover<2>{
+                    \uncover<2->{
                     \draw (0,0) node(sub)            [draw,fill=white,circle,drop shadow]{$-$};
                     \draw (sub) +( 1.50,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
                     }
@@ -323,12 +323,22 @@ binary_op<
                     \draw (add) +(-1.50,-1) node(x)  [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
                     \draw (add) +( 1.50,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
 
-                    \uncover<2>{
+                    \uncover<2->{
                     \draw (sub) -- (add);
                     \draw (sub) -- (z);
                     }
                     \draw (add) -- (x);
                     \draw (add) -- (y);
+
+                    \uncover<3->{
+                        \draw (sub) +(0,0.7) node{\code{for(size_t i = 0; i < n; ++i)}};
+                        \draw (sub) +(-1.1,0) node{\code{a[i] =}};
+                    }
+                    \uncover<3> {\draw (sub) +(0.7, 0) node{\code{[i]}};}
+                    \uncover<4> {\draw (add) +(0.7, 0) node{\code{[i]}};}
+                    \uncover<4->{\draw (z)   +(0.6, 0) node{\code{[i]}};}
+                    \uncover<5->{\draw (x)   +(0.6, 0) node{\code{[i]}};}
+                    \uncover<5->{\draw (y)   +(0.6, 0) node{\code{[i]}};}
                 \end{tikzpicture}
             \end{figure}
         \end{column}
