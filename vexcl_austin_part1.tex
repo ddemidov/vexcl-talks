@@ -112,7 +112,7 @@
     \begin{itemize}
         \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
             \vspace{\baselineskip}
-        \item Created for ease of \Cpp based OpenCL developement.
+        \item Created for ease of \Cpp based OpenCL development.
             \begin{itemize}
                 \item Convenient notation for vector expressions.
                 \item OpenCL JIT code generation.
@@ -487,88 +487,6 @@ vex::Context ctx(
             device that has at least 4GB of memory.
     \end{enumerate}
 }
-
-% %----------------------------------------------------------------------------
-% \begin{frame}[fragile]{Exclusive device access}
-%     \begin{itemize}
-%         \item \code{vex::Filter::Exclusive()} wraps normal filters to allow
-%             exclusive access to devices.
-%         \item Useful in cluster environments.
-%         \item An alternative to NVIDIA's exclusive compute mode for other
-%             vendors hardware.
-%         \item Based on Boost.Interprocess file locks in temp directory.
-%     \end{itemize}
-%     \begin{exampleblock}{}
-%         \begin{lstlisting}
-% vex::Context ctx( vex::Filter::Exclusive (
-%     vex::Filter::DoublePrecision && vex::Filter::Env
-%     ) );
-%         \end{lstlisting}
-%     \end{exampleblock}
-% \end{frame}
-% 
-% \note[itemize]{
-% \item Often we want to get an exclusive access to our compute devices. This is
-%     especially true in a clustered environments, where job manager may tell you
-%     how many devices are available, but it usually doesn't know which exactly.
-% \item The Exclusive filter wrapper lets you do this. Internally, lock
-%     files are created for each compute device present in the system.
-% \item This obviously will only work between VexCL programs that explicitly ask
-%     for an exclusive access.
-% }
-% 
-% %----------------------------------------------------------------------------
-% \begin{frame}[fragile]{What if OpenCL context is initialized elsewhere?}
-%     \begin{itemize}
-%         \item You don't \emph{have to} initialize \code{vex::Context}.
-%         \item \code{vex::Context} is just a convenient container that holds
-%             OpenCL contexts and queues.
-%         \item VexCL objects accept \code{std::vector<cl::CommandQueue>} at
-%             initialization.\\
-%             This may come from \emph{elsewhere}.
-%     \end{itemize}
-%     \begin{exampleblock}{}
-%         \begin{lstlisting}
-% std::vector<cl::CommandQueue> my_own_queues;
-% // ... somehow initialized here ...
-% vex::vector<double> x(my_own_queues, n);
-%         \end{lstlisting}
-%     \end{exampleblock}
-%     \begin{itemize}
-%         \item Each queue should correspond to a separate device.
-%     \end{itemize}
-% \end{frame}
-% 
-% \note[itemize]{
-% \item So, what if you already have some OpenCL project and you do your own
-%     initialization that you are happy with?
-% \item VexCL may be used in this case as well, because VexCL Context is just a
-%     convenience class that holds OpenCL contexts and queues. Every (or almost
-%     every) VexCL object receives a queue list at initialization. And this list
-%     may come from VexCL context or from your own initialization routine.
-% \item The only assumption that VexCL makes about the list is that each queue in
-%     it belongs to a different device.
-% }
-% 
-% %----------------------------------------------------------------------------
-% \begin{frame}[fragile]{Using several contexts}
-%     \begin{itemize}
-%         \item Different VexCL objects may be initialized with different VexCL
-%             contexts.
-%             \begin{itemize}
-%                 \item Manual work splitting across devices
-%                 \item Doing things in parallel on devices that support it
-%             \end{itemize}
-%         \item Operations are submitted to the queues of the vector that is
-%             being assigned to.
-%     \end{itemize}
-% \end{frame}
-% 
-% \note[itemize]{
-% \item It is possible to initialize different objects with different queue
-%     lists.  You may want to do this to manually partition the load between
-%     devices, or to create some non-linear flow in your program.
-% }
 
 \subsection{Memory and work splitting}
 
@@ -1985,7 +1903,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 \end{frame}
 
 \note[itemize]{
-\item But, as you can see from this slide, the technique allows to achive same
+\item But, as you can see from this slide, the technique allows to achieve same
     acceleration we got from manually coded kernel (Both for CPU and GPU).
 }
 
