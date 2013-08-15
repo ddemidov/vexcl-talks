@@ -494,8 +494,10 @@ template <class LHS, class OP, class RHS>
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Source generation}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
-        \begin{lstlisting}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
 template <class Expr>
 /*static*/ std::string vector::source() {
     std::ostringstream src; unsigned pos;
@@ -503,19 +505,36 @@ template <class Expr>
     src << "kernel void vexcl_vector_kernel(\n"
             "    ulong n,\n    global double * res";
 
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
     pos = 0; Expr::prm_decl(src, pos);
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
 
     src << ")\n{\n"
             "    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
             "        res[idx] = ";
 
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,3>
+            \begin{lstlisting}[firstnumber=last]
     pos = 0; Expr::make_expr(src, pos);
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
 
     src << ";\n    }\n}\n";
 
     return src.str();
 }
-        \end{lstlisting}
+            \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
 \end{frame}
 
@@ -542,6 +561,7 @@ void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Caching compiled kernels}
+    \setbeamercovered{transparent=40}
     \begin{itemize}
         \item Each kernel is uniquely identified by its expression type:
             \begin{itemize}
@@ -550,10 +570,19 @@ void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
             \end{itemize}
     \end{itemize}
     \begin{exampleblock}{}
-        \begin{lstlisting}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
 template <class Expr>
 const vector& vector::operator=(const Expr &expr) {
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
     static cl::Kernel kernel = build_kernel(device, source<Expr>());
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
 
     unsigned pos = 0;
 
@@ -565,7 +594,8 @@ const vector& vector::operator=(const Expr &expr) {
 
     return *this;
 }
-        \end{lstlisting}
+            \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
 \end{frame}
 
@@ -600,7 +630,7 @@ const vector& vector::operator=(const Expr &expr) {
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile,shrink=5]{General structure of OpenCL code}
-    \setbeamercovered{transparent}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{VexCL code:}
             \begin{lstlisting}
 VEX_FUNCTION( sqr, double(double, double), "return prm1 * prm1 + prm2 * prm2;" );
@@ -609,43 +639,43 @@ y = sqr( sin(tmp), cos(tmp) );
             \end{lstlisting}
     \end{exampleblock}
     \begin{exampleblock}{OpenCL code:}
-        \begin{uncoverenv}<1,2,6>
+        \begin{uncoverenv}<1,2>
             \begin{lstlisting}
 double func1(double prm1, double prm2) {
     return prm1 * prm1 + prm2 * prm2;
 }
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,6>
+        \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
 kernel void vexcl_vector_kernel(
     ulong n,
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,3,6>
+        \begin{uncoverenv}<1,3>
             \begin{lstlisting}[firstnumber=last]
-    global double * prm1,
-    global double * prm2_temp_prm1
+    global double * res,
+    global double * prm1
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,6>
+        \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,4,6>
+        \begin{uncoverenv}<1,4>
             \begin{lstlisting}[firstnumber=last]
-        double temp1 = prm2_temp_prm1[idx];
+        double temp1 = prm1[idx];
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,5,6>
+        \begin{uncoverenv}<1,5>
             \begin{lstlisting}[firstnumber=last]
-        prm1[idx] = func1( ( sin( temp1 ), cos( temp1 ) ) );
+        res[idx] = func1( ( sin( temp1 ), cos( temp1 ) ) );
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,6>
+        \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
     }
 }
@@ -706,29 +736,29 @@ namespace vex {
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Parameter declaration}
-    \setbeamercovered{transparent}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
-        \begin{uncoverenv}<1,5>
+        \begin{uncoverenv}<1>
             \begin{lstlisting}
 namespace vex { namespace traits {
     template <class Term>
     struct kernel_param_declaration< Term,
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,2,5>
+        \begin{uncoverenv}<1,2>
             \begin{lstlisting}[firstnumber=last]
             typename std::enable_if<
                 boost::proto::matches< Term, boost::proto::terminal<elem_index> >::value
             >::type
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,5>
+        \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
         >
     {
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,3,5>
+        \begin{uncoverenv}<1,3>
             \begin{lstlisting}[firstnumber=last]
         static std::string get(
             const Term&, const cl::Device&, const std::string &prm_name,
@@ -736,7 +766,7 @@ namespace vex { namespace traits {
             )
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,4,5>
+        \begin{uncoverenv}<1,4>
             \begin{lstlisting}[firstnumber=last]
         {
             std::ostringstream s;
@@ -745,7 +775,7 @@ namespace vex { namespace traits {
         }
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1,5>
+        \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
     };
 } }
@@ -757,27 +787,37 @@ namespace vex { namespace traits {
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Contribution to expression string}
     \begin{exampleblock}{}
-        \begin{lstlisting}
+            \begin{lstlisting}
 namespace vex { namespace traits {
     template <class Term>
     struct partial_vector_expr< Term,
+            \end{lstlisting}
+            \begin{lstlisting}[firstnumber=last]
             typename std::enable_if<
                 boost::proto::matches< Term, boost::proto::terminal<elem_index> >::value
             >::type
+            \end{lstlisting}
+            \begin{lstlisting}[firstnumber=last]
         >
     {
+            \end{lstlisting}
+            \begin{lstlisting}[firstnumber=last]
         static std::string get(
             const Term&, const cl::Device&, const std::string &prm_name,
             detail::kernel_generator_state&
             )
+            \end{lstlisting}
+            \begin{lstlisting}[firstnumber=last]
         {
             std::ostringstream s;
             s << "(" << prm_name << " + idx)";
             return s.str();
         }
+            \end{lstlisting}
+            \begin{lstlisting}[firstnumber=last]
     };
 } }
-        \end{lstlisting}
+            \end{lstlisting}
     \end{exampleblock}
 \end{frame}
 
