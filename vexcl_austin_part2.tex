@@ -330,9 +330,12 @@ binary_op<
                     \draw (add) -- (x);
                     \draw (add) -- (y);
 
+                    \uncover<6>{
+                        \draw (sub) +(-2.5, 1.2) node[anchor=west]{\code{#pragma omp parallel for}};
+                    }
                     \uncover<3->{
-                        \draw (sub) +(0,0.7) node{\code{for(size_t i = 0; i < n; ++i)}};
-                        \draw (sub) +(-1.1,0) node{\code{a[i] =}};
+                        \draw (sub) +(-2.5, 0.7) node[anchor=west]{\code{for(size_t i = 0; i < n; ++i)}};
+                        \draw (sub) +(-1.8, 0.0) node[anchor=west]{\code{a[i] =}};
                     }
                     \uncover<3> {\draw (sub) +(0.7, 0) node{\code{[i]}};}
                     \uncover<4> {\draw (add) +(0.7, 0) node{\code{[i]}};}
