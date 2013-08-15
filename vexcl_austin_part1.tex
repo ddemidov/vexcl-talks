@@ -811,18 +811,33 @@ x = 2 * y - sin(z);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * prm1,
-    int prm2,
-    global double * prm3,
-    global double * prm4
+    global double * res,
+    int prm1,
+    global double * prm2,
+    global double * prm3
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        prm1[idx] = ( ( prm2 * prm3[idx] ) - sin( prm4[idx] ) );
+        res[idx] = ( ( prm1 * prm2[idx] ) - sin( prm3[idx] ) );
     }
 }
         \end{lstlisting}
     \end{exampleblock}
+    \begin{tikzpicture}[overlay,scale=0.6]
+        \draw (16,8) node(sub)[draw,fill=white,ellipse,drop shadow]{$-$};
+
+        \draw (sub) +(-2.00,-1) node(mul)[draw,fill=white,drop shadow,ellipse]{$*$};
+        \draw (sub) +( 2.00,-1) node(sin)[draw,fill=white,drop shadow,ellipse]{sin};
+        \draw (mul) +(-2.00,-1) node(two)[draw,fill=white,drop shadow,minimum size=0.5cm]{2};
+        \draw (mul) +( 2.00,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+        \draw (sin) +( 1.75,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
+
+        \draw (sub) -- (mul);
+        \draw (sub) -- (sin);
+        \draw (mul) -- (two);
+        \draw (mul) -- (y);
+        \draw (sin) -- (z);
+    \end{tikzpicture}
 \end{frame}
 
 \subsection{Element indices}
@@ -913,17 +928,29 @@ double func1(double prm1, double prm2) {
 
 kernel void vexcl_vector_kernel(
     ulong n,
+    global double * res,
     global double * prm1,
-    global double * prm2,
-    global double * prm3
+    global double * prm2
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        prm1[idx] = sqrt( func1( prm2[idx], prm3[idx] ) );
+        res[idx] = sqrt( func1( prm1[idx], prm2[idx] ) );
     }
 }
         \end{lstlisting}
     \end{exampleblock}
+    \begin{tikzpicture}[overlay,scale=0.6]
+        \draw (16,8.75) node(sqrt)[draw,fill=white,ellipse,drop shadow]{sqrt};
+
+        \draw (sqrt) +(0.00,-2) node(sqr)[draw,fill=white,ellipse,drop shadow]{sqr};
+
+        \draw (sqr) +(-2.00,-1) node(x) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
+        \draw (sqr) +( 2.20,-1) node(y) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+
+        \draw (sqrt) -- (sqr);
+        \draw (sqr)  -- (x);
+        \draw (sqr)  -- (y);
+    \end{tikzpicture}
 \end{frame}
 
 %----------------------------------------------------------------------------
@@ -937,15 +964,15 @@ Z = sqrt( X * X + Y * Y );
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
+    global double * res,
     global double * prm1,
     global double * prm2,
     global double * prm3,
-    global double * prm4,
-    global double * prm5
+    global double * prm4
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        prm1[idx] = sqrt( ( ( prm2[idx] * prm3[idx] ) + ( prm4[idx] * prm5[idx] ) ) );
+        res[idx] = sqrt( ( ( prm1[idx] * prm2[idx] ) + ( prm3[idx] * prm4[idx] ) ) );
     }
 }
         \end{lstlisting}
@@ -959,7 +986,7 @@ kernel void vexcl_vector_kernel(
         \draw (sum) +( 3.00,-1) node(mul2)[draw,fill=white,drop shadow,ellipse]{$*$};
 
         \draw (mul1) +(-2.00,-1) node(x1) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-        \draw (mul1) +( 2.20,-1) node(x2) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
+        \draw (mul1) +( 2.00,-1) node(x2) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
 
         \draw (mul2) +(-2.00,-1) node(y1) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
         \draw (mul2) +( 2.00,-1) node(y2) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
@@ -973,6 +1000,8 @@ kernel void vexcl_vector_kernel(
         \draw (mul2) -- (y2);
     \end{tikzpicture}
 \end{frame}
+
+\subsection{Tagged terminals}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Tagged terminals}
@@ -1004,18 +1033,20 @@ Z = sqrt(x * x + y * y);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
+    global double * res,
     global double * prm1,
-    global double * prm2,
-    global double * prm3
+    global double * prm2
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        prm1[idx] = sqrt( ( ( prm2[idx] * prm2[idx] ) + ( prm3[idx] * prm3[idx] ) ) );
+        res[idx] = sqrt( ( ( prm1[idx] * prm1[idx] ) + ( prm2[idx] * prm2[idx] ) ) );
     }
 }
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\subsection{Temporaries}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Reusing intermediate results}
@@ -1073,14 +1104,14 @@ Z = tmp * (tmp + Y);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
+    global double * res,
     global double * prm1,
-    global double * prm2_temp_prm1,
-    global double * prm3
+    global double * prm2
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        double temp1 = log( prm2_temp_prm1[idx] );
-        prm1[idx] = ( temp1 * ( temp1 + prm3[idx] ) );
+        double temp1 = log( prm1[idx] );
+        res[idx] = ( temp1 * ( temp1 + prm2[idx] ) );
     }
 }
         \end{lstlisting}
