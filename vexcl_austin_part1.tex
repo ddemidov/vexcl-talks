@@ -492,22 +492,24 @@ vex::Context ctx(
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Memory and work splitting}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{Hello VexCL example}
         \begin{onlyenv}<1|handout:0>
         \begin{lstlisting}[escapechar=!]
-vex::Context ctx( !\color{chameleon4}{vex::Filter::Name("Tesla")}! );
+vex::Context ctx( vex::Filter::Name("Tesla") );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<2|handout:0>
         \begin{lstlisting}[escapechar=!]
-vex::Context ctx( !\color{chameleon4}{vex::Filter::Type(CL\_DEVICE\_TYPE\_GPU)}! );
+vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<3>
         \begin{lstlisting}[escapechar=!]
-vex::Context ctx( !\color{chameleon4}{vex::Filter::DoublePrecision}! );
+vex::Context ctx( vex::Filter::DoublePrecision );
         \end{lstlisting}
         \end{onlyenv}
+        \begin{uncoverenv}<1>
         \begin{lstlisting}[firstnumber=last]
 
 vex::vector<float> A(ctx, N); A = 1;
@@ -516,7 +518,9 @@ vex::vector<float> C(ctx, N);
 
 C = A + B;
         \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
+    \setbeamercovered{invisible}
     \begin{figure}
         \begin{tikzpicture}
             \draw (0,3.0) rectangle +(8,0.1);
@@ -796,17 +800,26 @@ X = sin(2 * M_PI * vex::element_index() / N);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{User-defined functions}
     \begin{itemize}
-        \item Users may define functions to be used in vector expressions:
+        \item Users may define functions to be used in vector expressions.
+        \item There are two options for doing this:
             \begin{itemize}
-                \item Choose function name
-                \item Define function signature
-                \item Provide function body
+                \item Provide function body in a string.
+                \item Provide generic \Cpp functor.
             \end{itemize}
+        \item Once defined, user functions are used in the same way as builtin functions.
+    \end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{1. Provide function body in a string}
+    \begin{itemize}
+        \item Choose function name
+        \item Specify function signature
+        \item Provide function body
     \end{itemize}
     \begin{exampleblock}{Defining a function:}
         \begin{lstlisting}
-VEX_FUNCTION( sqr, double(double, double),
-    "return prm1 * prm1 + prm2 * prm2;" );
+VEX_FUNCTION( sqr, double(double, double), "return prm1 * prm1 + prm2 * prm2;" );
         \end{lstlisting}
     \end{exampleblock}
     \begin{exampleblock}{Using a function:}
@@ -832,7 +845,36 @@ Z = sqrt( sqr(X, Y) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{User-defined functions}
+\begin{frame}[fragile]{2. Provide generic functor}
+    \setbeamercovered{again covered={\opaqueness<1->{40}}}
+    \begin{exampleblock}<1,2>{Functor definition:}
+        \begin{lstlisting}
+struct sqr_functor {
+    template <class T>
+    T operator(const T &x, const T &y) const {
+        return x * x + y * y;
+    }
+};
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}<2>{Generate VexCL function:}
+        \begin{lstlisting}
+using vex::generator::make_function;
+auto sqr = make_function<double(double,double)>( sqr_functor() );
+        \end{lstlisting}
+    \end{exampleblock}
+    \vspace{0.5\baselineskip}
+    \begin{exampleblock}<3>{Boost.Phoenix lambdas \emph{are} generic functors:}
+        \begin{lstlisting}
+using namespace boost::phoenix::arg_names;
+auto sqr = make_function<double(double,double)>( arg1 * arg1 + arg2 * arg2 );
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{User functions are translated to OpenCL functions}
     \begin{exampleblock}{}
         \begin{lstlisting}
 Z = sqrt( sqr(X, Y) );
@@ -1788,7 +1830,7 @@ var1 = sin( ( var1 * var2 ) );
 \begin{frame}[fragile]{Record operations performed by Boost.odeint stepper}
     \begin{exampleblock}{1. State type}
         \begin{lstlisting}
-typedef vex::generator::symbolic< double > sym_vector;
+typedef vex::symbolic< double >   sym_vector;
 typedef std::array<sym_vector, 3> sym_state;
         \end{lstlisting}
     \end{exampleblock}
