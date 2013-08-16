@@ -403,26 +403,6 @@ kernel void vexcl_vector_kernel(
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}{Некоторые проекты, использующие VexCL}
-    \begin{description}[\quad]
-        \item[AMGCL] --- алгебраический многосеточный метод решения СЛАУ
-            \begin{itemize}
-                \item \href{https://github.com/ddemidov/amgcl}{https://github.com/ddemidov/amgcl}
-            \end{itemize}
-            \vspace{\baselineskip}
-        \item[Antioch] --- высокотемпературные термохимические расчеты
-            \begin{itemize}
-                \item \href{https://github.com/libantioch/antioch}{https://github.com/libantioch/antioch}
-            \end{itemize}
-            \vspace{\baselineskip}
-        \item[Boost.odeint] --- набор обобщенных алгоритмов решения ОДУ
-            \begin{itemize}
-                \item \href{http://odeint.com}{http://odeint.com}
-            \end{itemize}
-    \end{description}
-\end{frame}
-
-%----------------------------------------------------------------------------
 \section{Модельная задача}
 
 \begin{frame}{}
@@ -500,7 +480,7 @@ kernel void vexcl_vector_kernel(
 \section{Простейшая реализация}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Простейшая реализация}
+\begin{frame}[fragile]{Простейшая реализация с VexCL}
     \begin{exampleblock}{1. Тип переменной состояния}
         \begin{lstlisting}
 typedef vex::multivector<double, 3> state_type;
@@ -534,7 +514,7 @@ struct lorenz_system {
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Простейшая реализация}
+\begin{frame}[fragile]{Простейшая реализация с VexCL}
     \begin{exampleblock}{3. Алгоритм (Рунге-Кутта 4го порядка)}
         \begin{lstlisting}[firstnumber=last]
 odeint::runge_kutta4<
@@ -566,16 +546,14 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{CUBLAS implementation}
+\begin{frame}[fragile]{Вариант с использванием CUBLAS}
     \begin{itemize}
-        \item CUBLAS is a highly optimized BLAS implementation from NVIDIA.
-        \item Its disadvantage is that it has fixed number of
-            kernels/functions.
-        \item Hence, linear combinations (used internally by odeint):
+        \item CUBLAS~--- оптимизированная библиотека линейной алгебры от NVIDIA.
+        \item Линейные комбинации (используемые в алгоритмах odeint):
             \begin{equation*}
                 x_0 = \alpha_1 x_1 + \alpha_2 x_2 + \cdots + \alpha_n x_n
             \end{equation*}
-            are implemented as:
+            реализованы следующим образом:
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}[numbers=none]
@@ -589,9 +567,10 @@ cublasDaxpy(...);
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Thrust implementation}
+\begin{frame}[fragile]{Вариант с использованием Thrust}
     \begin{itemize}
-        \item It is possible to fuse linear combination kernels with Thrust:
+        \item Thrust позволяет получить монолитное ядро для вычисления линейной
+            комбинации:
     \end{itemize}
     \begin{columns}
         \begin{column}{0.70\textwidth}
@@ -666,7 +645,7 @@ x0 = a1 * x1 + a2 * x2;
                     \vspace{\baselineskip}
                 \item Получим 10-кратное ускорение!
                     \begin{itemize}
-                        \item<2|alert@2> Но, мы потеряли универсальность odeint.
+                        \item<2|alert@2> Потеряв универсальность odeint.
                     \end{itemize}
             \end{itemize}
         \end{column} \quad \quad
@@ -887,131 +866,27 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
     acceleration we got from manually coded kernel (Both for CPU and GPU).
 }
 
-\section{Генератор функций}
-
-%----------------------------------------------------------------------------
-\begin{frame}{}
-    \tableofcontents[currentsection]
-\end{frame}
-
-\note{}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Генератор функций}
-    \begin{itemize}
-        \item Использует символьные типы
-        \item Генерирует VexCL-функцию из обощенного \Cpp функтора
-    \end{itemize}
-
-    \begin{exampleblock}{Пример: вычисление квадрата радиуса для 2D-точек}
-        \begin{equation*}
-            R^2 = X^2 + Y^2
-        \end{equation*}
-    \end{exampleblock}
-
-    \begin{itemize}
-        \item Необходимо определить VexCL-функцию \code{sqr()}, которую можно
-            будет использовать в векторных выражениях:
-    \end{itemize}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-R2 = sqr(X, Y);
-R  = sqrt(sqr(X, Y));
-Z  = 1 - sqr(sin(X), cos(Y));
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{v1. Явное задание тела OpenCL функции}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-vex::vector<double> X(ctx, N), Y(ctx, N), R2(ctx, N);
-
-VEX_FUNCTION(sqr, double(double, double), "return prm1 * prm1 + prm2 * prm2;");
-
-R2 = sqr(X, Y);
-        \end{lstlisting}
-    \end{exampleblock}
-
-    \begin{itemize}
-        \item Достаточно просто (для простых функций)
-        \item Но требует отдельного кода для CPU и GPU вариантов
-    \end{itemize}
-\end{frame}
-
-\note[itemize]{
-\item First, we can use VEX\_FUNCTION macro to define a VexCL function
-\item Here, we provide the name of the function, its signature, and textual
-    representation of its body.
-\item Its not that complicated, but we would need to code a host-side path
-    separately.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{v2. Используем генератор функций и обобщенный функтор}
-    \begin{exampleblock}{1. Объявим обобщенный функтор}
-        \begin{lstlisting}
-struct square_radius {
-    template <class T>
-    T operator()(const T &x, const T &y) const {
-        return x * x + y * y;
-    }
-};
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{2. Используем его для генерации VexCL-функции:}
-        \begin{lstlisting}
-using vex::generator::make_function;
-
-auto sqr = make_function<double(double, double)>( square_radius() );
-
-R2 = sqr(X, Y);
-        \end{lstlisting}
-    \end{exampleblock}
-
-    \begin{itemize}
-        \item Функтор можно использовать как для CPU, так и для GPU-кода
-    \end{itemize}
-\end{frame}
-
-\note[itemize]{
-\item We can solve this problem with help of function generator and a generic
-    functor.
-\item The functor may be used both for host-side code and for the generation of
-    VexCL functions.
-\item This works very simple: knowing the function signature, the function
-    generator creates the required symbolic instances and passes them to the
-    generic functor. This provides the generator with the textual
-    representation for the function body.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{v3. Используем генератор функций и библиотеку Boost.Phoenix}
-    \begin{itemize}
-        \item Ламбда-функции Boost.Phoenix являются ообщенными функторами
-        \item Поэтому возможен следующий пример вариант:
-    \end{itemize}
-
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-using namespace boost::phoenix::arg_names;
-
-auto sqr = make_function<double(double, double)>(arg1 * arg1 + arg2 * arg2);
-
-R2 = sqr(X, Y);
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note[itemize]{
-\item Boost.Phoenix is a lambda library.
-\item And it so happens that Phoenix lambdas are in fact generic functors.
-}
-
 \section{Заключение}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Некоторые проекты, использующие VexCL}
+    \begin{description}[\quad]
+        \item[AMGCL] --- алгебраический многосеточный метод решения СЛАУ
+            \begin{itemize}
+                \item \href{https://github.com/ddemidov/amgcl}{https://github.com/ddemidov/amgcl}
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item[Antioch] --- высокотемпературные термохимические расчеты
+            \begin{itemize}
+                \item \href{https://github.com/libantioch/antioch}{https://github.com/libantioch/antioch}
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item[Boost.odeint] --- набор обобщенных алгоритмов решения ОДУ
+            \begin{itemize}
+                \item \href{http://odeint.com}{http://odeint.com}
+            \end{itemize}
+    \end{description}
+\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}{Заключение}
@@ -1019,13 +894,13 @@ R2 = sqr(X, Y);
     \begin{itemize}
         \item VexCL позволяет писать прозрачный и компактный код без потери
             производительности.
-        \item Генератор кода преобразует обобщенные алгоритмы \Cpp в OpenCL во
-            время выполнения:
+        \item Генератор кода преобразует обобщенные алгоритмы \Cpp в код
+            OpenCL:
             \begin{itemize}
                 \item Уменьшается число обращений к глобальной памяти.
                 \item Снижается число запусков вычислительных ядер.
-                \item Повторно используется код для CPU и GPU вариантов.
-                    программы
+                \item Код может использоваться как для CPU, так и для GPU
+                    вариантов программы.
             \end{itemize}
             \vspace{\baselineskip}
             \vspace{\baselineskip}
