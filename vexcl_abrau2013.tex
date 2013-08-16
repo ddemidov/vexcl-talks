@@ -19,6 +19,7 @@
     \lstset{
         language=C++,
         basicstyle=\footnotesize\rmfamily,
+        stringstyle=\color{chameleon4},
         numbers=left,
         numberstyle=\tiny,
         aboveskip=-0.02\baselineskip,
@@ -111,9 +112,11 @@
     \begin{itemize}
         \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
             \vspace{\baselineskip}
-        \item Создана для облегчения разработки \Cpp приложений с применением
-            технологии OpenCL.
-        \item Интуитивная нотация для записи векторных выражений.
+        \item Создана для облегчения разработки OpenCL приложений на \Cpp.
+            \begin{itemize}
+                \item Интуитивная нотация для записи векторных выражений.
+                \item Автоматическая генерация кода OpenCL.
+            \end{itemize}
         \item Исходный код доступен под лицензией MIT.
     \end{itemize}
 \end{frame}
@@ -132,12 +135,14 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello VexCL: сумма векторов}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{Инициализация контекста:}
         \begin{lstlisting}
 vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
 if ( !ctx ) throw std::runtime_error("GPUs not found");
         \end{lstlisting}
     \end{exampleblock}
+    \pause
     \begin{exampleblock}{Подготовка входных данных, перенос на GPU:}
         \begin{lstlisting}[firstnumber=last]
 std::vector<float> a(N, 1), b(N, 2), c(N);
@@ -146,6 +151,7 @@ vex::vector<float> B(ctx, b);
 vex::vector<float> C(ctx, N);
         \end{lstlisting}
     \end{exampleblock}
+    \pause
     \begin{exampleblock}{Запуск вычислительного ядра, перенос результатов на
         CPU:}
         \begin{lstlisting}[firstnumber=last]
@@ -170,22 +176,24 @@ std::cout << c[42] << std::endl;
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Разделение памяти и работы между устройствами}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
         \begin{onlyenv}<1|handout:0>
         \begin{lstlisting}[escapechar=!]
-vex::Context ctx( !\color{chameleon4}{vex::Filter::Name("Tesla")}! );
+vex::Context ctx( vex::Filter::Name("Tesla") );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<2|handout:0>
         \begin{lstlisting}[escapechar=!]
-vex::Context ctx( !\color{chameleon4}{vex::Filter::Type(CL\_DEVICE\_TYPE\_GPU)}! );
+vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<3>
         \begin{lstlisting}[escapechar=!]
-vex::Context ctx( !\color{chameleon4}{vex::Filter::DoublePrecision}! );
+vex::Context ctx( vex::Filter::DoublePrecision );
         \end{lstlisting}
         \end{onlyenv}
+        \begin{uncoverenv}<1>
         \begin{lstlisting}[firstnumber=last]
 
 vex::vector<float> A(ctx, N); A = 1;
@@ -194,7 +202,9 @@ vex::vector<float> C(ctx, N);
 
 C = A + B;
         \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
+    \setbeamercovered{invisible}
     \begin{figure}
         \begin{tikzpicture}
             \draw (0,3.0) rectangle +(8,0.1);
@@ -334,7 +344,7 @@ y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Каждое выражение ведет к генерации ядра OpenCL}
+\begin{frame}[fragile]{Автоматическая генерация кода OpenCL}
     \begin{columns}
         \begin{column}{0.38\textwidth}
             \begin{exampleblock}{Выражение}
@@ -345,24 +355,23 @@ x = 2 * y - sin(z);
         \end{column}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
-                \item Для работы с выражениями используется Boost.Proto.
-                \item Определите \code{VEXCL_SHOW_KERNELS} для вывода
+                \item \code{\#define VEXCL_SHOW_KERNELS}\\ для вывода
                     сгенерированного кода.
             \end{itemize}
         \end{column}
     \end{columns}
-    \begin{exampleblock}{\ldots приводит к генерации кода:}
+    \begin{exampleblock}{\ldots приводит к генерации и выполнению ядра:}
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * prm_1_1,
-    int prm_1_2,
-    global double * prm_1_3,
-    global double * prm_1_4
+    global double * res,
+    int prm1,
+    global double * prm2,
+    global double * prm3
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        prm_1_1[idx] = ( ( prm_1_2 * prm_1_3[idx] ) - sin( prm_1_4[idx] ) );
+        res[idx] = ( ( prm1 * prm2[idx] ) - sin( prm3[idx] ) );
     }
 }
         \end{lstlisting}
@@ -370,11 +379,11 @@ kernel void vexcl_vector_kernel(
     \begin{tikzpicture}[overlay,scale=0.6]
         \draw (16,8) node(sub)[draw,fill=white,ellipse,drop shadow]{$-$};
 
-        \draw (sub) +(-2.00,-1) node(mul)[draw,fill=white,drop shadow,ellipse]{$*$};
-        \draw (sub) +( 2.00,-1) node(sin)[draw,fill=white,drop shadow,ellipse]{sin};
-        \draw (mul) +(-2.00,-1) node(two)[draw,fill=white,drop shadow,minimum size=0.5cm]{2};
-        \draw (mul) +( 1.50,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
-        \draw (sin) +( 1.75,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
+        \draw (sub) +(-2.00,-1.5) node(mul)[draw,fill=white,drop shadow,ellipse]{$*$};
+        \draw (sub) +( 2.00,-1.5) node(sin)[draw,fill=white,drop shadow,ellipse]{sin};
+        \draw (mul) +(-2.00,-1.5) node(two)[draw,fill=white,drop shadow,minimum size=0.5cm]{2};
+        \draw (mul) +( 2.00,-1.5) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+        \draw (sin) +( 0.00,-1.5) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
 
         \draw (sub) -- (mul);
         \draw (sub) -- (sin);
@@ -394,14 +403,14 @@ kernel void vexcl_vector_kernel(
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}{Использование VexCL c обобщенными алгоритмами \Cpp}
+\begin{frame}{Некоторые проекты, использующие VexCL}
     \begin{description}[\quad]
         \item[AMGCL] --- алгебраический многосеточный метод решения СЛАУ
             \begin{itemize}
                 \item \href{https://github.com/ddemidov/amgcl}{https://github.com/ddemidov/amgcl}
             \end{itemize}
             \vspace{\baselineskip}
-        \item[Antioch] --- высокопроизводительные химические расчеты
+        \item[Antioch] --- высокотемпературные термохимические расчеты
             \begin{itemize}
                 \item \href{https://github.com/libantioch/antioch}{https://github.com/libantioch/antioch}
             \end{itemize}
@@ -557,41 +566,94 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Производительность простейшей реализации\footnote{
-            \emph{Programming CUDA and OpenCL: A Case Study Using Modern C++
-            Libraries}.\\
-            \hspace{3em}Denis Demidov, Karsten Ahnert, Karl Rupp, Peter
-            Gottschling. \href{http://arxiv.org/abs/1212.6326}{arXiv:1212.6326}
-    }}
-    \begin{figure}
-        \includegraphics[width=0.8\textwidth]{perfnaive}
-    \end{figure}
-    \vspace{-1\baselineskip}
+\begin{frame}[fragile]{CUBLAS implementation}
     \begin{itemize}
-        \item Решение на GPU в 10 раз быстрее!
-            \uncover<2->{\alert{Но,}}
-            \begin{itemize}
-                \item<2|alert@2> Метод Рунге-Кутты использует 4 временных
-                    переменных состояния.
-                \item<2|alert@2> Одна итерация метода приводит к запуску
-                    нескольких ядер OpenCL.
-            \end{itemize}
+        \item CUBLAS is a highly optimized BLAS implementation from NVIDIA.
+        \item Its disadvantage is that it has fixed number of
+            kernels/functions.
+        \item Hence, linear combinations (used internally by odeint):
+            \begin{equation*}
+                x_0 = \alpha_1 x_1 + \alpha_2 x_2 + \cdots + \alpha_n x_n
+            \end{equation*}
+            are implemented as:
     \end{itemize}
+    \begin{exampleblock}{}
+        \begin{lstlisting}[numbers=none]
+cublasDcopy(...);
+cublasDscal(...);
+cublasDaxpy(...);
+...
+cublasDaxpy(...);
+        \end{lstlisting}
+    \end{exampleblock}
 \end{frame}
 
-\note[itemize]{
-\item Here is performance of the naive implementation. I have also plotted
-    results for CUDA-based Thrust library for comparison.
-\item On the left plot you see absolute running times for problems of different
-    sizes. Right plot depicts times relative to Thrust solution on GPU.
-\item Black lines correspond to Thrust, orange lines -- to VexCL.
-\item Filled markers are GPU times, and empty markers are CPU times.
-\item You see that both CUDA and OpenCL have high overhead for small problems,
-    so CPU-based Thrust solution is the fastest there.
-\item But we are interested in results for larger problems. Here VexCL variant
-    shows performance equal to Thrust's. The solution on a GPU is ten times
-    faster than on a CPU for both libraries.
-}
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Thrust implementation}
+    \begin{itemize}
+        \item It is possible to fuse linear combination kernels with Thrust:
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.70\textwidth}
+            \begin{exampleblock}{Thrust}
+                \begin{adjustbox}{width=0.95\textwidth,height=0.6\textheight,keepaspectratio}
+                    \begin{lstlisting}
+struct scale_sum2 {
+    const double a1, a2;
+    scale_sum2(double a1, double a2) : a1(a1), a2(a2) { }
+    template<class Tuple>
+    __host__ __device__ void operator()(Tuple t) const {
+        thrust::get<0>(t) = a1 * thrust::get<1>(t) + a2 * thrust::get<2>(t);
+    }
+};
+
+thrust::for_each(
+        thrust::make_zip_iterator(
+            thrust::make_tuple( x0.begin(), x1.begin(), x2.begin() )
+            ),
+        thrust::make_zip_iterator(
+            thrust::make_tuple( x0.end(), x1.end(), x2.end() )
+            ),
+        scale_sum2(a1, a2)
+        );
+                    \end{lstlisting}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}<2>{0.22\textwidth}
+            \begin{exampleblock}{VexCL}
+                \begin{adjustbox}{width=0.95\textwidth,height=0.6\textheight,keepaspectratio}
+                    \begin{lstlisting}
+x0 = a1 * x1 + a2 * x2;
+                    \end{lstlisting}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Производительность (Tesla K20c)}
+    \begin{figure}
+        \only<1> {\includegraphics[width=0.9\textwidth]{perfcmp-1}}%
+        \only<2> {\includegraphics[width=0.9\textwidth]{perfcmp-2}}%
+        \only<3> {\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
+        \only<4->{\includegraphics[width=0.9\textwidth]{perfcmp-4}}%
+    \end{figure}
+    \begin{uncoverenv}<5>
+        \begin{itemize}
+            \item Недостатки простейшей реализации:
+                \begin{itemize}
+                    \item Метод Рунге-Кутты использует 4 временных переменных
+                        состояния.
+                    \item Одна итерация метода приводит к запуску нескольких
+                        ядер OpenCL.
+                \end{itemize}
+            \end{itemize}
+    \end{uncoverenv}
+\end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Специально написанное ядро}
@@ -604,8 +666,7 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
                     \vspace{\baselineskip}
                 \item Получим 10-кратное ускорение!
                     \begin{itemize}
-                        \item<2|alert@2> Но, мы потеряли универсальность библиотеки
-                            odeint.
+                        \item<2|alert@2> Но, мы потеряли универсальность odeint.
                     \end{itemize}
             \end{itemize}
         \end{column} \quad \quad
@@ -672,13 +733,13 @@ kernel void lorenz_ensemble(
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Генерация OpenCL-кода из алгоритмов Boost.odeint}
     \begin{itemize}
-        \item VexCL включает тип \code{vex::generator::symbolic<T>}.
+        \item VexCL включает тип \code{vex::symbolic<T>}.
         \item Любые арифметические операции с переменными этого типа выводятся
             в выходной поток:
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
-vex::generator::symbolic<double> x = 6, y = 7;
+vex::symbolic<double> x = 6, y = 7;
 x = sin(x * y);
         \end{lstlisting}
     \end{exampleblock}
@@ -705,7 +766,7 @@ var1 = sin( ( var1 * var2 ) );
 \begin{frame}[fragile]{Запишем последовательность действий алгоритма Boost.odeint}
     \begin{exampleblock}{1. Тип переменной состояния}
         \begin{lstlisting}
-typedef vex::generator::symbolic< double > sym_vector;
+typedef vex::symbolic< double > sym_vector;
 typedef std::array<sym_vector, 3> sym_state;
         \end{lstlisting}
     \end{exampleblock}
@@ -817,7 +878,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Производительность сгенерированного ядра}
     \begin{figure}
-        \includegraphics[width=0.9\textwidth]{perfgen}
+        \includegraphics[width=\textwidth]{perfcmp-5}
     \end{figure}
 \end{frame}
 

@@ -31,10 +31,10 @@ options = odeset('RelTol',eps,'AbsTol',[eps eps eps/10]);
 figure(1)
 set(gca,'FontSize', 18);
 h = plot3(X(:,1),X(:,2),X(:,3));
-set(h, 'color', chameleon(3));
+set(h, 'color', chameleon(4));
 axis equal;
 grid;
-title('Lorenz attractor');
+title('Lorenz attractor trajectory');
 xlabel('X'); ylabel('Y'); zlabel('Z');
 set(gca,'view',[45,30]);
 

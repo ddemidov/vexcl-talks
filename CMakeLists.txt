@@ -24,9 +24,9 @@ add_latex_document(
             beamercolorthemechameleon.sty
             beamerouterthemedecolines.sty
             beamerinnerthemefancy.sty
-    IMAGES tesla.png radeon.png intel.png
-	   lorenz.eps perfnaive.eps perfgen.eps
-	   forkme.png
+    IMAGES tesla.png radeon.png intel.png forkme.png
+           perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
+           perfcmp-5.eps lorenz.eps
     DEFAULT_PDF MANGLE_TARGET_NAMES)
 
 option(OUTPUT_NOTES "Create notes" OFF)
@@ -38,8 +38,8 @@ if (OUTPUT_NOTES)
                 beamercolorthemechameleon.sty
                 beamerouterthemedecolines.sty
                 beamerinnerthemefancy.sty
-        IMAGES tesla.png radeon.png intel.png
-               lorenz.eps perfnaive.eps perfgen.eps
-               forkme.png
+        IMAGES tesla.png radeon.png intel.png forkme.png
+               perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
+               perfcmp-5.eps lorenz.eps
         DEFAULT_PDF MANGLE_TARGET_NAMES)
 endif (OUTPUT_NOTES)
