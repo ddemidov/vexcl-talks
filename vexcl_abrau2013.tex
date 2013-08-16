@@ -301,7 +301,7 @@ C = A + B;
         \item Все векторы в выражении должны быть \emph{совместимыми}:
             \begin{itemize}
                 \item Иметь один размер
-                \item Быть расположеными на одних и тех же устройствах
+                \item Быть расположенными на одних и тех же устройствах
             \end{itemize}
         \item Что можно использовать в выражениях:
             \begin{columns}
@@ -515,7 +515,7 @@ struct lorenz_system {
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Простейшая реализация с VexCL}
-    \begin{exampleblock}{3. Алгоритм (Рунге-Кутта 4го порядка)}
+    \begin{exampleblock}{3. Алгоритм (Рунге-Кутты 4го порядка)}
         \begin{lstlisting}[firstnumber=last]
 odeint::runge_kutta4<
         state_type /*state*/,      double /*value*/,
@@ -546,7 +546,7 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Вариант с использванием CUBLAS}
+\begin{frame}[fragile]{Вариант с использованием CUBLAS}
     \begin{itemize}
         \item CUBLAS~--- оптимизированная библиотека линейной алгебры от NVIDIA.
         \item Линейные комбинации (используемые в алгоритмах odeint):
@@ -775,7 +775,7 @@ struct lorenz_system {
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Запишем последовательность действий алгоритма Boost.odeint}
-    \begin{exampleblock}{3. Алгоритм (Рунге-Кутта 4го порядка)}
+    \begin{exampleblock}{3. Алгоритм (Рунге-Кутты 4го порядка)}
         \begin{lstlisting}[firstnumber=last]
 odeint::runge_kutta4<
         sym_state /*state*/,      double /*value*/,
@@ -813,7 +813,7 @@ stepper.do_step(std::ref(sys), sym_S, 0, dt);
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Генерация вычислительного ядра OpenCL}
-    \begin{exampleblock}{5. Сгенерируем и используем ядро OpenCL}
+    \begin{exampleblock}{5. Сгенерируем и вызовем ядро OpenCL}
         \begin{lstlisting}[firstnumber=last]
 auto lorenz_kernel = vex::generator::build_kernel(ctx, "lorenz", lorenz_body.str(),
         sym_S[0], sym_S[1], sym_S[2], sym_R);
