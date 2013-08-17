@@ -232,47 +232,47 @@ C = A + B;
             }
 
             \uncover<1|handout:0> {
-            \draw[->,chameleon1,style=dashed] (0,3.2) -- (0,1.8)
+            \draw[->,chameleon3,style=dashed] (0,3.2) -- (0,1.8)
                 .. controls +(east:0.5) and +(north west:0.5) ..
                 (1.4,1.5);
-            \draw[->,chameleon1,style=dashed] (8,3.2) -- (8,1.8)
+            \draw[->,chameleon3,style=dashed] (8,3.2) -- (8,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (1.6,1.5);
             }
 
             \uncover<2|handout:0> {
-            \draw[->,chameleon1,style=dashed] (0,3.2) -- (0,1.8)
+            \draw[->,chameleon3,style=dashed] (0,3.2) -- (0,1.8)
                 .. controls +(east:0.5) and +(north west:0.5) ..
                 (1.4,1.5);
-            \draw[->,chameleon1,style=dashed] (4,3.2) -- (4,1.8)
+            \draw[->,chameleon3,style=dashed] (4,3.2) -- (4,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (1.6,1.5);
 
-            \draw[->,chameleon1,style=dashed] (4,3.2) -- (4,1.8)
+            \draw[->,chameleon3,style=dashed] (4,3.2) -- (4,1.8)
                 .. controls +(east:0.1) and +(north west:0.2) ..
                 (4.4,1.5);
-            \draw[->,chameleon1,style=dashed] (8,3.2) -- (8,1.8)
+            \draw[->,chameleon3,style=dashed] (8,3.2) -- (8,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (4.6,1.5);
             }
 
             \uncover<3> {
-            \draw[->,chameleon1,style=dashed] (0,3.2) -- (0,1.8)
+            \draw[->,chameleon3,style=dashed] (0,3.2) -- (0,1.8)
                 .. controls +(east:0.5) and +(north west:0.5) ..
                 (1.4,1.5);
-            \draw[->,chameleon1,style=dashed] (3.5,3.2) -- (3.5,1.8)
+            \draw[->,chameleon3,style=dashed] (3.5,3.2) -- (3.5,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (1.6,1.5);
 
-            \draw[->,chameleon1,style=dashed] (3.5,3.2) -- (3.5,1.8)
+            \draw[->,chameleon3,style=dashed] (3.5,3.2) -- (3.5,1.8)
                 .. controls +(east:0.5) and +(north west:0.2) ..
                 (4.4,1.5);
-            \draw[->,chameleon1,style=dashed] (7,3.2) -- (7,1.8)
+            \draw[->,chameleon3,style=dashed] (7,3.2) -- (7,1.8)
                 .. controls +(west:0.5) and +(north east:0.5) ..
                 (4.6,1.5);
 
-            \draw[->,chameleon1,style=dashed] (7,3.2) -- (7,1.8) -- (7.4,1.5);
-            \draw[->,chameleon1,style=dashed] (8,3.2) -- (8,1.8) -- (7.6,1.5);
+            \draw[->,chameleon3,style=dashed] (7,3.2) -- (7,1.8) -- (7.4,1.5);
+            \draw[->,chameleon3,style=dashed] (8,3.2) -- (8,1.8) -- (7.6,1.5);
             }
         \end{tikzpicture}
     \end{figure}
@@ -569,8 +569,7 @@ cublasDaxpy(...);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Вариант с использованием Thrust}
     \begin{itemize}
-        \item Thrust позволяет получить монолитное ядро для вычисления линейной
-            комбинации:
+        \item Thrust позволяет получить монолитное ядро:
     \end{itemize}
     \begin{columns}
         \begin{column}{0.70\textwidth}
@@ -703,13 +702,6 @@ kernel void lorenz_ensemble(
 \section{Генератор ядер}
 
 %----------------------------------------------------------------------------
-\begin{frame}{}
-    \tableofcontents[currentsection]
-\end{frame}
-
-\note{}
-
-%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Генерация OpenCL-кода из алгоритмов Boost.odeint}
     \begin{itemize}
         \item VexCL включает тип \code{vex::symbolic<T>}.
@@ -735,7 +727,7 @@ var1 = sin( ( var1 * var2 ) );
         \item Простая идея:
             \begin{itemize}
                 \item Запишем последовательность действий алгоритма.
-                \item Сгенерируем ядро OpenCL из записанной последовательности.
+                \item Сгенерируем ядро OpenCL.
             \end{itemize}
     \end{itemize}
 \end{frame}
