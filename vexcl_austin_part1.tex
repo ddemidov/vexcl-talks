@@ -1485,6 +1485,39 @@ vex::tie(newX, newY) = std::tie( oldX * cos(alpha) - oldY * sin(alpha),
 }
 
 %----------------------------------------------------------------------------
+\begin{frame}[fragile,shrink=5]{A multiexpression results in a single kernel}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+auto x0 = tag<0>( X(0) );
+auto x1 = tag<1>( X(1) );
+auto ca = tag<2>( cos(alpha) );
+auto sa = tag<3>( sin(alpha) );
+
+Y = std::tie(x0 * ca - x1 * sa, x0 * sa + x1 * ca);
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+kernel void vexcl_multivector_kernel(ulong n,
+    global double * res1, global double * res2,
+    global double * prm1, double prm2,
+    global double * prm3, double prm4
+)
+{
+    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+            double buf1 = ( ( prm1[idx] * prm2 ) - ( prm3[idx] * prm4 ) );
+            double buf2 = ( ( prm1[idx] * prm4 ) + ( prm3[idx] * prm2 ) );
+
+            res1[idx] = buf1;
+            res2[idx] = buf2;
+    }
+}
+
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+%----------------------------------------------------------------------------
 \section{Is it any good?}
 
 \begin{frame}{}
