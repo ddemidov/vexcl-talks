@@ -975,7 +975,7 @@ kernel void vexcl_vector_kernel(
             \begin{exampleblock}{Like this:}
                 \begin{lstlisting}
 using vex::tag;
-Z = sqrt(tag<1>(X) * tag<1>(X)
+Z = sqrt(tag<1>(X) * tag<1>(X) +
          tag<2>(Y) * tag<2>(Y));
                 \end{lstlisting}
             \end{exampleblock}
@@ -1052,7 +1052,7 @@ Z = log(X) * (log(X) + Y);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Temporaries}
     \begin{itemize}
-        \item But is is also possible to introduce a temporary variable
+        \item But it is also possible to introduce a temporary variable
             explicitly:
     \end{itemize}
     \begin{exampleblock}{}
