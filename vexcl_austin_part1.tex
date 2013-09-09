@@ -1057,7 +1057,7 @@ Z = log(X) * (log(X) + Y);
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
-auto tmp = vex::make_temp<double,1>( log(X) );
+auto tmp = vex::make_temp<1>( log(X) );
 Z = tmp * (tmp + Y);
         \end{lstlisting}
     \end{exampleblock}
