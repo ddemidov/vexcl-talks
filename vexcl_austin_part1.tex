@@ -30,6 +30,7 @@
         }
     \newcommand{\code}[1]{\lstinline|#1|}
     \newcommand{\additive}{\hspace{1cm}\footnotesize(\emph{Additive expressions only})}
+    \newcommand{\singledevice}{\hspace{1cm}\footnotesize(\emph{Single-device contexts})}
     \newcommand{\plusplus}{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}\xspace}
     \newcommand{\Cpp}{C\plusplus}
     \newcommand{\ghribbon}{
@@ -1082,7 +1083,7 @@ kernel void vexcl_vector_kernel(
 \subsection{Slicing}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Slicing}
+\begin{frame}[fragile]{Slicing \singledevice}
     \begin{itemize}
         \item When working with dense multidimensional matrices, it is general
             practice to store those in continuous arrays.
@@ -1103,7 +1104,7 @@ vex::slicer<2> slice(vex::extents[n][n]); // Can be used with any vector of appr
 using vex::_;
 y = slice[42](x);       // 42nd row
 y = slice[_][42](x);    // 42nd column
-slice[_][10](x) = y;    // Slices are writeable
+slice[_][10](x) = y;    // Slices are writable
         \end{lstlisting}
     \end{exampleblock}
     \pause
@@ -1111,6 +1112,41 @@ slice[_][10](x) = y;    // Slices are writeable
         \begin{lstlisting}[firstnumber=last]
 using vex::range;
 z = slice[range(0, 2, n)][range(10, 20)](x);
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\subsection{Permutations}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Permutations \singledevice}
+    \begin{itemize}
+        \item Two flavors:
+            \begin{itemize}
+                \item Index-based permutation
+                \item Expression-based permutation
+            \end{itemize}
+    \end{itemize}
+    \pause
+    \begin{exampleblock}{Index-based permutation}
+        \begin{lstlisting}
+vex::vector<size_t> I(ctx, N);
+I = N - 1 - vex::element_index();
+vex::permutation reverse(I);
+y = reverse(x);
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Expression-based permutation}
+        \begin{lstlisting}
+auto reverse = vex::eslice(N - 1 - vex::element_index());
+y = reverse(x);
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Both kinds are writable}
+        \begin{lstlisting}
+reverse(y) = x;
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -1237,7 +1273,7 @@ double res = max( fabs(r) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Inlining sparse matrix~-- vector products}
+\begin{frame}[fragile]{Inlining sparse matrix~-- vector products \singledevice}
     \begin{itemize}
         \item SpMV may only be used in additive expressions:
             \begin{itemize}
@@ -1352,7 +1388,7 @@ y = custom_op(x);
 \subsection{Fast Fourier Transform}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Fast Fourier Transform \additive}
+\begin{frame}[fragile]{Fast Fourier Transform \additive \singledevice}
     \begin{itemize}
         \item VexCL provides FFT implementation\footnote{Contributed by
             \href{https://github.com/neapel}{Pascal Germroth}
