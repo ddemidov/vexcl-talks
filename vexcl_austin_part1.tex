@@ -1128,7 +1128,7 @@ z = slice[range(0, 2, n)][range(10, 20)](x);
             \end{itemize}
     \end{itemize}
     \pause
-    \begin{exampleblock}{Index-based permutation}
+    \begin{exampleblock}{Index-based permutation:}
         \begin{lstlisting}
 vex::vector<size_t> I(ctx, N);
 I = N - 1 - vex::element_index();
@@ -1137,14 +1137,14 @@ y = reverse(x);
         \end{lstlisting}
     \end{exampleblock}
     \pause
-    \begin{exampleblock}{Expression-based permutation}
+    \begin{exampleblock}{Expression-based permutation:}
         \begin{lstlisting}
 auto reverse = vex::eslice(N - 1 - vex::element_index());
 y = reverse(x);
         \end{lstlisting}
     \end{exampleblock}
     \pause
-    \begin{exampleblock}{Both kinds are writable}
+    \begin{exampleblock}{Both kinds are writable:}
         \begin{lstlisting}
 reverse(y) = x;
         \end{lstlisting}
