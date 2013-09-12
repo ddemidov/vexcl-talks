@@ -1121,30 +1121,27 @@ z = slice[range(0, 2, n)][range(10, 20)](x);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Permutations \singledevice}
     \begin{itemize}
-        \item Two flavors:
-            \begin{itemize}
-                \item Index-based permutation
-                \item Expression-based permutation
-            \end{itemize}
+        \item \code{vex::permutation()} function takes arbitrary (integral
+            valued) vector expression and returns permutation functor:
     \end{itemize}
     \pause
     \begin{exampleblock}{Index-based permutation:}
         \begin{lstlisting}
 vex::vector<size_t> I(ctx, N);
 I = N - 1 - vex::element_index();
-vex::permutation reverse(I);
+auto reverse = vex::permutation(I);
 y = reverse(x);
         \end{lstlisting}
     \end{exampleblock}
     \pause
     \begin{exampleblock}{Expression-based permutation:}
         \begin{lstlisting}
-auto reverse = vex::eslice(N - 1 - vex::element_index());
+auto reverse = vex::permutation(N - 1 - vex::element_index());
 y = reverse(x);
         \end{lstlisting}
     \end{exampleblock}
     \pause
-    \begin{exampleblock}{Both kinds are writable:}
+    \begin{exampleblock}{Permutations are writable:}
         \begin{lstlisting}
 reverse(y) = x;
         \end{lstlisting}
