@@ -1385,7 +1385,7 @@ y = custom_op(x);
 \subsection{Fast Fourier Transform}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Fast Fourier Transform \additive \singledevice}
+\begin{frame}[fragile]{Fast Fourier Transform \singledevice}
     \begin{itemize}
         \item VexCL provides FFT implementation\footnote{Contributed by
             \href{https://github.com/neapel}{Pascal Germroth}
@@ -1397,17 +1397,15 @@ y = custom_op(x);
                 \item Arbitrary sizes
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{}
+    \begin{exampleblock}{Solve Poisson equation with FFT:}
         \begin{lstlisting}
 vex::FFT<double, cl_double2> fft(ctx, n);
 vex::FFT<cl_double2, double> ifft(ctx, n, vex::inverse);
 
-vex::vector<double>     in(ctx, n), back(ctx, n);
-vex::vector<cl_double2> out(ctx, n);
-// ... initialize 'in' ...
+vex::vector<double>     rhs(ctx, n), u(ctx, n), K(ctx, n);
+// ... initialize vectors ...
 
-out  = fft(in);
-back = ifft(out);
+u = ifft( K * fft(rhs) );
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
