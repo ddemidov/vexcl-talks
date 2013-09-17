@@ -735,14 +735,14 @@ x = 2 * y - sin(z);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    int prm1,
-    global double * prm2,
-    global double * prm3
+    global double * prm_1,
+    int prm_2,
+    global double * prm_3,
+    global double * prm_4
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        res[idx] = ( ( prm1 * prm2[idx] ) - sin( prm3[idx] ) );
+        prm_1[idx] = ( ( prm_2 * prm_3[idx] ) - sin( prm_4[idx] ) );
     }
 }
         \end{lstlisting}
@@ -890,13 +890,13 @@ double func1(double prm1, double prm2) {
 
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    global double * prm1,
-    global double * prm2
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        res[idx] = sqrt( func1( prm1[idx], prm2[idx] ) );
+        prm_1[idx] = sqrt( func1( prm_2[idx], prm_3[idx] ) );
     }
 }
         \end{lstlisting}
@@ -926,15 +926,15 @@ Z = sqrt( X * X + Y * Y );
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    global double * prm1,
-    global double * prm2,
-    global double * prm3,
-    global double * prm4
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3,
+    global double * prm_4,
+    global double * prm_5
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        res[idx] = sqrt( ( ( prm1[idx] * prm2[idx] ) + ( prm3[idx] * prm4[idx] ) ) );
+        prm_1[idx] = sqrt( ( ( prm_2[idx] * prm_3[idx] ) + ( prm_4[idx] * prm_5[idx] ) ) );
     }
 }
         \end{lstlisting}
@@ -995,13 +995,13 @@ Z = sqrt(x * x + y * y);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    global double * prm1,
-    global double * prm2
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        res[idx] = sqrt( ( ( prm1[idx] * prm1[idx] ) + ( prm2[idx] * prm2[idx] ) ) );
+        prm_1[idx] = sqrt( ( ( prm_2[idx] * prm_2[idx] ) + ( prm_3[idx] * prm_3[idx] ) ) );
     }
 }
         \end{lstlisting}
@@ -1066,14 +1066,14 @@ Z = tmp * (tmp + Y);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    global double * prm1,
-    global double * prm2
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        double temp1 = log( prm1[idx] );
-        res[idx] = ( temp1 * ( temp1 + prm2[idx] ) );
+        double temp_1 = log( prm_2[idx] );
+        prm_1[idx] = ( temp_1 * ( temp_1 + prm_3[idx] ) );
     }
 }
         \end{lstlisting}
@@ -1530,17 +1530,17 @@ Y = std::tie(x0 * ca - x1 * sa, x0 * sa + x1 * ca);
     \begin{exampleblock}{}
         \begin{lstlisting}
 kernel void vexcl_multivector_kernel(ulong n,
-    global double * res1, global double * res2,
-    global double * prm1, double prm2,
-    global double * prm3, double prm4
+    global double * lhs_1, global double * lhs_2,
+    global double * rhs_1, double rhs_2,
+    global double * rhs_3, double rhs_4
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-            double buf1 = ( ( prm1[idx] * prm2 ) - ( prm3[idx] * prm4 ) );
-            double buf2 = ( ( prm1[idx] * prm4 ) + ( prm3[idx] * prm2 ) );
+            double buf_1 = ( ( rhs_1[idx] * rhs_2 ) - ( rhs_3[idx] * rhs_4 ) );
+            double buf_2 = ( ( rhs_1[idx] * rhs_4 ) + ( rhs_3[idx] * rhs_2 ) );
 
-            res1[idx] = buf1;
-            res2[idx] = buf2;
+            lhs_1[idx] = buf_1;
+            lhs_2[idx] = buf_2;
     }
 }
 
