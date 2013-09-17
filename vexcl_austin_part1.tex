@@ -1549,6 +1549,26 @@ kernel void vexcl_multivector_kernel(ulong n,
 \end{frame}
 
 %----------------------------------------------------------------------------
+\begin{frame}[fragile]{Trick with vex::tie()}
+    \begin{itemize}
+        \item \code{vex::tie()} returns writable tuple of expressions.
+    \end{itemize}
+    \begin{exampleblock}{Assign 42 to 5th and 7th rows of x:}
+        \begin{lstlisting}
+vex::tie( slice[5](x), slice[7](x) ) = 42;
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{itemize}
+        \item It may also be useful for a single expression:
+    \end{itemize}
+    \begin{exampleblock}{Assign 42 to either y or z depending on value of x:}
+        \begin{lstlisting}
+vex::tie( *if_else(x < 0, &y, &z) ) = 42;
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+%----------------------------------------------------------------------------
 \section{Is it any good?}
 
 \begin{frame}{}
