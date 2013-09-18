@@ -502,38 +502,37 @@ template <class LHS, class OP, class RHS>
     \begin{exampleblock}{}
         \begin{uncoverenv}<1>
             \begin{lstlisting}
-template <class Expr>
-/*static*/ std::string vector::source() {
-    std::ostringstream src; unsigned pos;
+template <class LHS, class RHS>
+std::string kernel_source() {
+    std::ostringstream src;
 
-    src << "kernel void vexcl_vector_kernel(\n"
-            "    ulong n,\n    global double * res";
-
+    src << "kernel void vexcl_vector_kernel(\n    ulong n";
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1,2>
             \begin{lstlisting}[firstnumber=last]
-    pos = 0; Expr::prm_decl(src, pos);
+    unsigned pos = 0;
+    LHS::prm_decl(src, pos);
+    RHS::prm_decl(src, pos);
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
-
     src << ")\n{\n"
             "    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
-            "        res[idx] = ";
-
+            "        ";
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1,3>
             \begin{lstlisting}[firstnumber=last]
-    pos = 0; Expr::make_expr(src, pos);
+    pos = 0;
+    LHS::make_expr(src, pos); src << " = ";
+    RHS::make_expr(src, pos); src << ";\n";
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
-
-    src << ";\n    }\n}\n";
+    src << "    }\n}\n";
 
     return src.str();
 }
@@ -582,7 +581,7 @@ const vector& vector::operator=(const Expr &expr) {
         \end{uncoverenv}
         \begin{uncoverenv}<1,2>
             \begin{lstlisting}[firstnumber=last]
-    static cl::Kernel kernel = build_kernel(device, source<Expr>());
+    static cl::Kernel kernel = build_kernel(device, kernel_source<This, Expr>());
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1>
