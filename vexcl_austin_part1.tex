@@ -626,30 +626,52 @@ C = A + B;
 \begin{frame}[fragile]{Copies between host and device memory}
     \begin{exampleblock}{}
         \begin{lstlisting}
-vex::vector<double> X;
-std::vector<double> x;
-double c_array[100];
+vex::vector<double> d(ctx, n);
+std::vector<double> h(n);
+double a[100];
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Simple copies}
-        \begin{lstlisting}
-vex::copy(X, x); // From device to host.
-vex::copy(x, X); // From host to device.
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{STL-like range copies}
-        \begin{lstlisting}
-vex::copy(X.begin(), X.end(), x.begin());
-vex::copy(X.begin(), X.begin() + 100, x.begin());
-vex::copy(c_array, c_array + 100, X.begin());
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{Inspect or set single element (\emph{slow})}
-        \begin{lstlisting}
-assert(x[42] == X[42]);
-X[0] = 0;
-        \end{lstlisting}
-    \end{exampleblock}
+    \vspace{\baselineskip}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{Simple copies}
+                \begin{lstlisting}
+vex::copy(d, h);
+vex::copy(h, d);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \pause
+        \begin{column}{0.5\textwidth}
+            \begin{exampleblock}{STL-like range copies}
+                \begin{lstlisting}
+vex::copy(d.begin(), d.end(), h.begin());
+vex::copy(d.begin(), d.begin() + 100, a);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+    \vspace{\baselineskip}
+    \pause
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{Map OpenCL buffer to host pointer}
+                \begin{lstlisting}
+auto p = d.map(devnum);
+std::sort(&p[0], &p[d.part_size(devnum)]);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \pause
+        \begin{column}{0.5\textwidth}
+            \begin{exampleblock}{Inspect or set single element (\emph{slow})}
+                \begin{lstlisting}
+double v = d[42];
+d[0] = 0;
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \note[itemize]{
