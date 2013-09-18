@@ -364,14 +364,14 @@ x = 2 * y - sin(z);
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    int prm1,
-    global double * prm2,
-    global double * prm3
+    global double * prm_1,
+    int prm_2,
+    global double * prm_3,
+    global double * prm_4
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        res[idx] = ( ( prm1 * prm2[idx] ) - sin( prm3[idx] ) );
+        prm_1[idx] = ( ( prm_2 * prm_3[idx] ) - sin( prm_4[idx] ) );
     }
 }
         \end{lstlisting}
