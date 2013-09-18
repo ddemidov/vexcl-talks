@@ -637,7 +637,7 @@ const vector& vector::operator=(const Expr &expr) {
     \begin{exampleblock}{VexCL code:}
             \begin{lstlisting}
 VEX_FUNCTION( sqr, double(double, double), "return prm1 * prm1 + prm2 * prm2;" );
-auto tmp = vex::make_temp<double,1>( x );
+auto tmp = vex::make_temp<1>( x );
 y = sqr( sin(tmp), cos(tmp) );
             \end{lstlisting}
     \end{exampleblock}
