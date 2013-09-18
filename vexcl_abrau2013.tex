@@ -566,6 +566,8 @@ cublasDaxpy(...);
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Вариант с использованием Thrust}
     \begin{itemize}
@@ -610,12 +612,14 @@ x0 = a1 * x1 + a2 * x2;
     \end{columns}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Производительность (Tesla K20c)}
     \begin{figure}
-        \only<1> {\includegraphics[width=0.9\textwidth]{perfcmp-1}}%
-        \only<2> {\includegraphics[width=0.9\textwidth]{perfcmp-2}}%
-        \only<3> {\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
+        \only<1|handout:0> {\includegraphics[width=0.9\textwidth]{perfcmp-1}}%
+        \only<2|handout:0> {\includegraphics[width=0.9\textwidth]{perfcmp-2}}%
+        \only<3|handout:0> {\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
         \only<4->{\includegraphics[width=0.9\textwidth]{perfcmp-4}}%
     \end{figure}
     \begin{uncoverenv}<5>
@@ -704,7 +708,7 @@ kernel void lorenz_ensemble(
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Генерация OpenCL-кода из алгоритмов Boost.odeint}
     \begin{itemize}
-        \item VexCL включает тип \code{vex::symbolic<T>}.
+        \item VexCL определяет тип \code{vex::symbolic<T>}.
         \item Любые арифметические операции с переменными этого типа выводятся
             в выходной поток:
     \end{itemize}
@@ -888,6 +892,8 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
             \end{itemize}
     \end{description}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}{Заключение}
