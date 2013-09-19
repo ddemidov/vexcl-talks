@@ -1253,6 +1253,8 @@ y = reduce<MAX>(s2[_], reduce<SUM>(s3[_], log(x), 2), 1);
                 \item The generators are \emph{stateless}; mixing functions are
                     applied to element indices.
                 \item Implemented families: \code{threefry} and \code{philox}.
+                \item Performance: $\approx 10^{10}$~Samples/sec (Tesla
+                    K20c).
             \end{itemize}
         \item \code{vex::Random<T,G>}~--- uniform distribution.
         \item \code{vex::RandomNormal<T,G>}~--- normal distribution.
@@ -1262,9 +1264,8 @@ y = reduce<MAX>(s2[_], reduce<SUM>(s3[_], log(x), 2), 1);
         \begin{lstlisting}
 vex::Random<double, vex::random::threefry> rnd;
 
-auto i = vex::tag<0>(vex::element_index(0, n));
-auto x = vex::make_temp<1>(rnd(i, std::rand()));
-auto y = vex::make_temp<2>(rnd(i, std::rand()));
+auto x = vex::make_temp<1>(rnd(vex::element_index(0, n), std::rand()));
+auto y = vex::make_temp<2>(rnd(vex::element_index(0, n), std::rand()));
 
 vex::Reductor<size_t, vex::SUM> sum(ctx);
 double pi = 4.0 * sum( (x * x + y * y) < 1 ) / n;
