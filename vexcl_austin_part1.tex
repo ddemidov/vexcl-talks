@@ -1261,12 +1261,12 @@ y = reduce<MAX>(s2[_], reduce<SUM>(s3[_], log(x), 2), 1);
     \begin{exampleblock}{Monte Carlo $\pi$:}
         \begin{lstlisting}
 vex::Random<double, vex::random::threefry> rnd;
-vex::Reductor<size_t, vex::SUM> sum(ctx);
 
 auto i = vex::tag<0>(vex::element_index(0, n));
 auto x = vex::make_temp<1>(rnd(i, std::rand()));
 auto y = vex::make_temp<2>(rnd(i, std::rand()));
 
+vex::Reductor<size_t, vex::SUM> sum(ctx);
 double pi = 4.0 * sum( (x * x + y * y) < 1 ) / n;
         \end{lstlisting}
     \end{exampleblock}
