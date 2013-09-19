@@ -1663,6 +1663,8 @@ vex::tie( *if_else(x < 0, &y, &z) ) = 42;
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \section{Is it any good?}
 
@@ -1880,9 +1882,9 @@ x0 = a1 * x1 + a2 * x2;
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Performance (Tesla K20c)}
     \begin{figure}
-        \only<1> {\includegraphics[width=0.9\textwidth]{perfcmp-1}}%
-        \only<2> {\includegraphics[width=0.9\textwidth]{perfcmp-2}}%
-        \only<3> {\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
+        \only<1|handout:0> {\includegraphics[width=0.9\textwidth]{perfcmp-1}}%
+        \only<2|handout:0> {\includegraphics[width=0.9\textwidth]{perfcmp-2}}%
+        \only<3|handout:0> {\includegraphics[width=0.9\textwidth]{perfcmp-3}}%
         \only<4->{\includegraphics[width=0.9\textwidth]{perfcmp-4}}%
     \end{figure}
     \begin{uncoverenv}<5>
