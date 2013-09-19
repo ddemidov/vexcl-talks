@@ -144,6 +144,8 @@
     \tableofcontents[hideallsubsections]
 \end{frame}
 
+\note{ }
+
 \section{Motivating example}
 
 \subsection{Hello OpenCL}
@@ -359,7 +361,7 @@ std::cout << 3 << std::endl;
     \end{exampleblock}
 \end{frame}
 
-\note[itemize]{ }
+\note{ }
 
 \subsection{Hello VexCL}
 
@@ -410,8 +412,7 @@ std::cout << c[42] << std::endl;
     \tableofcontents[currentsection,hideallsubsections]
 \end{frame}
 
-\note{
-}
+\note{ }
 
 \subsection{Initialization}
 
@@ -786,6 +787,8 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
+\note{ }
+
 \subsection{Element indices}
 
 %----------------------------------------------------------------------------
@@ -833,6 +836,8 @@ X = sin(2 * M_PI * vex::element_index() / N);
         \item Once defined, user functions are used in the same way as builtin functions.
     \end{itemize}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{1. Provide function body in a string}
@@ -897,6 +902,8 @@ auto sqr = make_function<double(double,double)>( arg1 * arg1 + arg2 * arg2 );
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{User functions are translated to OpenCL functions}
     \begin{exampleblock}{}
@@ -936,6 +943,8 @@ kernel void vexcl_vector_kernel(
         \draw (sqr)  -- (y);
     \end{tikzpicture}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Functions may be not only convenient, but also effective}
@@ -985,6 +994,8 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
+\note{ }
+
 \subsection{Tagged terminals}
 
 %----------------------------------------------------------------------------
@@ -1030,6 +1041,8 @@ kernel void vexcl_vector_kernel(
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 \subsection{Temporaries}
 
 %----------------------------------------------------------------------------
@@ -1072,6 +1085,8 @@ Z = log(X) * (log(X) + Y);
     \end{columns}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Temporaries}
     \begin{itemize}
@@ -1101,6 +1116,42 @@ kernel void vexcl_vector_kernel(
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
+
+\subsection{Permutations}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Permutations \singledevice}
+    \begin{itemize}
+        \item \code{vex::permutation()} function takes arbitrary (integral
+            valued) vector expression and returns permutation functor:
+    \end{itemize}
+    \pause
+    \begin{exampleblock}{Index-based permutation:}
+        \begin{lstlisting}
+vex::vector<size_t> I(ctx, N);
+I = N - 1 - vex::element_index();
+auto reverse = vex::permutation(I);
+y = reverse(x);
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Expression-based permutation:}
+        \begin{lstlisting}
+auto reverse = vex::permutation(N - 1 - vex::element_index());
+y = reverse(x);
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Permutations are writable:}
+        \begin{lstlisting}
+reverse(y) = x;
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
 
 \subsection{Slicing}
 
@@ -1138,66 +1189,84 @@ z = slice[range(0, 2, n)][range(10, 20)](x);
     \end{exampleblock}
 \end{frame}
 
-\subsection{Permutations}
+\note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Permutations \singledevice}
+\begin{frame}[fragile]{Reducing slices \singledevice}
     \begin{itemize}
-        \item \code{vex::permutation()} function takes arbitrary (integral
-            valued) vector expression and returns permutation functor:
+        \item \code{vex::reduce<RDC>()} function takes multidimensional slice
+            of arbitrary expression and reduces it along one or more
+            dimensions.
+        \item Supported reduction kinds: \code{SUM}, \code{MIN}, \code{MAX}.
     \end{itemize}
+    \begin{columns}
+        \begin{column}{0.48\textwidth}
+            \begin{exampleblock}{Row-wise sum:}
+                \begin{lstlisting}
+vex::slicer<2> s(extents[n][n]);
+y = vex::reduce<vex::SUM>(s[_], x, 1);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \pause
+        \begin{column}{0.48\textwidth}
+            \begin{exampleblock}{Column-wise maximum absolute value:}
+                \begin{lstlisting}
+vex::slicer<2> s(extents[n][n]);
+y = vex::reduce<vex::MAX>(s[_], fabs(x), 0);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
     \pause
-    \begin{exampleblock}{Index-based permutation:}
+    \vspace{\baselineskip}
+    \begin{exampleblock}{The result is vector expression (of reduced size), so
+        we may nest reductions:}
         \begin{lstlisting}
-vex::vector<size_t> I(ctx, N);
-I = N - 1 - vex::element_index();
-auto reverse = vex::permutation(I);
-y = reverse(x);
-        \end{lstlisting}
-    \end{exampleblock}
-    \pause
-    \begin{exampleblock}{Expression-based permutation:}
-        \begin{lstlisting}
-auto reverse = vex::permutation(N - 1 - vex::element_index());
-y = reverse(x);
-        \end{lstlisting}
-    \end{exampleblock}
-    \pause
-    \begin{exampleblock}{Permutations are writable:}
-        \begin{lstlisting}
-reverse(y) = x;
+vex::vector<double> x(ctx, n * n * n);
+vex::vector<double> y(ctx, n);
+
+vex::slicer<3> s3(extents[n][n][n]);
+vex::slicer<2> s2(extents[n][n]);
+
+y = reduce<MAX>(s2[_], reduce<SUM>(s3[_], log(x), 2), 1);
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 \subsection{Random number generation}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Random number generation}
     \begin{itemize}
-        \item VexCL provides implementation\footnote{Contributed by
+        \item VexCL provides\footnote{Contributed by
             \href{https://github.com/neapel}{Pascal Germroth}
             $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}
-            of \emph{counter-based} random number generators from
+            \emph{counter-based} random number generators from
             Random123\footnote{D E Shaw Research,
                 \href{http://www.deshawresearch.com/resources\_random123.html}{http://www.deshawresearch.com/resources\_random123.html}}
             suite.
+            \vspace{-0.5\baselineskip}
             \begin{itemize}
                 \item The generators are \emph{stateless}; mixing functions are
                     applied to element indices.
-                \item Implemented families: Threefry and Philox.
+                \item Implemented families: \code{threefry} and \code{philox}.
             \end{itemize}
         \item \code{vex::Random<T,G>}~--- uniform distribution.
         \item \code{vex::RandomNormal<T,G>}~--- normal distribution.
     \end{itemize}
+    \vspace{-0.5\baselineskip}
     \begin{exampleblock}{Monte Carlo $\pi$:}
         \begin{lstlisting}
 vex::Random<double, vex::random::threefry> rnd;
-
-x = 2 * rnd(vex::element_index(), std::rand()) - 1;
-y = 2 * rnd(vex::element_index(), std::rand()) - 1;
-
 vex::Reductor<size_t, vex::SUM> sum(ctx);
+
+auto i = vex::tag<0>(vex::element_index(0, n));
+auto x = vex::make_temp<1>(rnd(i, std::rand()));
+auto y = vex::make_temp<2>(rnd(i, std::rand()));
+
 double pi = 4.0 * sum( (x * x + y * y) < 1 ) / n;
         \end{lstlisting}
     \end{exampleblock}
@@ -1314,6 +1383,8 @@ double res = max( fabs( f - vex::make_inline(A * u) ) );
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 \subsection{Stencil convolutions}
 
@@ -1432,8 +1503,7 @@ u = ifft( K * fft(rhs) );
     \end{exampleblock}
 \end{frame}
 
-\note{
-}
+\note{ }
 
 \subsection{Multivectors \& multiexpressions}
 
@@ -1569,6 +1639,8 @@ kernel void vexcl_multivector_kernel(ulong n,
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Trick with vex::tie()}
@@ -1756,6 +1828,8 @@ cublasDaxpy(...);       // $x_0 = x_0 + \alpha_n * x_n$
     \end{exampleblock}
 \end{frame}
 
+\note{ }
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Thrust implementation}
     \begin{itemize}
@@ -1799,6 +1873,8 @@ x0 = a1 * x1 + a2 * x2;
         \end{column}
     \end{columns}
 \end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Performance (Tesla K20c)}
@@ -2079,6 +2155,8 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
             \end{itemize}
     \end{description}
 \end{frame}
+
+\note{ }
 
 
 
