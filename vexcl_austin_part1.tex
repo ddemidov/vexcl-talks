@@ -1068,10 +1068,10 @@ Z = log(X) * (log(X) + Y);
             \begin{tikzpicture}
                 \draw (0,0) node(mul)[draw,fill=white,ellipse,drop shadow,minimum size=0.8cm]{$*$};
                 \draw (mul)  +( 1.50,-1) node(sum)  [draw,fill=white,ellipse,drop shadow,minimum size=0.8cm]{$+$};
-                \draw (mul)  +(-1.50,-1) node(log1) [draw,fill=chameleon3!80,ellipse,drop shadow,minimum size=0.5cm]{log};
-                \draw (sum)  +(-1.50,-1) node(log2) [draw,fill=chameleon3!80,ellipse,drop shadow,minimum size=0.5cm]{log};
-                \draw (log1) +( 0.00,-1) node(x1)   [draw,fill=chameleon3!80,drop shadow,minimum size=0.5cm]{x};
-                \draw (log2) +( 0.00,-1) node(x2)   [draw,fill=chameleon3!80,drop shadow,minimum size=0.5cm]{x};
+                \draw (mul)  +(-1.50,-1) node(log1) [draw,fill=chameleon2!50,ellipse,drop shadow,minimum size=0.5cm]{log};
+                \draw (sum)  +(-1.50,-1) node(log2) [draw,fill=chameleon2!50,ellipse,drop shadow,minimum size=0.5cm]{log};
+                \draw (log1) +( 0.00,-1) node(x1)   [draw,fill=chameleon2!50,drop shadow,minimum size=0.5cm]{x};
+                \draw (log2) +( 0.00,-1) node(x2)   [draw,fill=chameleon2!50,drop shadow,minimum size=0.5cm]{x};
                 \draw (sum)  +( 1.50,-1) node(y)    [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
 
                 \draw (mul)  -- (log1);
@@ -1412,14 +1412,14 @@ double res = max( fabs( f - vex::make_inline(A * u) ) );
         \end{tikzpicture}
     \end{figure}
     \begin{itemize}
-        \item Simple stencil is based on a 1D array, and may be used for:
+        \item Simple (linear) stencil is based on a 1D array, and may be used
+            e.g. for:
             \begin{itemize}
-                \item Signal filters (e.g. averaging)
+                \item Signal filters (averaging, low/high pass)
                 \item Differential operators with constant coefficients
-                \item \ldots
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{Moving average with 5-points window}
+    \begin{exampleblock}{Moving average with 5-points window:}
         \begin{lstlisting}
 std::vector<double> sdata(5, 0.2);
 vex::stencil<double> s(ctx, sdata, 2 /* center */);
