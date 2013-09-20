@@ -789,6 +789,41 @@ kernel void vexcl_vector_kernel(
 
 \note{ }
 
+\subsection{Constants}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Constants}
+    \begin{exampleblock}{Macro \code{VEX_CONSTANT} allows to define literal constants}
+        \begin{lstlisting}
+VEX_CONSTANT(two, 2);
+x = two() * y - sin(z);
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+kernel void vexcl_vector_kernel(
+    ulong n,
+    global double * prm_1,
+    global double * prm_3,
+    global double * prm_4
+)
+{
+    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+        prm_1[idx] = ( ( ( 2 ) * prm_3[idx] ) - sin( prm_4[idx] ) );
+    }
+}
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{itemize}
+        \item Some predefined math constants are available (wrappers to
+            \code{boost::math::constants}):
+            \begin{itemize}
+                \item \code{vex::constants::pi()},
+                    \code{vex::constants::root_two()}, etc.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
 \subsection{Element indices}
 
 %----------------------------------------------------------------------------
