@@ -724,7 +724,7 @@ d[0] = 0;
         \begin{lstlisting}
 vex::vector<double> x(ctx, n), y(ctx, n);
 
-x = (2 * M_PI / n) * vex::element_index();
+x = vex::constants::two_pi() * vex::element_index() / n;
 y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
         \end{lstlisting}
     \end{exampleblock}
@@ -845,7 +845,7 @@ X = x0 + dx * vex::element_index();
     \end{exampleblock}
     \begin{exampleblock}{Single period of sine function:}
         \begin{lstlisting}
-X = sin(2 * M_PI * vex::element_index() / N);
+X = sin(vex::constants::two_pi() * vex::element_index() / N);
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
