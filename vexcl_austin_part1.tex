@@ -1664,11 +1664,11 @@ kernel void vexcl_multivector_kernel(ulong n,
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-            double buf_1 = ( ( rhs_1[idx] * rhs_2 ) - ( rhs_3[idx] * rhs_4 ) );
-            double buf_2 = ( ( rhs_1[idx] * rhs_4 ) + ( rhs_3[idx] * rhs_2 ) );
+        double buf_1 = ( ( rhs_1[idx] * rhs_2 ) - ( rhs_3[idx] * rhs_4 ) );
+        double buf_2 = ( ( rhs_1[idx] * rhs_4 ) + ( rhs_3[idx] * rhs_2 ) );
 
-            lhs_1[idx] = buf_1;
-            lhs_2[idx] = buf_2;
+        lhs_1[idx] = buf_1;
+        lhs_2[idx] = buf_2;
     }
 }
 
