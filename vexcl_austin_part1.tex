@@ -724,7 +724,7 @@ d[0] = 0;
         \begin{lstlisting}
 vex::vector<double> x(ctx, n), y(ctx, n);
 
-x = vex::constants::two_pi() * vex::element_index() / n;
+x = 2 * M_PI * vex::element_index() / n;
 y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
         \end{lstlisting}
     \end{exampleblock}
