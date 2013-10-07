@@ -1867,9 +1867,8 @@ odeint::integrate_const(stepper, lorenz_system(R), X, 0.0, t_max, dt);
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}[numbers=none,texcl=true]
-cublasDcopy(...);       // $x_0 = x_1$
-cublasDscal(...);       // $x_0 = \alpha_1 * x_0$
-cublasDaxpy(...);       // $x_0 = x_0 + \alpha_2 * x_2$
+cublasDset(...);        // $x_0 = 0$
+cublasDaxpy(...);       // $x_0 = x_0 + \alpha_1 * x_1$
 ...
 cublasDaxpy(...);       // $x_0 = x_0 + \alpha_n * x_n$
         \end{lstlisting}
