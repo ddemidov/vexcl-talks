@@ -354,9 +354,19 @@ std::cout << c[42] << std::endl; // Should get '3' here.
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello VexCL: vector sum}
-    \begin{exampleblock}{Much shorter!}
+    \begin{itemize}
+        \item Can we use VexCL to achive same effect with a code that fits on
+            one slide?
+    \end{itemize}
+    \pause
+    \begin{exampleblock}{Yes, we can!}
         \begin{lstlisting}
-std::cout << 3 << std::endl;
+#include <iostream>
+#include <vexcl/vexcl.hpp>
+
+int main() {
+    std::cout << 3 << std::endl;
+}
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
