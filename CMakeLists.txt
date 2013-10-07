@@ -29,7 +29,7 @@ function(add_slides BEAMER_FILE)
                 beamerinnerthemefancy.sty
         IMAGES tesla.png radeon.png intel.png forkme.png
                perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
-               perfcmp-5.eps lorenz.eps
+               perfcmp-5.eps lorenz.eps mba.eps
         DEFAULT_PDF MANGLE_TARGET_NAMES)
 
     if (OUTPUT_NOTES)
@@ -41,7 +41,7 @@ function(add_slides BEAMER_FILE)
                     beamerinnerthemefancy.sty
             IMAGES tesla.png radeon.png intel.png forkme.png
                    perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
-                   perfcmp-5.eps lorenz.eps
+                   perfcmp-5.eps lorenz.eps mba.eps
 
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endif ()

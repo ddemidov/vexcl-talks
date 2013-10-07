@@ -1299,7 +1299,9 @@ y = reduce<MAX>(s2[_], reduce<SUM>(s3[_], log(x), 2), 1);
                 \item The generators are \emph{stateless}; mixing functions are
                     applied to element indices.
                 \item Implemented families: \code{threefry} and \code{philox}.
-                \item Performance: $\approx 10^{10}$~Samples/sec (Tesla
+                \item Both pass TestU01/BigCrush; up to \alert{$2^{64}$}
+                    independent streams with a period of \alert{$2^{128}$}.
+                \item Performance: \alert{$\approx 10^{10}$}~Samples/sec (Tesla
                     K20c).
             \end{itemize}
         \item \code{vex::Random<T,G>}~--- uniform distribution.
@@ -1309,11 +1311,9 @@ y = reduce<MAX>(s2[_], reduce<SUM>(s3[_], log(x), 2), 1);
     \begin{exampleblock}{Monte Carlo $\pi$:}
         \begin{lstlisting}
 vex::Random<double, vex::random::threefry> rnd;
-
+vex::Reductor<size_t, vex::SUM> sum(ctx);
 auto x = vex::make_temp<1>(rnd(vex::element_index(0, n), std::rand()));
 auto y = vex::make_temp<2>(rnd(vex::element_index(0, n), std::rand()));
-
-vex::Reductor<size_t, vex::SUM> sum(ctx);
 double pi = 4.0 * sum( (x * x + y * y) < 1 ) / n;
         \end{lstlisting}
     \end{exampleblock}
@@ -1369,6 +1369,45 @@ double d = max( sqrt(x * x + y * y) );
 \item And to find the maximum distance from axis origin for a set of
     two-dimensional points, we compute exactly that: max of their radius.
 }
+
+\subsection{Scattered data interpolation}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Scattered data interpolation with multilevel B-splines}
+    \begin{itemize}
+        \item VexCL provides implementation of the MBA algorithm\footnote{
+                S. Lee, G. Wolberg, and S. Y. Shin.  Scattered data
+                interpolation with multilevel B-Splines.\\ \quad \quad
+                \emph{IEEE Trans. Vis. Comput. Graph.}, 3:228–244, 1997.}.
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            \begin{itemize}
+                \item The algorithm is initialized with scattered N-dimensional
+                    points (stored on host).
+                \item Returns approximated value at given coordinates inside
+                    vector expression.
+            \end{itemize}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+std::array<double, 2> xmin = {-0.01, -0.01};
+std::array<double, 2> xmax = {1.01, 1.01};
+std::array<size_t, 2> grid = {5, 5};
+std::vector< std::array<double, 2> > coords = {...};
+std::vector< double > values = {...};
+
+vex::mba<2> surf(ctx, xmin, xmax, coords, values, grid);
+double vol = sum( ds * surf(X, Y) );
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}{0.333\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{mba}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
 
 \subsection{Sparse matrix~-- vector products}
 
