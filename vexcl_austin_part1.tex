@@ -120,9 +120,12 @@
                 \item OpenCL JIT code generation.
             \end{itemize}
         \item The source code is publicly available under MIT license.
+            \vspace{\baselineskip}
         \item \emph{This is not a} \Cpp \emph{bindings library!}
             \begin{itemize}
                 \item VexCL works on top of Khronos \Cpp bindings for OpenCL.
+                \item Easy integration with other libraries or existing
+                    projects.
             \end{itemize}
     \end{itemize}
 \end{frame}
@@ -481,7 +484,6 @@ vex::Context ctx(
 
 \note[itemize]{
 \item VexCL can transparently work with several compute devices that are
-
     present on your system.
 \item We initialize the VexCL context with a device filter. The device filter
     is a simple functor that acts on cl::Device reference and returns a boolean
@@ -879,7 +881,8 @@ X = sin(vex::constants::two_pi() * vex::element_index() / N);
                 \item Provide function body in a string.
                 \item Provide generic \Cpp functor.
             \end{itemize}
-        \item Once defined, user functions are used in the same way as builtin functions.
+        \item Once defined, user functions are used in the same way as builtin
+            functions.
     \end{itemize}
 \end{frame}
 
@@ -1380,13 +1383,17 @@ double d = max( sqrt(x * x + y * y) );
                 interpolation with multilevel B-Splines.\\ \quad \quad
                 \emph{IEEE Trans. Vis. Comput. Graph.}, 3:228–244, 1997.}.
     \end{itemize}
+    \vspace{-0.5\baselineskip}
     \begin{columns}
         \begin{column}{0.6\textwidth}
+            \begin{itemize}
+                \item[]
             \begin{itemize}
                 \item The algorithm is initialized with scattered N-dimensional
                     points (stored on host).
                 \item Returns approximated value at given coordinates inside
                     vector expression.
+            \end{itemize}
             \end{itemize}
             \begin{exampleblock}{}
                 \begin{lstlisting}
@@ -1408,6 +1415,8 @@ double vol = sum( ds * surf(X, Y) );
         \end{column}
     \end{columns}
 \end{frame}
+
+\note{ }
 
 \subsection{Sparse matrix~-- vector products}
 
@@ -1854,7 +1863,7 @@ struct lorenz_system {
 \note[itemize]{
 \item We will hold current state of the system (or set of attractor
     coordinates) in a multivector with 3 components.
-\item Here is the definition of the lorenz system functor: It computes the time
+\item Here is the definition of the Lorenz system functor: It computes the time
     derivative from current state and time (which is not used here).
 \item VexCL make the definition of the functor very simple and intuitive: we
     assign a tuple of vector expressions to the multivector that represents
@@ -1998,7 +2007,7 @@ x0 = a1 * x1 + a2 * x2;
                 \item This would be 10x faster!
                     \uncover<2->{\alert{But,}}
                     \begin{itemize}
-                        \item<2|alert@2> We lost odeint's generality.
+                        \item<2|alert@2> \emph{We lost odeint's generality.}
                     \end{itemize}
             \end{itemize}
         \end{column} \quad \quad
@@ -2242,6 +2251,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
                 \item \href{http://odeint.com}{http://odeint.com}
             \end{itemize}
     \end{description}
+    \vspace{\baselineskip}
     \begin{itemize}
         \item \emph{All of these libraries use same generic code for CPU and
             GPU paths}.
