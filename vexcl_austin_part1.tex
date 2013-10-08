@@ -4,6 +4,7 @@
     \usetheme[alternativetitlepage=true,titleline=true]{Torino}
     \setbeamertemplate{navigation symbols}{}
     \setbeamertemplate{note page}[plain]
+    \setbeamertemplate{caption}{\insertcaption}
 
     \usepackage[utf8]{inputenc}
     \usepackage{graphicx}
@@ -1792,6 +1793,7 @@ vex::tie( *if_else(x < 0, &y, &z) ) = 42;
         \begin{column}{0.4\textwidth}
             \begin{figure}
                 \includegraphics[width=\textwidth]{lorenz}
+                \caption{Lorenz attractor trajectory}
             \end{figure}
         \end{column}
     \end{columns}

@@ -31,12 +31,19 @@ options = odeset('RelTol',eps,'AbsTol',[eps eps eps/10]);
 figure(1)
 set(gca,'FontSize', 18);
 h = plot3(X(:,1),X(:,2),X(:,3));
-set(h, 'color', chameleon(3));
-axis equal;
+set(h, 'color', chameleon(3), 'linewidth', 1);
+axis square;
 grid;
-title('Lorenz attractor trajectory');
-xlabel('X'); ylabel('Y'); zlabel('Z');
 set(gca,'view',[45,30]);
+
+xlim([-18 18])
+ylim([-25 35])
+zlim([ 10 45])
+set(gca, 'xticklabel', [])
+set(gca, 'yticklabel', [])
+set(gca, 'zticklabel', [])
+
+print('-depsc', 'lorenz.eps')
 
 x = X(:,1);
 y = X(:,2);
