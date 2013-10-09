@@ -1571,6 +1571,88 @@ y = custom_op(x);
     indexed relatively to the stencil center.
 }
 
+\subsection{Raw pointers}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Raw pointer arithmetic \singledevice}
+    \begin{itemize}
+        \item \code{raw_pointer(const vector<T>&)} function returns pointer to
+            vector's data\\ inside vector expression.
+            \begin{itemize}
+                \item May be used to implement N-dimensional stencil or
+                    N-body problem.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{1D Laplace operator:}
+        \begin{lstlisting}
+VEX_CONSTANT(zero, 0);
+VEX_CONSTANT(one,  1);
+VEX_CONSTANT(two,  2);
+
+auto ptr   = vex::tag<1>( vex::raw_pointer(x) );
+
+auto i     = vex::make_temp<1>( vex::element_index() );
+auto left  = vex::make_temp<2>( if_else(i > zero(),    i - one(), i) );
+auto right = vex::make_temp<3>( if_else(i + one() < n, i + one(), i) );
+
+y = *(ptr + i) * two() - *(ptr + left) - *(ptr + right);
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Raw pointer arithmetic (Laplace operator)}
+    \begin{exampleblock}{}
+        \begin{lstlisting}[firstnumber=11]
+y = *(ptr + i) * two() - *(ptr + left) - *(ptr + right);
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{The generated kernel:}
+        \begin{lstlisting}
+kernel void vexcl_vector_kernel(
+    ulong n,
+    global double * prm_1,
+    global double * prm_2,
+    ulong prm_3,
+    ulong prm_4
+)
+{
+    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+        ulong temp_1 = prm_3 + idx;
+        ulong temp_2 = temp_1 > 0 ? temp_1 - 1 : temp_1;
+        ulong temp_3 = temp_1 + 1 < prm_4 ? temp_1 + 1 : temp_1;
+        prm_1[idx] = *(prm_2 + temp_1) * 2 - *(prm_2 + temp_2) - *(prm_2 + temp_3);
+    }
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Raw pointer arithmetic (N-body problem)}
+    \begin{equation*}
+        y_i = \sum_{j \neq i} e^{-|x_i - x_j|}
+    \end{equation*}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+VEX_FUNCTION(nbody, double(size_t, size_t, double*),
+    "double sum = 0, myval = prm3[prm2];\n"
+    "for(size_t j = 0; j < prm1; ++j)\n"
+    "    if (j != prm2) sum += exp(-fabs(prm3[j] - myval));\n"
+    "return sum;\n"
+    );
+
+y = nbody(x.size(), vex::element_index(), raw_pointer(x));
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
 \subsection{Fast Fourier Transform}
 
 %----------------------------------------------------------------------------
@@ -1591,7 +1673,7 @@ y = custom_op(x);
 vex::FFT<double, cl_double2> fft(ctx, n);
 vex::FFT<cl_double2, double> ifft(ctx, n, vex::inverse);
 
-vex::vector<double>     rhs(ctx, n), u(ctx, n), K(ctx, n);
+vex::vector<double> rhs(ctx, n), u(ctx, n), K(ctx, n);
 // ... initialize vectors ...
 
 u = ifft( K * fft(rhs) );
