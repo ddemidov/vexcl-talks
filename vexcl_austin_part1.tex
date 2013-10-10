@@ -505,6 +505,44 @@ vex::Context ctx(
     \end{enumerate}
 }
 
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Exclusive device access}
+    \begin{itemize}
+        \item \code{vex::Filter::Exclusive()} wraps normal filters to allow
+            exclusive access to devices.
+            \begin{itemize}
+                \item Useful for MPI jobs.
+                \item An alternative to NVIDIA's exclusive compute mode for
+                    other vendors hardware.
+            \end{itemize}
+        \item Based on Boost.Interprocess file locks in temp directory.
+            \begin{itemize}
+                \item Use \code{VEXCL_LOCK_DIR} environment variable to
+                    override default behavior.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+vex::Context ctx( vex::Filter::Exclusive (
+    vex::Filter::Env && vex::Filter::Count(1)
+    ) );
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{itemize}
+        \item \alert{Only works between programs that actually use the filter.}
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item Often we want to get an exclusive access to our compute devices. This is
+    especially true in a clustered environments, where job manager may tell you
+    how many devices are available, but it usually doesn't know which exactly.
+\item The Exclusive filter wrapper lets you do this. Internally, lock
+    files are created for each compute device present in the system.
+\item This obviously will only work between VexCL programs that explicitly ask
+    for an exclusive access.
+}
+
 \subsection{Memory and work splitting}
 
 %----------------------------------------------------------------------------
