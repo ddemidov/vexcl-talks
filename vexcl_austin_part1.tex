@@ -113,14 +113,16 @@
 \begin{frame}{VexCL~--- a vector expression template library for OpenCL}
     \ghribbon
     \begin{itemize}
-        \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
-            \vspace{\baselineskip}
         \item Created for ease of \Cpp based OpenCL development.
             \begin{itemize}
                 \item Convenient notation for vector expressions.
                 \item OpenCL JIT code generation.
             \end{itemize}
+            \vspace{\baselineskip}
         \item The source code is publicly available under MIT license.
+            \begin{itemize}
+                \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
+            \end{itemize}
             \vspace{\baselineskip}
         \item \emph{This is not a} \Cpp \emph{bindings library!}
             \begin{itemize}
@@ -156,13 +158,13 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello OpenCL: vector sum}
-    \begin{block}{Vector sum}
+    \begin{block}{Compute sum of two vectors in parallel}
         \begin{itemize}
             \item $A$, $B$, and $C$ are large vectors.
             \item Compute $C = A + B$.
         \end{itemize}
     \end{block}
-    \begin{block}{Overview of OpenCL solution}
+    \begin{block}{Overview of OpenCL solution:}
         \begin{enumerate}
             \item Initialize OpenCL context on supported device.
             \item Allocate memory on the device.
