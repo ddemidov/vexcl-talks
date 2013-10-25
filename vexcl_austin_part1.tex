@@ -972,7 +972,7 @@ Z = sqrt( sqr(X, Y) );
         \begin{lstlisting}
 struct sqr_functor {
     template <class T>
-    T operator(const T &x, const T &y) const {
+    T operator()(const T &x, const T &y) const {
         return x * x + y * y;
     }
 };
