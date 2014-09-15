@@ -156,6 +156,15 @@
   \fi%
 }
 
+\setbeamertemplate{section page}
+{
+    \begin{centering}
+    \begin{beamercolorbox}[sep=12pt,center,rounded=true,shadow=true]{part title}
+    \usebeamerfont{section title}\insertsection\par
+    \end{beamercolorbox}
+    \end{centering}
+}
+
 % Items.
 \defbeamertemplate{itemize item}{squarealt}%
 {\tiny\raise.5ex\hbox{\donotcoloroutermaths$\blacksquare$}}

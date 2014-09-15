@@ -8,44 +8,30 @@ set(USE_PGFPAGES "")
 option(OUTPUT_NOTES "Create notes" OFF)
 
 function(add_slides BEAMER_FILE)
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/${BEAMER_FILE}.tex
-        ${CMAKE_CURRENT_BINARY_DIR}/${BEAMER_FILE}_slides.tex
-        )
+    function(add_document SOURCE SUFFIX)
+        configure_file(
+            ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}.tex
+            ${CMAKE_CURRENT_BINARY_DIR}/${SOURCE}_${SUFFIX}.tex
+            )
 
-    set(BEAMER_OPTIONS "compress,unicode,aspectratio=1610,handout,notes=show")
-    set(USE_PGFPAGES "\\usepackage{pgfpages} \\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]")
-
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/${BEAMER_FILE}.tex
-        ${CMAKE_CURRENT_BINARY_DIR}/${BEAMER_FILE}_notes.tex
-        )
-
-    add_latex_document(
-        ${BEAMER_FILE}_slides.tex
-        DEPENDS beamerthemeTorino.sty
-                beamercolorthemechameleon.sty
-                beamerouterthemedecolines.sty
-                beamerinnerthemefancy.sty
-        IMAGES tesla.png radeon.png intel.png forkme.png
-               perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
-               perfcmp-5.eps lorenz.eps mba.eps
-        DEFAULT_PDF MANGLE_TARGET_NAMES)
-
-    if (OUTPUT_NOTES)
         add_latex_document(
-            ${BEAMER_FILE}_notes.tex
+            ${BEAMER_FILE}_${SUFFIX}.tex
             DEPENDS beamerthemeTorino.sty
                     beamercolorthemechameleon.sty
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
-            IMAGES tesla.png radeon.png intel.png forkme.png
-                   perfcmp-1.eps perfcmp-2.eps perfcmp-3.eps perfcmp-4.eps
-                   perfcmp-5.eps lorenz.eps mba.eps
-
+            IMAGES tesla.png radeon.png intel.png forkme.png clippy.png
+                   perfplot.eps
             DEFAULT_PDF MANGLE_TARGET_NAMES)
+    endfunction()
+
+    add_document(${BEAMER_FILE} slides)
+    if (OUTPUT_NOTES)
+        set(BEAMER_OPTIONS "compress,unicode,aspectratio=1610,handout,notes=show")
+        set(USE_PGFPAGES "\\usepackage{pgfpages} \\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]")
+
+        add_document(${BEAMER_FILE} notes)
     endif ()
 endfunction()
 
-add_slides(vexcl_austin_part1)
-add_slides(vexcl_austin_part2)
+add_slides(vexcl_mcpp_2014)

@@ -9,7 +9,7 @@ struct vsum {
     vsum(const vector &a, const vector &b) : a(a), b(b) {}
 };
 
-const vsum operator+(const vector &a, const vector &b) {
+vsum operator+(const vector &a, const vector &b) {
     return vsum(a, b);
 }
 
