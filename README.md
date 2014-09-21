@@ -1,8 +1,10 @@
-### Generating OpenCL/CUDA source code from C++ expressions in VexCL.
+### Реализация генератора вычислительных ядер OpenCL/CUDA в библиотеке VexCL
 
-VexCL is an opensource C++ vector expression template library for OpenCL/CUDA.
-It has been created for ease of GPGPU development with C++ and provides
-convenient and intuitive notation for linear algebra operations, vector
-arithmetic and various parallel primitives. This talk discusses C++ techniques
-that VexCL uses to effectively generate OpenCL/CUDA compute kernels from user
-expressions.
+VexCL -- это библиотека с открытым исходным кодом, разработанная в КазФ МСЦ
+РАН, и предназначенная для упрощения разработки C++ приложений, использующих
+технологии OpenCL/CUDA (https://github.com/ddemidov/vexcl). Библиотека
+предоставляет удобную и интуитивную нотацию для записи векторных выражений, и
+позволяет использовать вычислительные мощности современных видеокарт и
+арифметических ускорителей.  В данном докладе рассмотрена методика,
+применяющаяся в библиотеке VexCL для автоматической генерации эффективных
+вычислительных ядер OpenCL/CUDA.
