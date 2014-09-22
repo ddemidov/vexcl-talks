@@ -7,6 +7,18 @@ set(USE_PGFPAGES "")
 
 option(OUTPUT_NOTES "Create notes" OFF)
 
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/perfplot.pdf
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/perfplot.py
+            ${CMAKE_BINARY_DIR}/perfplot.pdf
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/perfplot.py
+    )
+
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lorenz.pdf
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/lorenz.py
+            ${CMAKE_BINARY_DIR}/lorenz.pdf
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lorenz.py
+    )
+
 function(add_slides BEAMER_FILE)
     function(add_document SOURCE SUFFIX)
         configure_file(
@@ -20,8 +32,9 @@ function(add_slides BEAMER_FILE)
                     beamercolorthemechameleon.sty
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
+                    ${CMAKE_BINARY_DIR}/perfplot.pdf
+                    ${CMAKE_BINARY_DIR}/lorenz.pdf
             IMAGES tesla.png radeon.png intel.png forkme.png clippy.png
-                   perfplot.eps
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 

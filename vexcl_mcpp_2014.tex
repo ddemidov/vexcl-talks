@@ -1741,20 +1741,30 @@ y = square( sin(x) );
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Parameter study for the Lorenz attractor system}
-    \begin{block}{Lorenz attractor system}
-        \vspace{-1\baselineskip}
-        \begin{align*}
-            \dot{x} &= -\sigma \left( x - y \right), \\
-            \dot{y} &= R x - y - xz, \\
-            \dot{z} &= -bz + xy.
-            \label{eq:lorenz}
-        \end{align*}
-    \end{block}
-    \begin{itemize}
-        \item Let's solve large number of Lorenz systems, each
-            for a different value of $R$.
-        \item Let's use VexCL and Boost.odeint for that.
-    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            \begin{block}{Lorenz attractor system}
+                \vspace{-1\baselineskip}
+                \begin{align*}
+                    \dot{x} &= -\sigma \left( x - y \right), \\
+                    \dot{y} &= R x - y - xz, \\
+                    \dot{z} &= -bz + xy.
+                    \label{eq:lorenz}
+                \end{align*}
+            \end{block}
+            \begin{itemize}
+                \item Let's solve large number of Lorenz systems, each
+                    for a different value of $R$.
+                \item Let's use VexCL and Boost.odeint for that.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{lorenz}
+                \caption{Lorenz attractor trajectory}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \note[itemize]{

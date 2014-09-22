@@ -1,6 +1,17 @@
 #!/usr/bin/python
 
 import numpy as np
+from chameleon import *
+import sys
+
+if (len(sys.argv[1:]) > 0):
+    import matplotlib
+    matplotlib.use('Agg')
+    outfile = sys.argv[1]
+    quiet = True
+else:
+    quiet = False
+
 from pylab import *
 
 x = np.array([0])
@@ -13,11 +24,6 @@ vexcl2 = np.array([ 14.17]);
 
 rc('font',   size=22)
 figure(num=1, figsize=(7,7))
-
-chameleon1 = ( 44.0/255,  62.0/255,  80.0/255)
-chameleon2 = (154.0/255, 205.0/255,  50.0/255)
-chameleon3 = ( 52.0/255, 153.0/255, 219.0/255)
-chameleon4 = ( 41.0/255, 128.0/255, 185.0/255)
 
 barh(x + 0 * width, cublas, 0.5 * width, color=chameleon1)
 barh(x + 1 * width, thrust, 0.5 * width, color=chameleon2)
@@ -34,4 +40,7 @@ xticks([0, 100, 200, 300])
 xlim([0, 360])
 ylim([-0.5 * width, 4 * width])
 xlabel('Compute time (sec)')
-show()
+
+if quiet: savefig(outfile)
+else:     show()
+
