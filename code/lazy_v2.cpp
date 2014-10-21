@@ -7,15 +7,15 @@ template <class LHS, class RHS>
 struct vsum {
     const LHS &a;
     const RHS &b;
-    vsum(const LHS &a, const RHS &b) : a(a), b(b) {}
-    auto operator[](size_t i) const -> decltype(a[i] + b[i]) {
+
+    auto operator[](size_t i) const {
         return a[i] + b[i];
     }
 };
 
 template <class LHS, class RHS>
 const vsum<LHS, RHS> operator+(const LHS &a, const RHS &b) {
-    return vsum<LHS, RHS>(a, b);
+    return vsum<LHS, RHS>{a, b};
 }
 
 template <typename T>
