@@ -1474,36 +1474,35 @@ namespace vex {
     \begin{exampleblock}{}
         \begin{uncoverenv}<1>
             \begin{lstlisting}
-namespace vex {
-    namespace traits {
+namespace vex { namespace traits {
 
-        template <>
-        struct kernel_param_declaration< elem_index >
+    template <>
+    struct kernel_param_declaration< elem_index >
+    {
+        \end{lstlisting}
+    \end{uncoverenv}
+    \begin{uncoverenv}<1,2>
+        \begin{lstlisting}[firstnumber=last]
+        static std::string get(
+            const elem_index&, const cl::Device&, const std::string &prm_name,
+            detail::kernel_generator_state_ptr
+            )
+        \end{lstlisting}
+    \end{uncoverenv}
+    \begin{uncoverenv}<1,3>
+        \begin{lstlisting}[firstnumber=last]
         {
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,2>
-            \begin{lstlisting}[firstnumber=last]
-            static std::string get(
-                const elem_index&, const cl::Device&, const std::string &prm_name,
-                detail::kernel_generator_state_ptr
-                )
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,3>
-            \begin{lstlisting}[firstnumber=last]
-            {
-                std::ostringstream s;
-                s << ",\n\t" << type_name<size_t>() << " " << prm_name;
-                return s.str();
-            }
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}[firstnumber=last]
-        };
-    }
-}
+            std::ostringstream s;
+            s << ",\n\t" << type_name<size_t>() << " " << prm_name;
+            return s.str();
+        }
+        \end{lstlisting}
+    \end{uncoverenv}
+    \begin{uncoverenv}<1>
+        \begin{lstlisting}[firstnumber=last]
+    };
+
+} }
             \end{lstlisting}
         \end{uncoverenv}
     \end{exampleblock}
@@ -1515,30 +1514,29 @@ namespace vex {
 \begin{frame}[fragile]{Contribution to expression string}
     \begin{exampleblock}{}
             \begin{lstlisting}
-namespace vex {
-    namespace traits {
+namespace vex { namespace traits {
 
-        template <>
-        struct partial_vector_expr< elem_index >
+    template <>
+    struct partial_vector_expr< elem_index >
+    {
+        \end{lstlisting}
+        \begin{lstlisting}[firstnumber=last]
+        static std::string get(
+            const elem_index&, const cl::Device&, const std::string &prm_name,
+            detail::kernel_generator_state_ptr
+            )
+        \end{lstlisting}
+        \begin{lstlisting}[firstnumber=last]
         {
-            \end{lstlisting}
-            \begin{lstlisting}[firstnumber=last]
-            static std::string get(
-                const elem_index&, const cl::Device&, const std::string &prm_name,
-                detail::kernel_generator_state_ptr
-                )
-            \end{lstlisting}
-            \begin{lstlisting}[firstnumber=last]
-            {
-                std::ostringstream s;
-                s << "(" << prm_name << " + idx)";
-                return s.str();
-            }
-            \end{lstlisting}
-            \begin{lstlisting}[firstnumber=last]
-        };
-    }
-}
+            std::ostringstream s;
+            s << "(" << prm_name << " + idx)";
+            return s.str();
+        }
+        \end{lstlisting}
+        \begin{lstlisting}[firstnumber=last]
+    };
+
+} }
             \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -1549,23 +1547,22 @@ namespace vex {
 \begin{frame}[fragile]{Setting kernel arguments}
     \begin{exampleblock}{}
         \begin{lstlisting}
-namespace vex {
-    namespace traits {
+namespace vex { namespace traits {
 
-        template <>
-        struct kernel_arg_setter< elem_index >
+    template <>
+    struct kernel_arg_setter< elem_index >
+    {
+        static void set(
+            const elem_index &term, cl::Kernel &kernel, unsigned /*device*/,
+            size_t index_offset, unsigned &position,
+            detail::kernel_generator_state_ptr
+            )
         {
-            static void set(
-                const elem_index &term, cl::Kernel &kernel, unsigned /*device*/,
-                size_t index_offset, unsigned &position,
-                detail::kernel_generator_state_ptr
-                )
-            {
-                kernel.setArg(position++, term.offset + index_offset);
-            }
-        };
-    }
-}
+            kernel.setArg(position++, term.offset + index_offset);
+        }
+    };
+
+} }
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
