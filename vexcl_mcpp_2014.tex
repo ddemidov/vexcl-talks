@@ -1382,12 +1382,12 @@ y = sqr(sin(tmp), cos(tmp));
                     \end{lstlisting}
             \end{exampleblock}
             \begin{exampleblock}{OpenCL code:}
-                \begin{uncoverenv}<1,2>
+                \begin{uncoverenv}<1,2,6>
                     \begin{lstlisting}
 double sqr(double x, double y) { return x * x + y * y; }
                     \end{lstlisting}
                 \end{uncoverenv}
-                \begin{uncoverenv}<1>
+                \begin{uncoverenv}<1,6>
                     \begin{lstlisting}[firstnumber=last]
 kernel void vexcl_vector_kernel (ulong n,
             \end{lstlisting}
@@ -1398,7 +1398,7 @@ kernel void vexcl_vector_kernel (ulong n,
   global double * prm_2_1
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1>
+        \begin{uncoverenv}<1,6>
             \begin{lstlisting}[firstnumber=last]
 )
 {
@@ -1407,17 +1407,17 @@ kernel void vexcl_vector_kernel (ulong n,
   {
                     \end{lstlisting}
                 \end{uncoverenv}
-                \begin{uncoverenv}<1,4>
+                \begin{uncoverenv}<1,4,6>
                     \begin{lstlisting}[firstnumber=last]
     double temp_1 = prm_2_1[idx];
                     \end{lstlisting}
                 \end{uncoverenv}
-                \begin{uncoverenv}<1,5>
+                \begin{uncoverenv}<1,5,6>
                     \begin{lstlisting}[firstnumber=last]
     prm_1[idx] = sqr( sin( temp_1 ), cos( temp_1 ) );
                     \end{lstlisting}
                 \end{uncoverenv}
-                \begin{uncoverenv}<1>
+                \begin{uncoverenv}<1,6>
                     \begin{lstlisting}[firstnumber=last]
   }
 }
@@ -1425,17 +1425,21 @@ kernel void vexcl_vector_kernel (ulong n,
                 \end{uncoverenv}
             \end{exampleblock}
         \end{column}
+        \setbeamercovered{transparent=0}
         \begin{column}{0.38\textwidth}
             \begin{itemize}
                 \item Each terminal should tell VexCL how to use it:
                     \begin{itemize}
                         \item<alert@2> Does the terminal need global preamble?
-                        \item<alert@3> What kernel parameters does it need?
+                        \item<alert@3> What kernel parameters does it need, and
+                            how to set them?
                         \item<alert@4> Does it need local preamble?
                         \item<alert@5> What contribution does it make to
-                            expression string?
-                        \item<alert@6> How to set kernel parameters?
+                            the expression string?
                     \end{itemize}
+                    \vspace{\baselineskip}
+                \item<6> This is done by specializing a number of templated
+                    structs.
             \end{itemize}
         \end{column}
     \end{columns}
