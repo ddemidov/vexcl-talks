@@ -39,13 +39,8 @@
     \protected\def\plusplus{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-3}\bf ++}}\xspace}
     \newcommand{\CXX}{{\rm C}\plusplus}
     \newcommand{\CC}{{\rm C99}\xspace}
-    \newcommand{\ghribbon}{
-        \begin{tikzpicture}[remember picture,overlay]
-            \node[anchor=north east,yshift=4pt,xshift=4pt] at (current page.north east) {
-                \href{https://github.com/ddemidov/vexcl}{\includegraphics[width=2cm]{forkme}}
-            };
-        \end{tikzpicture}
-    }
+    \input{forkme}
+
 
     \title{VexCL}
     \subtitle{OpenCL/CUDA source code generation from \CXX ~expressions}
@@ -122,7 +117,6 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
-    \ghribbon
     \begin{itemize}
         \item Created for ease of \CXX based GPGPU development.
             \begin{itemize}
@@ -136,6 +130,8 @@
             \end{itemize}
             \vspace{\baselineskip}
     \end{itemize}
+
+    \forkme{east}{https://gihub.com/ddemidov/vexcl}
 \end{frame}
 
 \note[itemize]{
@@ -1701,6 +1697,8 @@ x = sqr( sin(y), cos(z) );
             \end{figure}
         \end{column}
     \end{columns}
+
+    \forkme{east}{https://gihub.com/ddemidov/vexcl}%
 \end{frame}
 
 \note{}

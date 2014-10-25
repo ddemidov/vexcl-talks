@@ -1,0 +1,39 @@
+\usepackage{ifthen}
+\usetikzlibrary{shadows.blur}
+\newlength{\forkmeoffset}
+\setlength{\forkmeoffset}{3em}
+
+\newcommand{\forkme}[2]{
+  \ifthenelse{\equal{#1}{east}}{%
+    \tikzset{forkmerot/.style={rotate=-45}}
+  }{%
+    \tikzset{forkmerot/.style={rotate=45}}
+  }
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[forkmerot, shift={(0, -\forkmeoffset)}] at (current page.north #1) {
+      \begin{tikzpicture}[remember picture, overlay,scale=0.5]
+        \node[
+            fill=chameleon1,
+            text centered,
+            minimum width=50em,
+            minimum height=1.2em,
+            blur shadow,
+            shadow yshift=0pt,
+            shadow xshift=0pt,
+            shadow blur radius=.2em,
+            shadow opacity=50,
+            text=white
+            ](fmogh) at (0pt, 0pt) {
+                \fontfamily{phv}\selectfont\bfseries\tiny%
+                \href{#2}{Fork me on GitHub}
+            };
+        \draw[
+            white,
+            dashed,
+            line width=.04em,
+            dash pattern=on .2em off 1.5\pgflinewidth
+            ] (-25em,1em) rectangle (25em,-1em);
+      \end{tikzpicture}
+    };
+  \end{tikzpicture}
+}

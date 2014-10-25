@@ -28,13 +28,14 @@ function(add_slides BEAMER_FILE)
 
         add_latex_document(
             ${BEAMER_FILE}_${SUFFIX}.tex
+            INPUTS  forkme.tex
             DEPENDS beamerthemeTorino.sty
                     beamercolorthemechameleon.sty
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/perfplot.pdf
                     ${CMAKE_BINARY_DIR}/lorenz.pdf
-            IMAGES tesla.png radeon.png intel.png forkme.png clippy.png
+            IMAGES tesla.png radeon.png intel.png clippy.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 
