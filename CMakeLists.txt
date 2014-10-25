@@ -7,17 +7,17 @@ set(USE_PGFPAGES "")
 
 option(OUTPUT_NOTES "Create notes" OFF)
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/perfplot.pdf
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/perfplot.py
-            ${CMAKE_BINARY_DIR}/perfplot.pdf
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/perfplot.py
-    )
+function(mplfigure fname)
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${fname}.pdf
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${fname}.py
+                ${CMAKE_BINARY_DIR}/${fname}.pdf
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${fname}.py
+        )
+endfunction()
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lorenz.pdf
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/lorenz.py
-            ${CMAKE_BINARY_DIR}/lorenz.pdf
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lorenz.py
-    )
+mplfigure(perfplot)
+mplfigure(lorenz)
+mplfigure(mcpi)
 
 function(add_slides BEAMER_FILE)
     function(add_document SOURCE SUFFIX)
@@ -35,6 +35,7 @@ function(add_slides BEAMER_FILE)
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/perfplot.pdf
                     ${CMAKE_BINARY_DIR}/lorenz.pdf
+                    ${CMAKE_BINARY_DIR}/mcpi.pdf
             IMAGES tesla.png radeon.png intel.png clippy.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()

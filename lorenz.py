@@ -32,11 +32,7 @@ t  = np.linspace(0, 50, 5000)
 
 x = odeint(lorenz_system, x0, t)
 
-rc('font',**{'family':'sans-serif','sans-serif':['Monospace'], 'size':24})
-rc('text', usetex=True)
-rc('text.latex',unicode=True)
-rc('text.latex',preamble=r'\usepackage[utf8]{inputenc}')
-rc('text.latex',preamble=r'\usepackage[russian]{babel}')
+rc('font', size=22)
 
 fig = figure(num=1, figsize=(9,7))
 ax = fig.gca(projection='3d')

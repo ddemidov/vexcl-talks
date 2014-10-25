@@ -22,7 +22,7 @@
     \usepackage{listings}
     \lstset{
         language=C++,
-        basicstyle=\footnotesize\rmfamily,
+        basicstyle=\footnotesize,
         stringstyle=\color{chameleon4},
         numbers=left,
         numberstyle=\tiny,
@@ -40,6 +40,17 @@
     \newcommand{\CXX}{{\rm C}\plusplus}
     \newcommand{\CC}{{\rm C99}\xspace}
     \input{forkme}
+    \tikzset{
+        treenode/.style={
+            draw,
+            fill=white,
+            blur shadow,
+            shadow xshift=1pt,
+            shadow yshift=-1pt,
+            shadow blur radius=2pt,
+            shadow opacity=40
+            }
+        }
 
 
     \title{VexCL}
@@ -277,17 +288,17 @@ vex::Context ctx(
     \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
         \begin{onlyenv}<1|handout:0>
-        \begin{lstlisting}[escapechar=!]
+        \begin{lstlisting}
 vex::Context ctx( vex::Filter::Name("Tesla") );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<2|handout:0>
-        \begin{lstlisting}[escapechar=!]
+        \begin{lstlisting}
 vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<3>
-        \begin{lstlisting}[escapechar=!]
+        \begin{lstlisting}
 vex::Context ctx( vex::Filter::DoublePrecision );
         \end{lstlisting}
         \end{onlyenv}
@@ -444,6 +455,35 @@ y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
     vectors and scalars with almost any binary operators. OpenCL math functions
     and user-defined functions are also available.
 }
+
+\begin{frame}[fragile]{A more involved example: Monte Carlo $\pi$}
+    \begin{columns}
+        \begin{column}{0.55\textwidth}
+            \begin{equation*}
+                \frac{\text{area of circle}}{\text{area of square}} =
+                \frac{\pi r^2}{(2r)^2} = \frac{\pi}{4},
+            \end{equation*}
+            \vspace{\baselineskip}
+            \begin{equation*}
+                \pi = 4 \frac{\text{area of circle}}{\text{area of square}}
+                \approx 4 \frac{\text{\color{chameleon2}{points in circle}}}{\text{all points}}
+            \end{equation*}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{mcpi}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+vex::Random<cl_double2> rnd;
+vex::Reductor<size_t, vex::SUM> sum(ctx);
+
+double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{OpenCL/CUDA code is generated at runtime}
@@ -759,7 +799,7 @@ binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Expression templates are trees}
     \begin{columns}
-        \begin{column}{0.45\textwidth}
+        \begin{column}{0.4\textwidth}
             \begin{exampleblock}{The expression in the RHS of:}
                 \begin{onlyenv}<1>
                     \begin{lstlisting}
@@ -794,16 +834,16 @@ binary_op<
                 \end{uncoverenv}
             \end{exampleblock}
         \end{column}
-        \begin{column}{0.45\textwidth}
+        \begin{column}{0.55\textwidth}
             \begin{figure}
                 \begin{tikzpicture}
                     \uncover<2->{
-                    \draw (0,0) node(sub)            [draw,fill=white,circle,drop shadow]{$-$};
-                    \draw (sub) +( 1.50,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
+                    \draw (0,0) node(sub)            [treenode,circle]{$-$};
+                    \draw (sub) +( 1.50,-1) node(z)  [treenode,minimum size=0.5cm]{z};
                     }
-                    \draw (sub) +(-1.50,-1) node(add)[draw,fill=white,circle,drop shadow]{$+$};
-                    \draw (add) +(-1.50,-1) node(x)  [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-                    \draw (add) +( 1.50,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+                    \draw (sub) +(-1.50,-1) node(add)[treenode,circle]{$+$};
+                    \draw (add) +(-1.50,-1) node(x)  [treenode,minimum size=0.5cm]{x};
+                    \draw (add) +( 1.50,-1) node(y)  [treenode,minimum size=0.5cm]{y};
 
                     \uncover<2->{
                     \draw (sub) -- (add);
@@ -812,7 +852,7 @@ binary_op<
                     \draw (add) -- (x);
                     \draw (add) -- (y);
 
-                    \uncover<6>{
+                    \uncover<6->{
                         \draw (sub) +(-2.5, 1.2) node[anchor=west]{\code{#pragma omp parallel for}};
                     }
                     \uncover<3->{
@@ -826,6 +866,12 @@ binary_op<
                     \uncover<5->{\draw (y)   +(0.6, 0) node{\code{[i]}};}
                 \end{tikzpicture}
             \end{figure}
+            \begin{uncoverenv}<7>
+                \begin{itemize}
+                    \item The \CXX compiler walks the tree.
+                    \item \code{binary_op::operator[]} does the actual work.
+                \end{itemize}
+            \end{uncoverenv}
         \end{column}
     \end{columns}
 \end{frame}
@@ -854,6 +900,9 @@ double c = x[42] + y[42];
     \begin{itemize}
         \item No temporaries involved.
         \item Optimizing compiler is able to inline everything.
+            \vspace{\baselineskip}
+            \pause
+        \item<alert@2> \emph{But how is that related to OpenCL code generation?}
     \end{itemize}
 \end{frame}
 
@@ -907,11 +956,11 @@ kernel void vexcl_vector_kernel(
         \end{lstlisting}
     \end{exampleblock}
     \begin{tikzpicture}[overlay,scale=0.8]
-        \draw (11,6) node(sub)[draw,fill=white,ellipse,drop shadow]{$-$};
-        \draw (sub) +( 1.50,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
-        \draw (sub) +(-1.50,-1) node(add)[draw,fill=white,circle,drop shadow]{$+$};
-        \draw (add) +(-1.50,-1) node(x)  [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-        \draw (add) +( 1.50,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+        \draw (11,6) node(sub)[treenode,circle]{$-$};
+        \draw (sub) +( 1.50,-1) node(z)  [treenode,minimum size=0.5cm]{z};
+        \draw (sub) +(-1.50,-1) node(add)[treenode,circle]{$+$};
+        \draw (add) +(-1.50,-1) node(x)  [treenode,minimum size=0.5cm]{x};
+        \draw (add) +( 1.50,-1) node(y)  [treenode,minimum size=0.5cm]{y};
         \draw (sub) -- (add);
         \draw (sub) -- (z);
         \draw (add) -- (x);
@@ -1378,15 +1427,14 @@ kernel void vexcl_vector_kernel (ulong n,
         \end{column}
         \begin{column}{0.38\textwidth}
             \begin{itemize}
-                \item Each terminal should tell VexCL how to use it by \\
-                    specializing a number of templated structs:
+                \item Each terminal should tell VexCL how to use it:
                     \begin{itemize}
-                        \item<1,2> Does the terminal need global preamble?
-                        \item<1,3> What kernel parameters does it need?
-                        \item<1,4> Does it need local preamble?
-                        \item<1,5> What contribution does it make to expression
-                            string?
-                        \item<1,6> How to set kernel parameters?
+                        \item<alert@2> Does the terminal need global preamble?
+                        \item<alert@3> What kernel parameters does it need?
+                        \item<alert@4> Does it need local preamble?
+                        \item<alert@5> What contribution does it make to
+                            expression string?
+                        \item<alert@6> How to set kernel parameters?
                     \end{itemize}
             \end{itemize}
         \end{column}
@@ -1397,29 +1445,32 @@ kernel void vexcl_vector_kernel (ulong n,
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Example: element index}{\code{<vexcl/element_index.hpp>}}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
         \begin{lstlisting}
 x = sin( 2 * M_PI * vex::element_index() / n );
         \end{lstlisting}
     \end{exampleblock}
     \begin{exampleblock}{}
-        \begin{onlyenv}<1-3>
-        \begin{lstlisting}
+        \begin{onlyenv}<1-4>
+            \begin{uncoverenv}<1-3>
+                \begin{lstlisting}
 namespace vex {
     struct elem_index {
         size_t offset;
     };
-        \end{lstlisting}
-        \begin{uncoverenv}<2->
-            \begin{lstlisting}[firstnumber=last]
+                \end{lstlisting}
+            \end{uncoverenv}
+            \begin{uncoverenv}<2-4>
+                \begin{lstlisting}[firstnumber=last]
 
-    auto element_index(size_t offset = 0) {
+    inline auto element_index(size_t offset = 0) {
         return boost::proto::as_expr<vector_domain>( elem_index{offset} );
     }
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<3->
-            \begin{lstlisting}[firstnumber=last]
+                \end{lstlisting}
+            \end{uncoverenv}
+            \begin{uncoverenv}<3>
+                \begin{lstlisting}[firstnumber=last]
 
     namespace traits {
         template <> struct is_vector_expr_terminal< elem_index > : std::true_type {};
@@ -1430,8 +1481,7 @@ namespace vex {
 }
         \end{lstlisting}
         \end{onlyenv}
-        \setbeamercovered{transparent=40}
-        \begin{onlyenv}<4->
+        \begin{onlyenv}<5->
         \begin{uncoverenv}<1>
             \begin{lstlisting}
 namespace vex {
@@ -1440,7 +1490,7 @@ namespace vex {
     };
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<4>
+        \begin{uncoverenv}<5>
             \begin{lstlisting}[firstnumber=last]
 
     inline boost::proto::result_of::as_expr<elem_index, vector_domain>::type
@@ -1468,39 +1518,21 @@ namespace vex {
 \begin{frame}[fragile]{Parameter declaration}
     \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}
-namespace vex { namespace traits {
-
-    template <>
-    struct kernel_param_declaration< elem_index >
+        \begin{lstlisting}
+template <>
+struct kernel_param_declaration< elem_index >
+{
+    static std::string get(
+        const elem_index&, const cl::Device&, const std::string &prm_name,
+        detail::kernel_generator_state_ptr
+        )
     {
+        std::ostringstream s;
+        s << ",\n\t" << type_name<size_t>() << " " << prm_name;
+        return s.str();
+    }
+};
         \end{lstlisting}
-    \end{uncoverenv}
-    \begin{uncoverenv}<1,2>
-        \begin{lstlisting}[firstnumber=last]
-        static std::string get(
-            const elem_index&, const cl::Device&, const std::string &prm_name,
-            detail::kernel_generator_state_ptr
-            )
-        \end{lstlisting}
-    \end{uncoverenv}
-    \begin{uncoverenv}<1,3>
-        \begin{lstlisting}[firstnumber=last]
-        {
-            std::ostringstream s;
-            s << ",\n\t" << type_name<size_t>() << " " << prm_name;
-            return s.str();
-        }
-        \end{lstlisting}
-    \end{uncoverenv}
-    \begin{uncoverenv}<1>
-        \begin{lstlisting}[firstnumber=last]
-    };
-
-} }
-            \end{lstlisting}
-        \end{uncoverenv}
     \end{exampleblock}
 \end{frame}
 
@@ -1510,29 +1542,25 @@ namespace vex { namespace traits {
 \begin{frame}[fragile]{Contribution to expression string}
     \begin{exampleblock}{}
             \begin{lstlisting}
-namespace vex { namespace traits {
-
-    template <>
-    struct partial_vector_expr< elem_index >
+template <>
+struct partial_vector_expr< elem_index >
+{
+    \end{lstlisting}
+    \begin{lstlisting}[firstnumber=last]
+    static std::string get(
+        const elem_index&, const cl::Device&, const std::string &prm_name,
+        detail::kernel_generator_state_ptr
+        )
+    \end{lstlisting}
+    \begin{lstlisting}[firstnumber=last]
     {
-        \end{lstlisting}
-        \begin{lstlisting}[firstnumber=last]
-        static std::string get(
-            const elem_index&, const cl::Device&, const std::string &prm_name,
-            detail::kernel_generator_state_ptr
-            )
-        \end{lstlisting}
-        \begin{lstlisting}[firstnumber=last]
-        {
-            std::ostringstream s;
-            s << "(" << prm_name << " + idx)";
-            return s.str();
-        }
-        \end{lstlisting}
-        \begin{lstlisting}[firstnumber=last]
-    };
-
-} }
+        std::ostringstream s;
+        s << "(" << prm_name << " + idx)";
+        return s.str();
+    }
+    \end{lstlisting}
+    \begin{lstlisting}[firstnumber=last]
+};
             \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -1543,22 +1571,18 @@ namespace vex { namespace traits {
 \begin{frame}[fragile]{Setting kernel arguments}
     \begin{exampleblock}{}
         \begin{lstlisting}
-namespace vex { namespace traits {
-
-    template <>
-    struct kernel_arg_setter< elem_index >
+template <>
+struct kernel_arg_setter< elem_index >
+{
+    static void set(
+        const elem_index &term, cl::Kernel &kernel, unsigned /*device*/,
+        size_t index_offset, unsigned &position,
+        detail::kernel_generator_state_ptr
+        )
     {
-        static void set(
-            const elem_index &term, cl::Kernel &kernel, unsigned /*device*/,
-            size_t index_offset, unsigned &position,
-            detail::kernel_generator_state_ptr
-            )
-        {
-            kernel.setArg(position++, term.offset + index_offset);
-        }
-    };
-
-} }
+        kernel.setArg(position++, term.offset + index_offset);
+    }
+};
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
