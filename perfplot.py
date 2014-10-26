@@ -26,8 +26,8 @@ vexcl2 = np.array([ 14.17]);
 rc('font',**{'family':'sans-serif','sans-serif':['Monospace'], 'size':24})
 rc('text', usetex=True)
 rc('text.latex',unicode=True)
-rc('text.latex',preamble='\usepackage[utf8]{inputenc}')
-rc('text.latex',preamble='\usepackage[russian]{babel}')
+rc('text.latex',preamble=r'\usepackage[utf8]{inputenc}')
+rc('text.latex',preamble=r'\usepackage[russian]{babel}')
 
 figure(num=1, figsize=(7,7.5))
 
