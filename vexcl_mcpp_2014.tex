@@ -677,6 +677,9 @@ struct vsum {
     const vector &lhs;
     const vector &rhs;
 };
+        \end{lstlisting}
+        \pause
+        \begin{lstlisting}[firstnumber=last]
 
 vsum operator+(const vector &a, const vector &b) {
     return vsum{a, b};
@@ -686,7 +689,7 @@ vsum operator+(const vector &a, const vector &b) {
         \begin{lstlisting}[firstnumber=last]
 
 const vector& vector::operator=(const vsum &s) {
-    for(size_t i = 0; i < data.size(); ++i)
+    for(size_t i = 0; i < n; ++i)
         data[i] = s.lhs[i] + s.rhs[i];
     return *this;
 }
@@ -730,7 +733,7 @@ struct vsum {
     const LHS &lhs;
     const RHS &rhs;
 
-    double operator[](size_t i) const { return lhs[i] + rhs[i]; }
+    double operator[ ](size_t i) const { return lhs[i] + rhs[i]; }
 };
         \end{lstlisting}
         \pause
@@ -746,7 +749,7 @@ vsum<LHS, RHS> operator+(const LHS &a, const RHS &b) {
 
 template<class Expr>
 const vector& vector::operator=(const Expr &expr) {
-    for(int i = 0; i < data.size(); ++i) data[i] = expr[i];
+    for(int i = 0; i < n; ++i) data[i] = expr[i];
     return *this;
 }
         \end{lstlisting}
@@ -757,9 +760,15 @@ const vector& vector::operator=(const Expr &expr) {
 
 %----------------------------------------------------------------------------
 \begin{frame}{Still not general enough}
-    \begin{itemize}
-        \item There are times in life when addition alone is not enough\ldots
-    \end{itemize}
+    \begin{figure}
+        \begin{tikzpicture}
+            \draw (0.0, 0.0) node{\includegraphics[width=0.75\textwidth]{times_in_life}};
+            \draw (3.5,-3.5) node{\includegraphics[width=0.2\textwidth]{like}};
+            \draw (1.8, 0.8) node{There are times in life};
+            \draw (1.8,-0.1) node{\Large when addition alone};
+            \draw (1.8,-1.2) node{\Huge is not enough};
+        \end{tikzpicture}
+    \end{figure}
 \end{frame}
 
 \note{ }
@@ -780,7 +789,7 @@ struct binary_op {
     const LHS &lhs;
     const RHS &rhs;
 
-    double operator[](size_t i) const { return OP::apply(lhs[i], rhs[i]); }
+    double operator[ ](size_t i) const { return OP::apply(lhs[i], rhs[i]); }
 };
         \end{lstlisting}
         \pause
@@ -869,7 +878,7 @@ binary_op<
             \begin{uncoverenv}<7>
                 \begin{itemize}
                     \item The \CXX compiler walks the tree.
-                    \item \code{binary_op::operator[]} does the actual work.
+                    \item \code{binary_op::operator[ ]} does the actual work.
                 \end{itemize}
             \end{uncoverenv}
         \end{column}
