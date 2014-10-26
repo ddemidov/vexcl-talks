@@ -131,8 +131,10 @@
     \begin{itemize}
         \item Created for ease of \CXX based GPGPU development.
             \begin{itemize}
-                \item Convenient notation for vector expressions.
-                \item OpenCL/CUDA JIT code generation.
+                \item Convenient notation for vector expressions
+                \item OpenCL/CUDA JIT code generation
+                \item Easily combined with existing libraries/code
+                \item Header-only
             \end{itemize}
             \vspace{\baselineskip}
         \item The source code is publicly available under MIT license.
@@ -574,22 +576,19 @@ extern "C" __global__ void vexcl_vector_kernel (
         \item How to implement a DSL in \CXX \emph{effectively}?
             \vspace{\baselineskip}
         \item The idea is quite old:
-            \begin{itemize}
-                \item \emph{Todd Veldhuizen}, Expression templates, \CXX Report,
-                    \alert{1995}
-            \end{itemize}
-        \item First (?) implementation:
-            \begin{itemize}
-                \item ''Blitz\plusplus is a \CXX class library for
-                    scientific computing which provides performance\\
-                    on par with Fortran 77/90``.
-            \end{itemize}
+            \begin{description}[1995:]
+                \item[1995:] \emph{Todd Veldhuizen}, Expression templates,
+                    \CXX Report.
+                \item[1996:] Blitz\plusplus is a \CXX class library for
+                    scientific computing\\ \emph{which provides performance on
+                    par with Fortran 77/90}.
+            \end{description}
         \item Today:
             \begin{itemize}
-                \item Boost.uBLAS, Blaze, MTL, Eigen, Armadillo, etc.
+                \item Armadillo, Blaze, Boost.uBLAS, Eigen, MTL, etc.
             \end{itemize}
             \vspace{\baselineskip}
-        \item \emph{How does it work?}
+        \item \alert{\emph{How does it work?}}
     \end{itemize}
 \end{frame}
 
@@ -1690,7 +1689,7 @@ x = sqr( sin(y), cos(z) );
 
 %----------------------------------------------------------------------------
 \section{Conclusion}
-\begin{frame}[fragile]{Conclusion}
+\begin{frame}[label=conclusion]{Conclusion}
     \begin{columns}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
@@ -1852,5 +1851,23 @@ x0 = a1 * x1 + a2 * x2;
 \end{frame}
 
 \note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{VexCL symbolic implementation}
+    \begin{itemize}
+        \item Pass VexCL symbolic variables to a Boost.odeint algorithm.
+        \item Make single integration step.
+        \item Generate monolithic kernel that does one full time step.
+            \begin{itemize}
+                \item Intermediate variables are no longer stored in global
+                    memory.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\againframe{conclusion}
 
 \end{document}
