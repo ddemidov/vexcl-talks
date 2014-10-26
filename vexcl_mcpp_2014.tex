@@ -440,12 +440,6 @@ y = sin(2 * x) + sqrt(1 - x * x);
                 \end{column}
             \end{columns}
     \end{itemize}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-x = 2 * M_PI * vex::element_index() / n;
-y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
-        \end{lstlisting}
-    \end{exampleblock}
 \end{frame}
 
 \note[itemize]{
@@ -459,14 +453,19 @@ y = pow(sin(x), 2.0) + pow(cos(x), 2.0);
 \begin{frame}[fragile]{A more involved example: Monte Carlo $\pi$}
     \begin{columns}
         \begin{column}{0.55\textwidth}
+            \begin{itemize}
+                \item Compute approximate value of $\pi$:
+            \end{itemize}
+            \vspace{\baselineskip}
             \begin{equation*}
                 \frac{\text{area of circle}}{\text{area of square}} =
                 \frac{\pi r^2}{(2r)^2} = \frac{\pi}{4},
             \end{equation*}
-            \vspace{\baselineskip}
             \begin{equation*}
                 \pi = 4 \frac{\text{area of circle}}{\text{area of square}}
-                \approx 4 \frac{\text{\color{chameleon2}{points in circle}}}{\text{all points}}
+                \approx 4 \frac{\text{\color{chameleon2}{points in
+                circle}}}{\text{\color{chameleon2}{all}
+                \color{chameleon3}{points}}}
             \end{equation*}
         \end{column}
         \begin{column}{0.35\textwidth}
