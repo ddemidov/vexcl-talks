@@ -129,7 +129,7 @@
 %----------------------------------------------------------------------------
 \begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
     \begin{itemize}
-        \item Created for ease of \CXX based GPGPU development.
+        \item Created for ease of \CXX based GPGPU development:
             \begin{itemize}
                 \item Convenient notation for vector expressions
                 \item OpenCL/CUDA JIT code generation
@@ -137,7 +137,7 @@
                 \item Header-only
             \end{itemize}
             \vspace{\baselineskip}
-        \item The source code is publicly available under MIT license.
+        \item The source code is publicly available under MIT license:
             \begin{itemize}
                 \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
             \end{itemize}
@@ -168,27 +168,58 @@
 \note{}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Hello VexCL: vector sum}
-    \begin{exampleblock}{Get compute devices supporting double precision:}
-        \begin{lstlisting}
-vex::Context ctx( vex::Filter::DoublePrecision );
-if ( !ctx ) throw std::runtime_error("No compute devices available");
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{Prepare input data, transfer it to device(s):}
-        \begin{lstlisting}[firstnumber=last]
-std::vector<double> a(N, 1), b(N, 2), c(N);
-vex::vector<double> A(ctx, a);
-vex::vector<double> B(ctx, b);
-vex::vector<double> C(ctx, N);
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{Launch kernel, get result back to host:}
-        \begin{lstlisting}[firstnumber=last]
-C = A + B;
-vex::copy(C, c);
-std::cout << c[42] << std::endl;
-        \end{lstlisting}
+\begin{frame}[fragile,shrink=5]{Hello VexCL: vector sum}
+    \setbeamercovered{transparent=40}
+    \begin{exampleblock}{}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
+#include <iostream>
+#include <vector>
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
+#include <vexcl/vexcl.hpp>
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
+
+int main() {
+    const size_t n = 1024 * 1024;
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,3>
+            \begin{lstlisting}[firstnumber=last]
+
+    // Get compute devices supporting double precision:
+    vex::Context ctx(vex::Filter::DoublePrecision);
+    if (!ctx) throw std::runtime_error("No compute devices available");
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,4>
+            \begin{lstlisting}[firstnumber=last]
+
+    // Prepare input data, transfer it to device(s):
+    std::vector<double> a(n, 1), b(n, 2), c(n);
+    vex::vector<double> A(ctx, a), B(ctx, b), C(ctx, n);
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,5>
+            \begin{lstlisting}[firstnumber=last]
+
+    // Launch kernel, get result back to host:
+    C = A + B;
+    vex::copy(C, c);
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
+
+    std::cout << c[42] << std::endl;
+}
+            \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
 \end{frame}
 
@@ -452,6 +483,7 @@ y = sin(2 * x) + sqrt(1 - x * x);
     and user-defined functions are also available.
 }
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{A more involved example: Monte Carlo $\pi$}
     \begin{columns}
         \begin{column}{0.55\textwidth}
@@ -554,6 +586,7 @@ extern "C" __global__ void vexcl_vector_kernel (
 
 \note{ }
 
+%----------------------------------------------------------------------------
 \begin{frame}
     \begin{center}
         \huge{How does it work?}
@@ -597,7 +630,7 @@ extern "C" __global__ void vexcl_vector_kernel (
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Simple example: Vector addition}
+\begin{frame}[fragile]{Simple example: Vector arithmetic}
     \begin{exampleblock}{We want to be able to write:}
         \begin{lstlisting}
 x = y + z;
@@ -663,7 +696,9 @@ for(size_t i = 0; i < n; ++i)
     \end{uncoverenv}
 \end{frame}
 
-\note{ }
+\note{
+    Sometimes obvious solutions are the right ones\ldots
+}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Lazy evaluation v0.1}
@@ -762,11 +797,11 @@ const vector& vector::operator=(const Expr &expr) {
 \begin{frame}{Still not general enough}
     \begin{figure}
         \begin{tikzpicture}
-            \draw (0.0, 0.0) node{\includegraphics[width=0.75\textwidth]{times_in_life}};
-            \draw (3.5,-3.5) node{\includegraphics[width=0.2\textwidth]{like}};
-            \draw (1.8, 0.8) node{There are times in life};
-            \draw (1.8,-0.1) node{\Large when addition alone};
-            \draw (1.8,-1.2) node{\Huge is not enough};
+            \draw ( 0.0, 0.0) node{\includegraphics[width=0.75\textwidth]{times_in_life}};
+            \draw (-4.2,-3.4) node{\href{http://www.youtube.com/watch?v=j4o2PDwKdcA}{\includegraphics[width=0.15\textwidth]{like}}};
+            \draw ( 1.8, 0.8) node{There are times in life};
+            \draw ( 1.8,-0.1) node{\Large when addition alone};
+            \draw ( 1.8,-1.2) node{\Huge is not enough};
         \end{tikzpicture}
     \end{figure}
 \end{frame}
@@ -915,8 +950,12 @@ double c = x[42] + y[42];
     \end{itemize}
 \end{frame}
 
-\note{ }
+\note{
+    It turns out that once you understand how expression templates are working,
+    it is really easy to shift to code generation.
+}
 
+%----------------------------------------------------------------------------
 \section{OpenCL code generation}
 \begin{frame}
     \sectionpage
@@ -1743,7 +1782,7 @@ x = sqr( sin(y), cos(z) );
 \appendix
 
 %----------------------------------------------------------------------------
-\section{Performance benchmark}
+\section{Benchmarking performance}
 \begin{frame}
     \sectionpage
 \end{frame}
