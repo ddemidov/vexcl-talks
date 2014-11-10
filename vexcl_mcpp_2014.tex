@@ -209,14 +209,15 @@ int main() {
         \begin{uncoverenv}<1,5>
             \begin{lstlisting}[firstnumber=last]
 
-    // Launch kernel, get result back to host:
+    // Launch compute kernel:
     C = A + B;
-    vex::copy(C, c);
             \end{lstlisting}
         \end{uncoverenv}
-        \begin{uncoverenv}<1>
+        \begin{uncoverenv}<1,6>
             \begin{lstlisting}[firstnumber=last]
 
+    // Get result back to host:
+    vex::copy(C, c);
     std::cout << c[42] << std::endl;
 }
             \end{lstlisting}
