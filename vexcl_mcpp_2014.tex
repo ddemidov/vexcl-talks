@@ -149,15 +149,12 @@
 \end{frame}
 
 \note[itemize]{
-\item VexCL is a vector expression template library for OpenCL. It uses
-    template metaprogramming techniques (in particular, expression templates)
-    to provide an intuitive notation for vector and matrix operations.
-\item The source code of the library is available on GitHub. It is distributed
-    under MIT license, so you are basically free to do whatever you want with
-    the library.
-\item I would like to note that this is not another C++ bindings library. VexCL
-    is designed to work with standard C++ bindings for OpenCL that are provided
-    by the Khronos group.
+\item VexCL is a vector expression template library for OpenCL. It allows you
+    to use convenient matlab-like notation for vector operations and it
+    generates the appropriate compute kernels for you automatically.
+\item The library is header-only, so you don't have to build it to use it. The
+    source code of the library is available on GitHub under very liberal
+    MIT license.
 }
 
 %----------------------------------------------------------------------------
@@ -166,7 +163,9 @@
     \sectionpage
 \end{frame}
 
-\note{}
+\note[itemize]{
+\item Here is a brief overview of the library interface.
+}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile,shrink=5]{Hello VexCL: vector sum}
@@ -457,7 +456,7 @@ y = sin(2 * x) + sqrt(1 - x * x);
                     \begin{itemize}
                         \item Vectors, scalars, constants
                         \item Arithmetic, logical operators
-                        \item Built-in OpenCL functions
+                        \item Built-in functions
                         \item User-defined functions
                         \item Random number generators
                         \item Slicing and permutations
@@ -519,6 +518,12 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
+
+\note[itemize]{
+\item Here is a bit more complex example of what you can do with VexCL.
+\item Imagine we want to compute an approximate value of $\pi$ with Monte-Carlo
+    method. We can use the following equalities to do this.
+}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{OpenCL/CUDA code is generated at runtime}
@@ -737,7 +742,7 @@ const vector& vector::operator=(const vsum &s) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Not general enough}
+\begin{frame}[fragile]{Problem: its not composable}
     \begin{exampleblock}{What will happen here?}
         \begin{lstlisting}
 a = x + y + z;
@@ -796,7 +801,7 @@ const vector& vector::operator=(const Expr &expr) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}{Still not general enough}
+\begin{frame}{Problem: its not general enough}
     \begin{figure}
         \begin{tikzpicture}
             \draw ( 0.0, 0.0) node{\includegraphics[width=0.75\textwidth]{times_in_life}};
