@@ -13,7 +13,7 @@ int main() {
     if (platform.empty())
         throw std::runtime_error("No OpenCL platforms");
 
-    // Get first available GPU device which supports float precision.
+    // Get first available GPU.
     cl::Context context;
     std::vector<cl::Device> device;
     for(auto p = platform.begin(); device.empty() && p != platform.end(); p++) {

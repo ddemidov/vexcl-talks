@@ -19,11 +19,13 @@
     \usepgflibrary{arrows}
     \usetikzlibrary{shadows,decorations.pathreplacing,patterns,shapes}
     \tikzstyle{every picture}=[semithick,>=stealth,remember picture]
+    \usepackage{inconsolata}
     \usepackage{listings}
     \lstset{
         language=C++,
-        basicstyle=\footnotesize,
-        commentstyle=\color{chameleon1}\it\rmfamily,
+        basicstyle=\footnotesize\ttfamily,
+        keywordstyle=\color{chameleon1}\bfseries,
+        commentstyle=\color{chameleon4}\it\rmfamily,
         stringstyle=\color{chameleon4},
         numbers=left,
         numberstyle=\tiny,
@@ -157,22 +159,145 @@
     MIT license.
 }
 
-%----------------------------------------------------------------------------
-\section{VexCL interface}
+\section{Motivating example}
 \begin{frame}
     \sectionpage
 \end{frame}
 
-\note[itemize]{
-\item Here is a brief overview of the library interface.
-}
-
-\section{Motivating example}
-
-\subsection{Hello OpenCL}
+\note{}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{block}{Compute sum of two vectors in parallel}
+        \begin{itemize}
+            \item $A$, $B$, and $C$ are large vectors.
+            \item Compute $C = A + B$.
+        \end{itemize}
+    \end{block}
+    \begin{block}{Overview of OpenCL solution:}
+        \begin{enumerate}
+            \item Initialize OpenCL context
+            \item Allocate memory
+            \item Transfer input data
+            \item Run computations
+            \item Get the results
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\note[itemize]{
+\item Let's start with a motivating example. This is classical hello world
+    example for OpenCL: addition of two large vector.
+\item To do anything with the OpenCL, you need to perform some standard steps,
+    like context initialization, memory allocation and transfer, and the
+    computations that you needed to do in the first place.
+\item So let's look at how these steps are done with native OpenCL API.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{exampleblock}{1. Query platforms}
+        \lstinputlisting[firstnumber=10, linerange={10-14}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item First, we need to enumerate OpenCL platforms. Platform is an OpenCL
+    implementation by particular provider. Examples are NVIDIA, AMD or Intel
+    platforms.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{exampleblock}{2. Get first available GPU device}
+        \lstinputlisting[firstnumber=17, linerange={17-32}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Once we have the list of platforms, we may pick a compute device that
+    suites us. In this example we just get first available device that we are
+    able to create an OpenCL context on.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{exampleblock}{3. Create command queue}
+        \lstinputlisting[firstnumber=35, linerange={35-35}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+    \begin{exampleblock}{4. Prepare and copy input data}
+        \lstinputlisting[firstnumber=38, linerange={38-48}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item We also create the command queue for OpenCL. All OpenCL operations are
+    submitted to a command queue. In general, operations submitted to the same
+    queue are performed sequentially.
+\item Next, we need to allocate some device memory and transfer input
+    data to the device.
+\item The input data is prepared at host in this example. A and B vectors would
+    hold ones and twos. This is not very interesting example, but then hello
+    world programs never are.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{exampleblock}{5. Create kernel source}
+        \lstinputlisting[firstnumber=51, linerange={51-62}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Next thing to do is to compile the compute kernels that we will use.
+\item With OpenCL, the kernels are compiled at runtime, because OpenCL supports
+    wide range of hardware, and each device may have its own set of
+    instructions.
+\item Here we create string representation of a kernel source.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{exampleblock}{6. Compile the kernel}
+        \lstinputlisting[firstnumber=65, linerange={65-77}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Then we compile an OpenCL program and create a kernel object.
+\item We also create the command queue for OpenCL. All OpenCL operations are
+    submitted to a command queue. In general, operations submitted to the same
+    queue are performed sequentially.
+\item And now we are basically done with initialization. All of the above
+    operations are usually done once per program lifetime.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \begin{exampleblock}{7. Set kernel arguments}
+        \lstinputlisting[firstnumber=80, linerange={80-83}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+    \begin{exampleblock}{8. Launch the kernel}
+        \lstinputlisting[firstnumber=86, linerange={86-86}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+    \begin{exampleblock}{9. Get result back to host}
+        \lstinputlisting[firstnumber=89, linerange={89-90}]{code/hello-opencl.cpp}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item And now we have everything we need to launch the compute kernel.
+\item We set the kernel parameters and submit the kernel to the command queue.
+\item Then we transfer the results back to host and see what we got. Here, if
+    everything went well, we should get 'three' on standard output.
+\item Well, this the ugliest hello world program I ever seen.
+\item You will surely agree that a hello world program should fit on one slide.
+    And 71 lines of code for a hello world is scary.
+\item How much shorter do you think this example will be with VexCL?
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello VexCL: vector sum}
     \setbeamercovered{transparent=40}
     \vspace{-1\baselineskip}
     \begin{columns}
@@ -180,22 +305,22 @@
             \begin{exampleblock}{OpenCL}
                 \begin{adjustbox}{width=0.19\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \begin{uncoverenv}<1>
+                        \begin{uncoverenv}<1-2>
                             \lstinputlisting[linerange={1-8}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,2>
+                        \begin{uncoverenv}<1-2,3>
                             \lstinputlisting[firstnumber=last, linerange={9-35}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,3>
+                        \begin{uncoverenv}<1-2,4>
                             \lstinputlisting[firstnumber=last, linerange={36-48}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,4>
+                        \begin{uncoverenv}<1-2,5>
                             \lstinputlisting[firstnumber=last, linerange={49-86}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,5>
+                        \begin{uncoverenv}<1-2,6>
                             \lstinputlisting[firstnumber=last, linerange={87-90}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1>
+                        \begin{uncoverenv}<1-2>
                             \lstinputlisting[firstnumber=last, linerange={91}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
                     \end{minipage}
@@ -203,89 +328,34 @@
             \end{exampleblock}
         \end{column}
         \begin{column}[t]{0.7\textwidth}
+            \begin{onlyenv}<2->
             \begin{exampleblock}{VexCL}
                 \begin{adjustbox}{width=0.83\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \begin{uncoverenv}<1>
+                        \begin{uncoverenv}<2>
                             \lstinputlisting[linerange={1-5}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,2>
+                        \begin{uncoverenv}<2,3>
                             \lstinputlisting[firstnumber=last, linerange={6-8}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,3>
+                        \begin{uncoverenv}<2,4>
                             \lstinputlisting[firstnumber=last, linerange={9-13}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,4>
+                        \begin{uncoverenv}<2,5>
                             \lstinputlisting[firstnumber=last, linerange={14-16}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,5>
+                        \begin{uncoverenv}<2,6>
                             \lstinputlisting[firstnumber=last, linerange={17-20}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1>
+                        \begin{uncoverenv}<2>
                             \lstinputlisting[firstnumber=last, linerange={21}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
                     \end{minipage}
                 \end{adjustbox}
             \end{exampleblock}
+            \end{onlyenv}
         \end{column}
     \end{columns}
-\end{frame}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile,shrink=5]{Hello VexCL: vector sum}
-    \setbeamercovered{transparent=40}
-    \begin{exampleblock}{}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}
-#include <iostream>
-#include <vector>
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,2>
-            \begin{lstlisting}[firstnumber=last]
-#include <vexcl/vexcl.hpp>
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}[firstnumber=last]
-
-int main() {
-    const size_t n = 1024 * 1024;
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,3>
-            \begin{lstlisting}[firstnumber=last]
-
-    // Get compute devices supporting double precision:
-    vex::Context ctx(vex::Filter::DoublePrecision);
-    if (!ctx) throw std::runtime_error("No compute devices available");
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,4>
-            \begin{lstlisting}[firstnumber=last]
-
-    // Prepare input data, transfer it to the device(s):
-    std::vector<double> a(n, 1), b(n, 2), c(n);
-    vex::vector<double> A(ctx, a), B(ctx, b), C(ctx, n);
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,5>
-            \begin{lstlisting}[firstnumber=last]
-
-    // Launch compute kernel:
-    C = A + B;
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,6>
-            \begin{lstlisting}[firstnumber=last]
-
-    // Get result back to host:
-    vex::copy(C, c);
-    std::cout << c[42] << std::endl;
-}
-            \end{lstlisting}
-        \end{uncoverenv}
-    \end{exampleblock}
 \end{frame}
 
 \note[itemize]{
@@ -301,6 +371,16 @@ int main() {
 \item Line ten does what's needs to be done here. This simple expression leads
     to automatic kernel generation and launch. And then we copy the results
     back to host and see what we got.
+}
+
+%----------------------------------------------------------------------------
+\section{VexCL interface}
+\begin{frame}
+    \sectionpage
+\end{frame}
+
+\note[itemize]{
+\item Here is a brief overview of the library interface.
 }
 
 \subsection{Initialization}
@@ -334,7 +414,7 @@ vex::Context ctx(vex::Filter::Accelerator && vex::Filter::Platform("Intel"));
         \begin{lstlisting}
 vex::Context ctx(
     vex::Filter::DoublePrecision &&
-    [ ](const cl::Device &d) {
+    [](const cl::Device &d) {
         return d.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() >= 16_GB;
     });
         \end{lstlisting}
@@ -836,7 +916,7 @@ struct vsum {
     const LHS &lhs;
     const RHS &rhs;
 
-    double operator[ ](size_t i) const { return lhs[i] + rhs[i]; }
+    double operator[](size_t i) const { return lhs[i] + rhs[i]; }
 };
         \end{lstlisting}
         \pause
@@ -892,7 +972,7 @@ struct binary_op {
     const LHS &lhs;
     const RHS &rhs;
 
-    double operator[ ](size_t i) const { return OP::apply(lhs[i], rhs[i]); }
+    double operator[](size_t i) const { return OP::apply(lhs[i], rhs[i]); }
 };
         \end{lstlisting}
         \pause
@@ -981,7 +1061,7 @@ binary_op<
             \begin{uncoverenv}<7>
                 \begin{itemize}
                     \item The \CXX compiler walks the tree.
-                    \item \code{binary_op::operator[ ]} does the actual work.
+                    \item \code{binary_op::operator[]} does the actual work.
                 \end{itemize}
             \end{uncoverenv}
         \end{column}
@@ -1167,8 +1247,8 @@ std::string kernel_source() {
         \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
     src << ")\n{\n"
-            "    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
-            "        ";
+            "  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
+            "    ";
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1,3>
@@ -1180,7 +1260,7 @@ std::string kernel_source() {
         \end{uncoverenv}
         \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
-    src << "    }\n}\n";
+    src << "  }\n}\n";
 
     return src.str();
 }
@@ -1236,9 +1316,9 @@ const vector& vector::operator=(const Expr &expr) {
 
     unsigned pos = 0;
 
-    krn.setArg(pos++, size);     // n
-    krn.setArg(pos++, buffer);   // result
-    expr.set_args(krn, pos);     // other parameters
+    krn.setArg(pos++, size);        // n
+    krn.setArg(pos++, buffer);      // result
+    expr.set_args(krn, pos);        // other parameters
 
     queue.enqueueNDRangeKernel(krn, cl::NullRange, buffer.size(), cl::NullRange);
 
