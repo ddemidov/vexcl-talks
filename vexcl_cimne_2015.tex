@@ -25,8 +25,8 @@
         language=C++,
         basicstyle=\footnotesize\ttfamily,
         keywordstyle=\color{chameleon1}\bfseries,
-        commentstyle=\color{chameleon4}\it\rmfamily,
-        stringstyle=\color{chameleon4},
+        commentstyle=\color{chameleon3}\it\rmfamily,
+        stringstyle=\color{chameleon3},
         numbers=left,
         numberstyle=\tiny,
         aboveskip=-0.02\baselineskip,
@@ -209,7 +209,7 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello OpenCL: vector sum}
-    \begin{exampleblock}{2. Get first available GPU device}
+    \begin{exampleblock}{2. Get the first available GPU}
         \lstinputlisting[firstnumber=17, linerange={17-32}]{code/hello-opencl.cpp}
     \end{exampleblock}
 \end{frame}
@@ -641,7 +641,7 @@ y = sin(2 * x) + sqrt(1 - x * x);
                 \pi = 4 \frac{\text{area of circle}}{\text{area of square}}
                 \approx 4 \frac{\text{\color{chameleon3}{points in
                 circle}}}{\text{\color{chameleon3}{all}
-                \color{chameleon1}{points}}}
+                \color{chameleon2}{points}}}
             \end{equation*}
         \end{column}
         \begin{column}{0.35\textwidth}
@@ -721,8 +721,8 @@ extern "C" __global__ void vexcl_vector_kernel (
   double * prm_4                // z
 )
 {
-  for(ulong idx = blockDim.x * blockIdx.x + threadIdx.x, grid_size = blockDim.x * gridDim.x;
-      idx < n; idx += grid_size)
+  for(ulong idx = blockDim.x * blockIdx.x + threadIdx.x,
+             grid_size = blockDim.x * gridDim.x; idx < n; idx += grid_size)
   {
     prm_1[idx] = ( ( prm_2 * prm_3[idx] ) - sin( prm_4[idx] ) );
   }
