@@ -23,13 +23,13 @@ y = np.random.uniform(0, 1, 3000)
 
 i = (x * x + y * y) < 1.0
 
-plot(x[i==0], y[i==0], 'o', markersize=3, markeredgecolor=chameleon3, markerfacecolor=chameleon3)
-plot(x[i==1], y[i==1], 'o', markersize=3, markeredgecolor=chameleon2, markerfacecolor=chameleon2)
+plot(x[i==0], y[i==0], 'o', markersize=3, markeredgecolor=chameleon1, markerfacecolor=chameleon1)
+plot(x[i==1], y[i==1], 'o', markersize=3, markeredgecolor=chameleon3, markerfacecolor=chameleon3)
 
 x = np.linspace(0, 1, 100)
 y = np.sqrt(1 - x * x)
 
-plot(x, y, '-', color=chameleon1, linewidth=2)
+plot(x, y, '-', color=chameleon4, linewidth=2)
 
 xticks([0, 0.5, 1])
 yticks([   0.5, 1])

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(cse13)
+project(cimne)
 include(UseLATEX.cmake)
 
 set(BEAMER_OPTIONS "compress,unicode,aspectratio=1610")
@@ -12,6 +12,7 @@ function(mplfigure fname)
         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${fname}.py
                 ${CMAKE_BINARY_DIR}/${fname}.pdf
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${fname}.py
+                ${CMAKE_CURRENT_SOURCE_DIR}/chameleon.py
         )
 endfunction()
 
@@ -50,4 +51,4 @@ function(add_slides BEAMER_FILE)
     endif ()
 endfunction()
 
-add_slides(vexcl_mcpp_2014)
+add_slides(vexcl_cimne_2015)
