@@ -167,6 +167,70 @@
 \item Here is a brief overview of the library interface.
 }
 
+\section{Motivating example}
+
+\subsection{Hello OpenCL}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \setbeamercovered{transparent=40}
+    \vspace{-1\baselineskip}
+    \begin{columns}
+        \begin{column}[t]{0.2\textwidth}
+            \begin{exampleblock}{OpenCL}
+                \begin{adjustbox}{width=0.19\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \begin{uncoverenv}<1>
+                            \lstinputlisting[linerange={1-8}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,2>
+                            \lstinputlisting[firstnumber=last, linerange={9-35}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,3>
+                            \lstinputlisting[firstnumber=last, linerange={36-48}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,4>
+                            \lstinputlisting[firstnumber=last, linerange={49-86}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,5>
+                            \lstinputlisting[firstnumber=last, linerange={87-90}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1>
+                            \lstinputlisting[firstnumber=last, linerange={91}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[t]{0.7\textwidth}
+            \begin{exampleblock}{VexCL}
+                \begin{adjustbox}{width=0.83\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \begin{uncoverenv}<1>
+                            \lstinputlisting[linerange={1-5}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,2>
+                            \lstinputlisting[firstnumber=last, linerange={6-8}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,3>
+                            \lstinputlisting[firstnumber=last, linerange={9-13}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,4>
+                            \lstinputlisting[firstnumber=last, linerange={14-16}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,5>
+                            \lstinputlisting[firstnumber=last, linerange={17-20}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1>
+                            \lstinputlisting[firstnumber=last, linerange={21}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile,shrink=5]{Hello VexCL: vector sum}
     \setbeamercovered{transparent=40}
@@ -258,15 +322,12 @@ vex::Context ctx( vex::Filter::Any );
         \end{onlyenv}
         \begin{onlyenv}<2|handout:0>
         \begin{lstlisting}
-vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
+vex::Context ctx( vex::Filter::GPU );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<3|handout:0>
         \begin{lstlisting}
-vex::Context ctx(
-    vex::Filter::Type(CL_DEVICE_TYPE_ACCELERATOR) &&
-    vex::Filter::Platform("Intel")
-    );
+vex::Context ctx(vex::Filter::Accelerator && vex::Filter::Platform("Intel"));
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<4|handout:0>

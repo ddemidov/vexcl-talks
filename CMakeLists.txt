@@ -52,3 +52,5 @@ function(add_slides BEAMER_FILE)
 endfunction()
 
 add_slides(vexcl_cimne_2015)
+
+add_subdirectory(code)
