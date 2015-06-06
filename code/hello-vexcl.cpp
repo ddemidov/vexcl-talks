@@ -4,7 +4,7 @@
 
 int main() {
     // Get first available GPU
-    vex::Context ctx(vex::Filter::GPU && vex::Count(1));
+    vex::Context ctx(vex::Filter::GPU && vex::Filter::Count(1));
     if (!ctx) throw std::runtime_error("No GPUs");
 
     // Prepare and copy input data

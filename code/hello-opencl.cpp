@@ -56,7 +56,7 @@ int main() {
           global float *c
           )
         {
-          ulong i = get_global_size(0);
+          ulong i = get_global_id(0);
           if (i < n) c[i] = a[i] + b[i];
         }
         )";
