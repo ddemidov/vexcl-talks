@@ -1,19 +1,20 @@
 \usepackage{ifthen}
 \usetikzlibrary{shadows.blur}
-\newlength{\forkmeoffset}
-\setlength{\forkmeoffset}{3em}
+\newlength{\ribbonoffset}
+\setlength{\ribbonoffset}{3em}
 
-\newcommand{\forkme}[2]{
+% corner, color, text
+\newcommand{\ribbon}[3]{
   \ifthenelse{\equal{#1}{east}}{%
-    \tikzset{forkmerot/.style={rotate=-45}}
+    \tikzset{ribbonrot/.style={rotate=-45}}
   }{%
-    \tikzset{forkmerot/.style={rotate=45}}
+    \tikzset{ribbonrot/.style={rotate=45}}
   }
   \begin{tikzpicture}[remember picture, overlay]
-    \node[forkmerot, shift={(0, -\forkmeoffset)}] at (current page.north #1) {
+    \node[ribbonrot, shift={(0, -\ribbonoffset)}] at (current page.north #1) {
       \begin{tikzpicture}[remember picture, overlay,scale=0.5]
         \node[
-            fill=chameleon1,
+            fill=#2,
             text centered,
             minimum width=50em,
             minimum height=1.2em,
@@ -23,10 +24,8 @@
             shadow blur radius=.2em,
             shadow opacity=50,
             text=white
-            ](fmogh) at (0pt, 0pt) {
-                \fontfamily{phv}\selectfont\bfseries\tiny%
-                \href{#2}{Fork me on GitHub}
-            };
+            ](fmogh) at (0pt, 0pt) {%
+            \fontfamily{phv}\selectfont\bfseries\tiny#3};
         \draw[
             white,
             dashed,

@@ -37,12 +37,15 @@
         morekeywords={global,kernel,ulong,size_t,get_global_id,get_global_size}
         }
     \newcommand{\code}[1]{\lstinline|#1|}
-    \newcommand{\additive}{\hspace{1cm}\footnotesize(\emph{Additive expressions only})}
-    \newcommand{\singledevice}{\hspace{1cm}\footnotesize(\emph{Single-device contexts})}
     \protected\def\plusplus{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-3}\bf ++}}\xspace}
     \newcommand{\CXX}{{\rm C}\plusplus}
     \newcommand{\CC}{{\rm C99}\xspace}
-    \input{forkme}
+
+    \input{ribbon}
+    \newcommand{\forkme}{\ribbon{east}{chameleon1}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
+    \newcommand{\singledevice}{\ribbon{east}{chameleon3}{Single device only}}
+    \newcommand{\additive}{\ribbon{east}{chameleon3}{Additive expressions}}
+
     \tikzset{
         treenode/.style={
             draw,
@@ -131,6 +134,8 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
+    \forkme
+
     \begin{itemize}
         \item Created for ease of \CXX based GPGPU development:
             \begin{itemize}
@@ -140,7 +145,7 @@
                 \item Header-only
             \end{itemize}
             \vspace{\baselineskip}
-        \item Possible backends:
+        \item Supported backends:
             \begin{itemize}
                 \item OpenCL (Khronos \CXX bindings)
                 \item OpenCL (Boost.Compute)
@@ -153,8 +158,6 @@
             \end{itemize}
             \vspace{\baselineskip}
     \end{itemize}
-
-    \forkme{east}{https://github.com/ddemidov/vexcl}
 \end{frame}
 
 \note[itemize]{
@@ -752,11 +755,13 @@ kernel void vexcl_vector_kernel(
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Element indices}
     \begin{itemize}
-        \item \code{vex::element_index(size_t offset = 0)} returns index of an
-            element inside a vector.
+        \item \code{vex::element_index(size_t offset = 0, size_t size = 0)}\\
+            returns index of a vector element.
             \begin{itemize}
                 \item The numbering starts with \code{offset} and is continuous
                     across devices.
+                \item The optional \code{size} may be used to explicitly set
+                    the expression size.
             \end{itemize}
     \end{itemize}
     \begin{exampleblock}{Linear function:}
@@ -789,7 +794,7 @@ VEX_FUNCTION( double, sqr, (double, x)(double, y),
     );
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Using a function:}
+    \begin{exampleblock}{Using the function:}
         \begin{lstlisting}
 Z = sqrt( sqr(X, Y) );
         \end{lstlisting}
@@ -903,15 +908,274 @@ kernel void vexcl_vector_kernel(
 
 \note{ }
 
-\section{Examples}
-\begin{frame}
-    \sectionpage
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Tagged terminals}
+    \begin{itemize}
+        \item Programmer may help VexCL to recognize same terminals by
+            tagging them:
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.46\textwidth}
+            \begin{exampleblock}{Like this:}
+                \begin{lstlisting}
+using vex::tag;
+Z = sqrt(tag<1>(X) * tag<1>(X) +
+         tag<2>(Y) * tag<2>(Y));
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{exampleblock}{or, equivalently:}
+                \begin{lstlisting}
+auto x = tag<1>(X);
+auto y = tag<2>(Y);
+Z = sqrt(x * x + y * y);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+kernel void vexcl_vector_kernel(
+  ulong n,
+  global double * prm_1,
+  global double * prm_2,
+  global double * prm_3
+)
+{
+  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+    prm_1[idx] = sqrt( ( ( prm_2[idx] * prm_2[idx] ) + ( prm_3[idx] * prm_3[idx] ) ) );
+  }
+}
+        \end{lstlisting}
+    \end{exampleblock}
 \end{frame}
 
 \note{ }
 
 %----------------------------------------------------------------------------
+\begin{frame}[fragile]{Reusing intermediate results}
+    \begin{columns}
+        \begin{column}{0.48\textwidth}
+            \begin{itemize}
+                \item Some expressions may have several inclusions of the
+                    same subexpression:
+            \end{itemize}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+Z = log(X) * (log(X) + Y);
+                \end{lstlisting}
+            \end{exampleblock}
+            \begin{itemize}
+                \item \code{log(X)} will be computed twice here.
+                \item One could tag \code{X} and hope that the compiler is
+                    smart enough\ldots
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \begin{tikzpicture}
+                \draw (0,0) node(mul)[draw,fill=white,ellipse,drop shadow,minimum size=0.8cm]{$*$};
+                \draw (mul)  +( 1.50,-1) node(sum)  [draw,fill=white,ellipse,drop shadow,minimum size=0.8cm]{$+$};
+                \draw (mul)  +(-1.50,-1) node(log1) [draw,fill=chameleon2!50,ellipse,drop shadow,minimum size=0.5cm]{log};
+                \draw (sum)  +(-1.50,-1) node(log2) [draw,fill=chameleon2!50,ellipse,drop shadow,minimum size=0.5cm]{log};
+                \draw (log1) +( 0.00,-1) node(x1)   [draw,fill=chameleon2!50,drop shadow,minimum size=0.5cm]{x};
+                \draw (log2) +( 0.00,-1) node(x2)   [draw,fill=chameleon2!50,drop shadow,minimum size=0.5cm]{x};
+                \draw (sum)  +( 1.50,-1) node(y)    [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+
+                \draw (mul)  -- (log1);
+                \draw (mul)  -- (sum);
+                \draw (log1) -- (x1);
+                \draw (sum)  -- (log2);
+                \draw (sum)  -- (y);
+                \draw (log2) -- (x2);
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Temporaries}
+    \begin{itemize}
+        \item But it is also possible to introduce a temporary variable
+            explicitly:
+    \end{itemize}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+auto tmp = vex::make_temp<1>( log(X) );
+Z = tmp * (tmp + Y);
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+kernel void vexcl_vector_kernel(
+    ulong n,
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3
+)
+{
+    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+        double temp_1 = log( prm_2[idx] );
+        prm_1[idx] = ( temp_1 * ( temp_1 + prm_3[idx] ) );
+    }
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Permutations} \singledevice
+    \begin{itemize}
+        \item \code{vex::permutation(expr)} takes arbitrary integral
+            valued expression\\
+            and returns a functor:
+            \pause
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+auto reverse = vex::permutation(N - 1 - vex::element_index());
+y = reverse(x);
+                \end{lstlisting}
+            \end{exampleblock}
+            \pause
+        \item Permutations are writable:
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+reverse(y) = x;
+                \end{lstlisting}
+            \end{exampleblock}
+    \end{itemize}
+\end{frame}
+
+\note{ }
+
+\subsection{Slicing}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Slicing} \singledevice
+    \begin{itemize}
+        \item When working with dense multidimensional matrices, it is general
+            practice to store those in continuous 1D arrays.
+            \begin{itemize}
+                \item An instance of \code{vex::slicer<NDIM>} class allows to
+                    access sub-blocks of such matrix.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{n-by-n matrix and a slicer:}
+        \begin{lstlisting}
+vex::vector<double> x(ctx, n * n);
+vex::slicer<2> slice(vex::extents[n][n]); // Can be used with any vector of appropriate size
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Access row or column of the matrix:}
+        \begin{lstlisting}[firstnumber=last]
+using vex::_;
+y = slice[42](x);       // 42nd row
+y = slice[_][42](x);    // 42nd column
+slice[_][10](x) = y;    // Slices are writable
+        \end{lstlisting}
+    \end{exampleblock}
+    \pause
+    \begin{exampleblock}{Use ranges to select sub-blocks:}
+        \begin{lstlisting}[firstnumber=last]
+z = slice[vex::range(0, 2, n)][vex::range(10, 20)](x);
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Random number generation}
+    \begin{itemize}
+        \item VexCL provides\footnote{Contributed by
+            \href{https://github.com/neapel}{Pascal Germroth}
+            $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}
+            \emph{counter-based} random number generators from
+            Random123\footnote{D E Shaw Research,
+                \href{http://www.deshawresearch.com/resources\_random123.html}{http://www.deshawresearch.com/resources\_random123.html}}
+            suite.
+            \vspace{-0.5\baselineskip}
+            \begin{itemize}
+                \item The generators are \emph{stateless}; mixing functions are
+                    applied to element indices.
+                \item Implemented families: \code{threefry} and \code{philox}.
+                \item Both pass TestU01/BigCrush; up to \alert{$2^{64}$}
+                    independent streams with a period of \alert{$2^{128}$}.
+                \item Performance: \alert{$\approx 10^{10}$}~Samples/sec (Tesla
+                    K20c).
+            \end{itemize}
+        \item \code{vex::Random<T,G>}~--- uniform distribution.
+        \item \code{vex::RandomNormal<T,G>}~--- normal distribution.
+    \end{itemize}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+vex::Random<double> rnd;
+vex::vector<double> x(ctx, n);
+
+x = rnd(vex::element_index(), std::rand());
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Random number generation is a useful feature that is used often in, e.g.,
+    molecular dynamics.
+\item Random number generators in VexCL are stateless, so they don't require
+    additional storage or global memory interactions. Randomness is obtained by
+    applying mixing functions to element indices.
+}
+
+\subsection{Reductions}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Reductions}
+    \begin{itemize}
+        \item Class \code{vex::Reductor<T, kind>} allows to reduce arbitrary
+            \emph{vector expression} to a\\ single value of type \code{T}.
+        \item Supported reduction kinds: \code{SUM}, \code{MIN}, \code{MAX}
+    \end{itemize}
+    \begin{exampleblock}{Inner product}
+        \begin{lstlisting}
+vex::Reductor<double, vex::SUM> sum(ctx);
+double s = sum(x * y);
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{Number of elements in x between 0 and 1}
+        \begin{lstlisting}
+vex::Reductor<size_t, vex::SUM> sum(ctx);
+size_t n = sum( (x > 0) && (x < 1) );
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{Maximum distance from origin}
+        \begin{lstlisting}
+vex::Reductor<double, vex::MAX> max(ctx);
+double d = max( sqrt(x * x + y * y) );
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Reduction is an operation of reducing a vector to a single value.
+\item The most frequent types are summation and finding minimum or maximum
+    element of a vector.
+\item VexCL provides Reductor functor that accepts any valid vector expression
+    as a parameter.
+\item For example, to compute an inner product of two vectors we compute sum of
+    their elementwise product.
+\item To find number of elements in vector x that are greater than zero and
+    less than one, we compute sum of the corresponding boolean expression.
+\item And to find the maximum distance from axis origin for a set of
+    two-dimensional points, we compute exactly that: max of their radius.
+}
+
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Monte Carlo $\pi$}
+    \vspace{-1\baselineskip}
     \begin{columns}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
@@ -936,8 +1200,8 @@ kernel void vexcl_vector_kernel(
         \end{column}
     \end{columns}
     \begin{exampleblock}{}
-        \begin{lstlisting}
-vex::Random<cl_double2> rnd;
+        \begin{lstlisting}[texcl=true]
+vex::Random<cl_double2> rnd; // Generates 2D points in $[0,1]\times[0,1]$
 vex::Reductor<size_t, vex::SUM> sum(ctx);
 
 double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
@@ -950,6 +1214,140 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \item Imagine we want to compute an approximate value of $\pi$ with Monte-Carlo
     method. We can use the following equalities to do this.
 }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Sparse matrix~-- vector products} \additive
+    \begin{itemize}
+        \item Class \code{vex::SpMat<T>} holds representation of a sparse
+            matrix on compute devices.
+        \item Constructor accepts matrix in common CRS format:
+            \begin{itemize}
+                \item row indices, columns and values of nonzero entries.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{Construct matrix}
+        \begin{lstlisting}
+vex::SpMat<double> A(ctx, n, n, row.data(), col.data(), val.data());
+        \end{lstlisting}
+    \end{exampleblock}
+
+    \begin{exampleblock}{Compute residual value}
+        \begin{lstlisting}[firstnumber=last]
+// vex::vector<double> u, f, r;
+r = f - A * u;
+double res = max( fabs(r) );
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Sparse matrix -- vector operation is also provided. A matrix is imported
+    from commonly used compressed row storage format.
+\item Note that matrix-vector product is not a first-class citizen in vector
+    expressions. It uses neighbor values; and neighbors may reside on a
+    different compute device. So extra work is needed to exchange data between
+    devices. That is why matrix-vector products may only be used in additive
+    expressions.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Inlining sparse matrix~-- vector products}
+    \singledevice
+
+    \begin{itemize}
+        \item SpMV may only be used in additive expressions:
+            \begin{itemize}
+                \item Needs data exchange between compute devices.
+                \item Impossible to implement with single kernel.
+            \end{itemize}
+        \item This restriction may be lifted for single-device contexts:
+    \end{itemize}
+    \begin{exampleblock}{}
+        \begin{lstlisting}[numbers=none]
+r = f - vex::make_inline(A * u);
+double res = max( fabs(r) );
+
+// Do not store intermediate results:
+res = max( fabs( f - vex::make_inline(A * u) ) );
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Raw pointer arithmetic} \singledevice
+    \begin{itemize}
+        \item \code{raw_pointer(const vector<T>&)} function returns pointer to
+            vector's data\\ inside vector expression.
+            \begin{itemize}
+                \item May be used to implement complex access patterns.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{1D Laplace operator:}
+        \begin{lstlisting}
+auto ptr   = vex::raw_pointer(x);
+auto idx   = vex::element_index();
+
+auto left  = if_else(idx > 0,     i - 1, i);
+auto right = if_else(idx + 1 < n, i + 1, i);
+
+y = 2 * ptr[idx] - ptr[left] - ptr[right];
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{N-body problem with raw pointers}
+    \begin{equation*}
+        y_i = \sum_{j \neq i} e^{-|x_i - x_j|}
+    \end{equation*}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+VEX_FUNCTION(double, nbody, (size_t, n)(size_t, i)(double*, x),
+    double sum = 0, myval = x[i];
+    for(size_t j = 0; j < n; ++j)
+        if (j != i) sum += exp(-fabs(x[j] - myval));
+    return sum;
+    );
+
+y = nbody(x.size(), vex::element_index(), raw_pointer(x));
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+\subsection{Fast Fourier Transform}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Fast Fourier Transform \singledevice}
+    \begin{itemize}
+        \item VexCL provides FFT implementation\footnote{Contributed by
+            \href{https://github.com/neapel}{Pascal Germroth}
+            $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}:
+            \begin{itemize}
+                \item Arbitrary vector expressions as input
+                \item Multidimensional transforms
+                \item Arbitrary sizes
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{Solve Poisson equation with FFT:}
+        \begin{lstlisting}
+vex::FFT<double, cl_double2> fft(ctx, n);
+vex::FFT<cl_double2, double> ifft(ctx, n, vex::inverse);
+
+vex::vector<double> rhs(ctx, n), u(ctx, n), K(ctx, n);
+// ... initialize vectors ...
+
+u = ifft( K * fft(rhs) );
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}
@@ -1586,7 +1984,7 @@ const vector& vector::operator=(const Expr &expr) {
 
 %----------------------------------------------------------------------------
 \section{Conclusion}
-\begin{frame}{Conclusion}
+\begin{frame}{Conclusion} \forkme
     \begin{columns}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
@@ -1620,8 +2018,6 @@ const vector& vector::operator=(const Expr &expr) {
             \end{figure}
         \end{column}
     \end{columns}
-
-    \forkme{east}{https://github.com/ddemidov/vexcl}%
 \end{frame}
 
 \note{}

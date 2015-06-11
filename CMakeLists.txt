@@ -29,7 +29,7 @@ function(add_slides BEAMER_FILE)
 
         add_latex_document(
             ${BEAMER_FILE}_${SUFFIX}.tex
-            INPUTS  forkme.tex
+            INPUTS  ribbon.tex
             DEPENDS beamerthemeTorino.sty
                     beamercolorthemechameleon.sty
                     beamerouterthemedecolines.sty
