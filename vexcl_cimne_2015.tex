@@ -401,7 +401,7 @@
         \item Multi-device and multi-platform computations are supported.
         \item VexCL context is initialized from combination of device filters.
         \item Device filter is a boolean functor acting on \code{const
-            cl::Device&}.
+            vex::backend::device&}.
     \end{itemize}
     \vspace{-0.5\baselineskip}
     \begin{overlayarea}{\textwidth}{0.4\textheight}
@@ -425,7 +425,7 @@ vex::Context ctx(vex::Filter::Accelerator && vex::Filter::Platform("Intel"));
         \begin{lstlisting}
 vex::Context ctx(
     vex::Filter::DoublePrecision &&
-    [](const cl::Device &d) {
+    [](const vex::backend::device &d) {
         return d.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() >= 16_GB;
     });
         \end{lstlisting}
@@ -449,7 +449,7 @@ vex::Context ctx(
 \item VexCL can transparently work with several compute devices that are
     present on your system.
 \item We initialize the VexCL context with a device filter. The device filter
-    is a simple functor that acts on cl::Device reference and returns a boolean
+    is a simple functor that acts on device reference and returns a boolean
     value. Several standard filters are provided and you can write your own
     filters.
 \item Let's assume that we have an NVIDIA GPU, an AMD GPU, and an Intel CPU
@@ -920,7 +920,7 @@ kernel void vexcl_vector_kernel(
                 \begin{lstlisting}
 using vex::tag;
 Z = sqrt(tag<1>(X) * tag<1>(X) +
-         tag<2>(Y) * tag<2>(Y));
+          tag<2>(Y) * tag<2>(Y));
                 \end{lstlisting}
             \end{exampleblock}
         \end{column}
@@ -1096,7 +1096,7 @@ z = slice[vex::range(0, 2, n)][vex::range(10, 20)](x);
             \href{https://github.com/neapel}{Pascal Germroth}
             $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}
             \emph{counter-based} random number generators from
-            Random123\footnote{D E Shaw Research,
+            Random123\footnote{D. E. Shaw Research,
                 \href{http://www.deshawresearch.com/resources\_random123.html}{http://www.deshawresearch.com/resources\_random123.html}}
             suite.
             \vspace{-0.5\baselineskip}
@@ -1345,6 +1345,32 @@ vex::vector<double> rhs(ctx, n), u(ctx, n), K(ctx, n);
 u = ifft( K * fft(rhs) );
         \end{lstlisting}
     \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Summary}
+    \begin{itemize}
+        \item VexCL allows to write compact and readable code.
+            \begin{itemize}
+                \item Its great for fast prototyping of scientific GPGPU
+                    applications.
+                \item The performance is often on-par with manually written
+                    kernels.
+            \end{itemize}
+    \end{itemize}
+    \vspace{\baselineskip}
+    \begin{itemize}
+        \item[{[1]}] D. Demidov, K. Ahnert, K. Rupp, and P. Gottschling.\\
+            Programming CUDA and OpenCL: A Case Study Using Modern \CXX Libraries.\\
+            \emph{SIAM J. Sci. Comput.,} 35(5):C453 – C472, 2013.\\
+            \href{http://dx.doi.org/10.1137/120903683}{doi:10.1137/120903683}
+        \item[{[2]}] K. Ahnert, D. Demidov, and M. Mulansky.\\
+            Solving ordinary differential equations on GPUs.\\
+            In \emph{Numerical Computations with GPUs} (pp. 125-157).  Springer, 2014.
+            \href{http://dx.doi.org/10.1007/978-3-319-06548-9\_7}{doi:10.1007/978-3-319-06548-9\_7}
+    \end{itemize}
 \end{frame}
 
 \note{ }
@@ -1945,12 +1971,12 @@ const vector& vector::operator=(const Expr &expr) {
     \setbeamercovered{transparent=0}
     \begin{uncoverenv}<2>
         \begin{itemize}
-            \item Kernel is generated and compiled once, applied many times:
+            \item Each kernel is uniquely identified by its expression type.
                 \begin{itemize}
-                    \item Each kernel is uniquely identified by its expression
-                        type.
                     \item Hence, we may use local static variable to cache the
                         kernel.
+                    \item Kernel is generated and compiled once, applied many
+                        times.
                 \end{itemize}
         \end{itemize}
     \end{uncoverenv}
@@ -1985,6 +2011,7 @@ const vector& vector::operator=(const Expr &expr) {
 %----------------------------------------------------------------------------
 \section{Conclusion}
 \begin{frame}{Conclusion} \forkme
+    \vspace{-1\baselineskip}
     \begin{columns}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
@@ -2012,7 +2039,7 @@ const vector& vector::operator=(const Expr &expr) {
                 \vspace{\baselineskip}
                 {\small \sl
                     Integrate large number of ODEs\\
-                    on a GPU with Boost.odeint
+                    on a GPU with Boost.odeint [2].
                 }
             \end{center}
             \end{figure}
