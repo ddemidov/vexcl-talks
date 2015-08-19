@@ -16,8 +16,6 @@ function(mplfigure fname)
         )
 endfunction()
 
-mplfigure(perfplot)
-mplfigure(lorenz)
 mplfigure(mcpi)
 
 function(add_slides BEAMER_FILE)
@@ -34,8 +32,6 @@ function(add_slides BEAMER_FILE)
                     beamercolorthemechameleon.sty
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
-                    ${CMAKE_BINARY_DIR}/perfplot.pdf
-                    ${CMAKE_BINARY_DIR}/lorenz.pdf
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
             IMAGES tesla.png radeon.png intel.png
                    clippy.png times_in_life.jpg like.png
