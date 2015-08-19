@@ -1216,6 +1216,51 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 }
 
 %----------------------------------------------------------------------------
+\begin{frame}[fragile]{Monte Carlo $\pi$: the generated kernel}
+    \begin{columns}
+        \begin{column}[t]{0.2\textwidth}
+            \begin{exampleblock}{}
+                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \lstinputlisting[linerange={1-49}]{code/pi-kernel.cpp}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[t]{0.2\textwidth}
+            \begin{exampleblock}{}
+                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \lstinputlisting[linerange={50-98}]{code/pi-kernel.cpp}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[t]{0.2\textwidth}
+            \begin{exampleblock}{}
+                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \lstinputlisting[linerange={99-147}]{code/pi-kernel.cpp}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[t]{0.3\textwidth}
+            \begin{exampleblock}{}
+                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \lstinputlisting[linerange={148-196}]{code/pi-kernel.cpp}
+                        \vspace{\baselineskip}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\note{}
+
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Sparse matrix~-- vector products} \additive
     \begin{itemize}
         \item Class \code{vex::SpMat<T>} holds representation of a sparse
@@ -2009,44 +2054,77 @@ const vector& vector::operator=(const Expr &expr) {
 }
 
 %----------------------------------------------------------------------------
-\section{Conclusion}
-\begin{frame}{Conclusion} \forkme
-    \vspace{-1\baselineskip}
-    \begin{columns}
-        \begin{column}{0.55\textwidth}
-            \begin{itemize}
-                \item Advantages of code generation:
-                    \vspace{0.5\baselineskip}
-                    \begin{itemize}
-                        \item You get the exact kernel you need.
-                            \vspace{0.5\baselineskip}
-                        \item Flexibility of generic \CXX code\\
-                            with \CC backend.
-                            \vspace{0.5\baselineskip}
-                        \item There is no need to use\\
-                            vendor-specific solutions.
-                            \vspace{\baselineskip}
-                        \item Performance!
-                    \end{itemize}
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.45\textwidth}
-            \vspace{-1\baselineskip}
-            \begin{figure}
-                \begin{center}
-                \includegraphics[width=\textwidth]{perfplot}
+\section{Summary}
 
-                \vspace{\baselineskip}
-                {\small \sl
-                    Integrate large number of ODEs\\
-                    on a GPU with Boost.odeint [2].
-                }
-            \end{center}
-            \end{figure}
-        \end{column}
-    \end{columns}
+\begin{frame}{Projects already using VexCL}
+    \begin{description}[\quad]
+        \item[AMGCL] --- implementation of several variants of algebraic
+            multigrid:
+            \begin{itemize}
+                \item \href{https://github.com/ddemidov/amgcl}{https://github.com/ddemidov/amgcl}
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item[Antioch] --- A New Templated Implementation Of Chemistry for
+            Hydrodynamics:
+            \begin{itemize}
+                \item \href{https://github.com/libantioch/antioch}{https://github.com/libantioch/antioch}
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item[Boost.odeint] --- numerical solution of ordinary differential
+            equations:
+            \begin{itemize}
+                \item \href{https://github.com/boostorg/odeint}{https://github.com/boostorg/odeint}
+            \end{itemize}
+    \end{description}
+    \vspace{\baselineskip}
+    \begin{itemize}
+        \item \emph{All of these libraries use the same generic code for CPU
+            and GPU paths}.
+    \end{itemize}
 \end{frame}
 
-\note{}
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{AMGCL: an Algebraic MultiGrid implementation}
+    \begin{itemize}
+        \item Solves large sparse linear systems
+        \item Constructs an AMG hierachy from lego-like blocks
+        \item Supports several backends (OpenMP, VexCL, ViennaCL, CUDA, HPX,
+            \ldots)
+    \end{itemize}
+    \begin{onlyenv}<1>
+        \begin{exampleblock}{}
+            \begin{lstlisting}
+// Create solver for the given matrix (once)
+amgcl::make_solver<
+    amgcl::backend::builtin<double>,    // OpenMP-based builtin backend
+    amgcl::coarsening::smoothed_aggregation,
+    amgcl::relaxation::spai0,
+    amgcl::solver::bicgstab
+    > solve( boost::tie(n, ptr, col, val) );
+
+// Solve the system for the given RHS (multiple times)
+solve(rhs, x);  // std::vector<double> rhs, x;
+            \end{lstlisting}
+        \end{exampleblock}
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+        \begin{exampleblock}{}
+            \begin{lstlisting}
+// Create solver for the given matrix (once)
+amgcl::make_solver<
+    amgcl::backend::vexcl<double>,  // VexCL backend
+    amgcl::coarsening::smoothed_aggregation,
+    amgcl::relaxation::spai0,
+    amgcl::solver::bicgstab
+    > solve( boost::tie(n, ptr, col, val) );
+
+// Solve the system for the given RHS (multiple times)
+solve(rhs, x);  // vex::vector<double> rhs, x;
+            \end{lstlisting}
+        \end{exampleblock}
+    \end{onlyenv}
+\end{frame}
 
 \end{document}
