@@ -68,7 +68,7 @@
         \\ \vspace{\baselineskip}
         }
     \date{
-        \href{http://meetingcpp.com/index.php/schedule14.html}{CIMNE, Barcelona, 09.2015}
+        \href{http://meetingcpp.com/index.php/schedule14.html}{16.09.2015, CIMNE, Barcelona}
     }
 
 
@@ -1144,7 +1144,8 @@ x = rnd(vex::element_index(), std::rand());
     \begin{itemize}
         \item Class \code{vex::Reductor<T, kind>} allows to reduce arbitrary
             \emph{vector expression} to a\\ single value of type \code{T}.
-        \item Supported reduction kinds: \code{SUM}, \code{MIN}, \code{MAX}
+        \item Supported reduction kinds: \code{SUM}, \code{SUM_Kahan},
+            \code{MIN}, \code{MAX}
     \end{itemize}
     \begin{exampleblock}{Inner product}
         \begin{lstlisting}
@@ -1384,6 +1385,8 @@ y = nbody(x.size(), vex::element_index(), raw_pointer(x));
                 \item Arbitrary vector expressions as input
                 \item Multidimensional transforms
                 \item Arbitrary sizes
+                \item 2-3 times slower than Nvidia's CUFFT, about same speed as
+                    AMD's clFFT
             \end{itemize}
     \end{itemize}
     \begin{exampleblock}{Solve Poisson equation with FFT:}
@@ -2133,5 +2136,19 @@ solve(rhs, x);  // vex::vector<double> rhs, x;
         \end{exampleblock}
     \end{onlyenv}
 \end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}
+    \begin{center}
+        \huge{Gracies!}
+    \end{center}
+    \vspace{3\baselineskip}
+    \begin{description}[\hspace{0.6\textwidth}]
+        \item[Source code:] \href{https://github.com/ddemidov/vexcl}{github.com/ddemidov/vexcl}
+        \item[The slides:] \href{https://speakerdeck.com/ddemidov}{speakerdeck.com/ddemidov}
+    \end{description}
+\end{frame}
+
+\note{ }
 
 \end{document}
