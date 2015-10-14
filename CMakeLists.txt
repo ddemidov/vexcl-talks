@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(cimne)
+project(kazan)
 include(UseLATEX.cmake)
 
 set(BEAMER_OPTIONS "compress,unicode,aspectratio=1610")
@@ -34,7 +34,6 @@ function(add_slides BEAMER_FILE)
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
             IMAGES tesla.png radeon.png intel.png
-                   clippy.png times_in_life.jpg like.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 
@@ -47,6 +46,6 @@ function(add_slides BEAMER_FILE)
     endif ()
 endfunction()
 
-add_slides(vexcl_cimne_2015)
+add_slides(part1_opencl)
 
 add_subdirectory(code)

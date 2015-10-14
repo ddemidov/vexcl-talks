@@ -1,0 +1,505 @@
+\documentclass[@BEAMER_OPTIONS@]{beamer}
+    @USE_PGFPAGES@
+
+    \usetheme[alternativetitlepage=true,titleline=true]{Torino}
+    \setbeamertemplate{navigation symbols}{}
+    \setbeamertemplate{note page}[plain]
+    \setbeamertemplate{caption}{\insertcaption}
+
+    \usepackage[utf8]{inputenc}
+    \usepackage[russian]{babel}
+    \usepackage{graphicx}
+    \usepackage{subfigure}
+    \usepackage{xspace}
+    \usepackage{adjustbox}
+    \usepackage{tikz}
+    \usepackage{relsize}
+    \usepackage{fancyvrb}
+    \fvset{fontsize=\footnotesize}
+    \RecustomVerbatimEnvironment{verbatim}{Verbatim}{}
+    \usepgflibrary{arrows}
+    \usetikzlibrary{shadows,decorations.pathreplacing,patterns,shapes}
+    \tikzstyle{every picture}=[semithick,>=stealth,remember picture]
+    \usepackage{inconsolata}
+    \usepackage{listings}
+    \lstset{
+        language=C++,
+        basicstyle=\footnotesize\rmfamily,
+        keywordstyle=\color{chameleon1}\bfseries,
+        commentstyle=\color{chameleon4}\it\rmfamily,
+        stringstyle=\color{chameleon4},
+        numbers=left,
+        numberstyle=\tiny,
+        aboveskip=-0.02\baselineskip,
+        belowskip=-0.02\baselineskip,
+        columns=flexible,
+        extendedchars=false,
+        showstringspaces=false,
+        morekeywords={global,kernel,ulong,size_t,get_global_id,get_global_size,cl_uint,cl_platform_id}
+        }
+    \newcommand{\code}[1]{\lstinline|#1|}
+    \protected\def\plusplus{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-3}\bf ++}}\xspace}
+    \newcommand{\CXX}{{\rm C}\plusplus}
+    \newcommand{\CC}{{\rm C99}\xspace}
+    \newcommand{\www}[1]{\href{#1}{#1}}
+
+    \input{ribbon}
+    \newcommand{\forkme}{\ribbon{east}{chameleon1}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
+    \newcommand{\singledevice}{\ribbon{east}{chameleon3}{Single device only}}
+    \newcommand{\additive}{\ribbon{east}{chameleon3}{Additive expressions}}
+
+    \tikzset{
+        treenode/.style={
+            draw,
+            fill=white,
+            blur shadow,
+            shadow xshift=1pt,
+            shadow yshift=-1pt,
+            shadow blur radius=2pt,
+            shadow opacity=40
+            }
+        }
+
+
+    \title{OpenCL}
+    \subtitle{Программная модель, отличия от CUDA}
+    \author{Денис Демидов}
+    \institute{Институт системных исследований РАН\\
+    Казанский Федеральный Университет}
+    \date{23.10.2015}
+
+
+\begin{document}
+
+%----------------------------------------------------------------------------
+\begin{frame}{}
+    \titlepage
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\section{Введение}
+
+\begin{frame}{Современные GPGPU платформы}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{block}{CUDA}
+                \begin{itemize}
+                    \item Проприетарная архитектура
+                    \item Работает только на видеокартах NVIDIA
+                    \item Высокоуровневый интерфейс
+                    \item Ядра (\CXX) компилируются в псевдокод (PTX) вместе с
+                        основной программой
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+            \begin{block}{OpenCL}
+                \begin{itemize}
+                    \item Открытый стандарт
+                    \item Поддерживается многими вендорами
+                    \item Низкоуровневый интерфейс
+                    \item Ядра (\CC) компилируются во время выполнения основной
+                        программы
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\note[itemize]{
+\item Today, major GPGPU programming frameworks are NVIDIA CUDA and OpenCL
+\item ...
+\item The latter distinction allows one to generate an OpenCL kernel tailored
+    for the problem at hand.  And that is what I am going to talk about today.
+}
+
+\begin{frame}{Поддерживаемые устройства}
+    \begin{itemize}
+        \item NVIDIA CUDA
+            \begin{itemize}
+                \item Видеокарты NVIDIA
+            \end{itemize}
+        \item OpenCL
+            \begin{itemize}
+                \item Видеокарты NVIDIA, AMD, Intel
+                \item Центральные процессоры Intel, AMD, ARM
+                \item Мобильные системы, программируемые чипы, \ldots
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\section{Программный интерфейс OpenCL}
+\begin{frame}
+    \sectionpage
+\end{frame}
+
+\begin{frame}{Справочная информация}
+    \begin{itemize}
+        \item Сайт группы компаний Khronos
+            \begin{itemize}
+                \item Спецификации: \www{https://www.khronos.org/registry/cl}
+                \item Ресурсы: \www{https://www.khronos.org/opencl/resources}
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Основные этапы при использовании OpenCL}
+    \begin{itemize}
+        \item Инициализация
+            \begin{itemize}
+                \item Выбор платформы
+                \item Выбор устройства
+                \item Создание контекста
+                \item Создание очереди команд
+                \item Выделение памяти на устройстве
+                \item Компиляция вычислительных ядер
+            \end{itemize}
+        \item Работа
+            \begin{itemize}
+                \item Перенос данных
+                \item Выполнение расчетов
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Платформа OpenCL}
+    \begin{description}
+        \item[Платформа] --- это конкретная реализация OpenCL от производителя
+            аппаратного обеспечения (AMD, Intel, Nvidia, и т.д.)
+    \end{description}
+
+    Платформа позволяет получить:
+    \begin{itemize}
+        \item Свойства платформы:
+            \begin{itemize}
+                \item \code{CL_PLATFORM_NAME}
+                \item \code{CL_PLATFORM_VERSION}
+                \item \code{CL_PLATFORM_VENDOR}
+            \end{itemize}
+        \item Список установленных устройств, поддерживаемых платформой
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{С интерфейс}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+#include <CL/cl.h>
+
+void check(cl_int return_code) {
+    if (return_code != CL_SUCCESS) throw std::runtime_error("OpenCL error");
+}
+int main() {
+    cl_uint np;
+    check( clGetPlatformIDs(0, NULL, &np) );
+    std::vector<cl_platform_id> platforms(np);
+    check( clGetPlatformIDs(np, platforms.data(), &np) );
+    char name[256];
+    for (auto p : platforms) {
+        check( clGetPlatformInfo(p, CL_PLATFORM_NAME, 256, name, NULL) );
+        std::cout << name << std::endl;
+    }
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{\CXX интерфейс}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+#include <iostream>
+#include <vector>
+
+#define __CL_ENABLE_EXCEPTIONS
+#include <CL/cl.hpp>
+
+int main() {
+    std::vector<cl::Platform> platforms;
+    cl::Platform::get(&platforms);
+
+    for (const auto &p : platforms)
+        std::cout << p.getInfo<CL_PLATFORM_NAME>() << std::endl;
+}
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{}
+        \begin{verbatim}
+AMD Accelerated Parallel Processing
+NVIDIA CUDA
+Intel(R) OpenCL
+        \end{verbatim}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Устройство OpenCL}
+    \begin{description}
+        \item[Устройство] --- конкретное вычислительное устройство,
+            поддерживаемое одной из установленных платформ.
+    \end{description}
+    \begin{exampleblock}{Получение списка устройств для платформы}
+        \begin{lstlisting}
+std::vector<cl::Device> devices;
+p.getDevices(CL_DEVICE_TYPE_ALL, &devices);
+
+for(const auto &d : devices)
+    std::cout << "  " << d.getInfo<CL_DEVICE_NAME>() << std::endl;
+        \end{lstlisting}
+    \end{exampleblock}
+    Типы устройств:
+    \begin{itemize}
+        \item \code{CL_DEVICE_TYPE_ALL}
+        \item \code{CL_DEVICE_TYPE_DEFAULT}
+        \item \code{CL_DEVICE_TYPE_CPU}
+        \item \code{CL_DEVICE_TYPE_GPU}
+        \item \code{CL_DEVICE_TYPE_ACCELERATOR}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Контекст OpenCL}
+    \begin{description}[\;\;]
+        \item[Контекст] --- служит для управления объектами и ресурсами
+            OpenCL.\\
+            С контекстом связаны:
+            \begin{itemize}
+                \item устройства
+                \item программы и ядра
+                \item буферы памяти
+                \item очереди команд
+            \end{itemize}
+    \end{description}
+    \begin{exampleblock}{Создание контекста}
+        \begin{lstlisting}
+cl::Context context(devices);
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Очередь команд}
+    \begin{description}
+        \item[Очередь команд] --- позволяет отправить задание на выполнение на
+            конкретное устройство.
+    \end{description}
+    \begin{itemize}
+        \item Очередь связана с единственными контекстом и устройством.
+        \item Постановка задания в очередь выполняется асинхронно.
+        \item Задания выполняются в порядке их постановки в очередь.
+            \begin{itemize}
+                \item Вычислительные ядра
+                \item Операции копирования памяти
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{Создание очереди}
+        \begin{lstlisting}
+cl::CommandQueue queue(context, devices[0]);
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Выделение и копирование памяти}
+    \begin{description}[\;\;]
+        \item[Буфер памяти] --- объект, владеющий некоторым объемом памяти в
+            контексте.
+            \begin{itemize}
+                \item Все устройства в контексте могут получить доступ к
+                    буферам памяти.
+            \end{itemize}
+    \end{description}
+    \begin{exampleblock}{Выделение и перенос памяти}
+        \begin{lstlisting}
+std::vector<double> x(1024, 42.0);
+
+cl::Buffer a(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+        x.size() * sizeof(x[0]), x.data());
+
+size_t nbytes = 1024 * sizeof(double);
+cl::Buffer b(context, CL_MEM_READ_WRITE, nbytes);
+
+queue.enqueueWriteBuffer(b, CL_FALSE, 0, nbytes, x.data());
+queue.enqueueReadBuffer(b, CL_TRUE, 0, nbytes, x.data());
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Свойства буферов памяти}
+    \begin{itemize}
+        \item \code{CL_MEM_READ_WRITE}
+        \item \code{CL_MEM_WRITE_ONLY}
+        \item \code{CL_MEM_READ_ONLY}
+            \vspace{\baselineskip}
+        \item \code{CL_MEM_USE_HOST_PTR}
+        \item \code{CL_MEM_ALLOC_HOST_PTR}
+        \item \code{CL_MEM_COPY_HOST_PTR}
+            \vspace{\baselineskip}
+        \item \code{CL_MEM_HOST_WRITE_ONLY}
+        \item \code{CL_MEM_HOST_READ_ONLY}
+        \item \code{CL_MEM_HOST_NO_ACCESS}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Создание вычислительного ядра}
+    \begin{description}[\;\;]
+        \item[Ядро] --- функция, исполняющаяся на вычислительном устройстве.
+        \item[Программа] --- содержит исходные тесксты и/или скомпилированные
+            ядра.
+    \end{description}
+    \begin{exampleblock}{Создание программы и ядра}
+        \begin{lstlisting}
+std::string source = R"(
+kernel void add(ulong n, global const double *a, global double *b) {
+    ulong i = get_global_id(0);
+    if (i < n) b[i] += a[i];
+}
+)";
+
+cl::Program program(context, source);
+program.build(devices);
+
+cl::Kernel add(program, "add");
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Запуск ядра на выполнение}
+    \begin{exampleblock}{Постановка ядра в очередь}
+        \begin{lstlisting}
+add.setArg(0, static_cast<cl_ulong>(n));
+add.setArg(1, a);
+add.setArg(2, b);
+
+queue.enqueueNDRangeKernel(add, cl::NullRange, cl::NDRange(n), cl::NullRange);
+        \end{lstlisting}
+    \end{exampleblock}
+
+    \begin{exampleblock}{Считывание результатов}
+        \begin{lstlisting}
+queue.enqueueReadBuffer(b, CL_TRUE, 0, nbytes, x.data());
+std::cout << x[0] << std::endl;
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\section{Hello OpenCL}
+
+\begin{frame}{Полный пример}
+    \begin{itemize}
+        \item Вычислить сумму двух векторов на видеокарте
+            \begin{itemize}
+                \item \code{A} и \code{B} --- векторы большой размерности
+                \item Вычислить поэлементную сумму \code{B = A + B}.
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item Основные шаги
+            \begin{enumerate}
+                \item Инициализируем контекст
+                \item Выделяем память
+                \item Переносим входные данные
+                \item Проводим вычисления
+                \item Забираем результаты
+            \end{enumerate}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Hello OpenCL: Сумма двух векторов}
+    \vspace{-1\baselineskip}
+    \begin{columns}
+        \begin{column}{0.2\textwidth}
+            \begin{minipage}[c][\textheight][c]{\linewidth}
+                \begin{exampleblock}{}
+                    \begin{adjustbox}{width=0.19\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \begin{uncoverenv}<1->
+                                \lstinputlisting[linerange={1-7}]{code/hello-opencl.cpp}
+                            \end{uncoverenv}
+                            \begin{uncoverenv}<2->
+                                \lstinputlisting[firstnumber=last, linerange={8-33}]{code/hello-opencl.cpp}
+                            \end{uncoverenv}
+                            \begin{uncoverenv}<3->
+                                \lstinputlisting[firstnumber=last, linerange={34-42}]{code/hello-opencl.cpp}
+                            \end{uncoverenv}
+                            \begin{uncoverenv}<4->
+                                \lstinputlisting[firstnumber=last, linerange={43-68}]{code/hello-opencl.cpp}
+                            \end{uncoverenv}
+                            \begin{uncoverenv}<5->
+                                \lstinputlisting[firstnumber=last, linerange={69-72}]{code/hello-opencl.cpp}
+                            \end{uncoverenv}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{minipage}
+        \end{column}
+        \begin{column}{0.7\textwidth}
+            \begin{minipage}[c][\textheight][c]{\linewidth}
+                \begin{exampleblock}{\small%
+                        \only<1>{Разрешаем выбрасывать исключения}%
+                        \only<2>{Инициализируем контекст}%
+                        \only<3>{Выделяем память}%
+                        \only<4>{Компилируем и выполняем ядро}%
+                        \only<5>{Забираем результаты}%
+                    }
+                    \begin{adjustbox}{width=0.7\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \begin{onlyenv}<1>
+                                \lstinputlisting[linerange={1-7}]{code/hello-opencl.cpp}
+                            \end{onlyenv}
+                            \begin{onlyenv}<2>
+                                \lstinputlisting[firstnumber=last, linerange={8-33}]{code/hello-opencl.cpp}
+                            \end{onlyenv}
+                            \begin{onlyenv}<3>
+                                \lstinputlisting[firstnumber=last, linerange={34-42}]{code/hello-opencl.cpp}
+                            \end{onlyenv}
+                            \begin{onlyenv}<4>
+                                \lstinputlisting[firstnumber=last, linerange={43-68}]{code/hello-opencl.cpp}
+                            \end{onlyenv}
+                            \begin{onlyenv}<5>
+                                \lstinputlisting[firstnumber=last, linerange={69-72}]{code/hello-opencl.cpp}
+                            \end{onlyenv}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{minipage}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\section{Терминология: CUDA vs OpenCL}
+
+\begin{frame}
+    \sectionpage
+\end{frame}
+
+\begin{frame}[fragile]{Иерархия памяти}
+    \begin{columns}
+        \begin{column}{0.48\textwidth}
+            \begin{block}{CUDA}
+                \begin{itemize}
+                    \item<2-> Глобальная память\\
+                        \code{double *p}
+                    \item<3-> Разделяемая память\\
+                        \code{__shared__ double *p}
+                    \item<4-> Константая память\\
+                        \code{__constant__ double *p}
+                    \item<5-> Локальная память
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \begin{block}{OpenCL}
+                \begin{itemize}
+                    \item<2-> Глобальная память\\
+                        \code{global double *p}
+                    \item<3-> Локальная память\\
+                        \code{local double *p}
+                    \item<4-> Константая память\\
+                        \code{constant double *p}
+                    \item<5-> Приватная память
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\end{document}
