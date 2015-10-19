@@ -1,4 +1,4 @@
-foreach(src hello-opencl.cpp)
+foreach(src hello-opencl.cpp hello-compute.cpp hello-vexcl.cpp pi-kernel.cpp)
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/${src}
         ${CMAKE_CURRENT_BINARY_DIR}/${src}
