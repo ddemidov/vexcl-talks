@@ -46,6 +46,6 @@ function(add_slides BEAMER_FILE)
     endif ()
 endfunction()
 
-add_slides(part1_opencl)
+add_slides(opencl-kazan-2015)
 
 add_subdirectory(code)

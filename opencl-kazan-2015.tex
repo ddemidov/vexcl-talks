@@ -61,8 +61,8 @@
         }
 
 
-    \title{OpenCL}
-    \subtitle{Программная модель, отличия от CUDA}
+    \title{Программирование OpenCL}
+    \subtitle{с использованием библиотек \CXX}
     \author{Денис Демидов}
     \institute{Институт системных исследований РАН\\
     Казанский Федеральный Университет}
@@ -225,13 +225,6 @@ int main() {
         std::cout << p.getInfo<CL_PLATFORM_NAME>() << std::endl;
 }
         \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{}
-        \begin{verbatim}
-AMD Accelerated Parallel Processing
-NVIDIA CUDA
-Intel(R) OpenCL
-        \end{verbatim}
     \end{exampleblock}
 \end{frame}
 
@@ -640,6 +633,26 @@ kernel void do_stuff(
     \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]{Boost.Compute}
+    \begin{itemize}
+        \item Почти полная реализация STL на OpenCL
+            \begin{itemize}
+                \item Контейнеры\\
+                    \code{vector}, \code{string}, \code{flat_map},
+                    \code{flat_set}, \code{array}, \ldots
+                \item Алгоритмы\\
+                    \code{fill}, \code{copy}, \code{transform},
+                    \code{accumulate}, \code{count}, \code{partial_sum},
+                    \code{sort}, \ldots
+                \item Генераторы случайных чисел
+                \item \ldots
+            \end{itemize}
+        \item Ядро библиотеки может использоваться как более качественная\\
+            и удобная альтернатива \CXX API от Khronos
+        \item Исходный код доступен под лицезией Boost
+    \end{itemize}
+\end{frame}
+
 \begin{frame}[fragile]{Hello Boost.Compute: Сумма двух векторов}
     \vspace{-1\baselineskip}
     \begin{columns}
@@ -696,25 +709,6 @@ kernel void do_stuff(
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Boost.Compute --- почти полная реализация STL на OpenCL}
-    \begin{itemize}
-        \item Контейнеры
-            \begin{itemize}
-                \item \code{vector}, \code{string}, \code{flat_map},
-                    \code{flat_set}, \code{array}, \ldots
-            \end{itemize}
-        \item Алгоритмы
-            \begin{itemize}
-                \item \code{fill}, \code{copy}, \code{transform},
-                    \code{accumulate}, \code{count}, \code{partial_sum},
-                    \code{sort}, \ldots
-            \end{itemize}
-        \item Генераторы случайных чисел
-        \item Поддержка пользовательских функций
-        \item \ldots
-    \end{itemize}
-\end{frame}
-
 \begin{frame}[fragile]{Поддержка пользовательских операций}
     \begin{exampleblock}{Лямбда-функции}
         \begin{lstlisting}
@@ -736,29 +730,22 @@ compute::transform(A.begin(), A.end(), B.begin(), B.begin(), my_sum, q);
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
-    \forkme
-
+\begin{frame}{VexCL~--- библиотека векторных выражений для OpenCL/CUDA}
     \begin{itemize}
-        \item Created for ease of \CXX based GPGPU development:
+        \item Создана для облегчения разработки GPGPU приложений на \CXX
             \begin{itemize}
-                \item Convenient notation for vector expressions
-                \item OpenCL/CUDA JIT code generation
-                \item Easily combined with existing libraries/code
-                \item Header-only
+                \item Удобная нотация для векторных выражений
+                \item Автоматическая генерация ядер OpenCL/CUDA во время
+                    выполнения
             \end{itemize}
             \vspace{\baselineskip}
-        \item Supported backends:
+        \item Поддерживаемые технологии
             \begin{itemize}
-                \item OpenCL (Khronos \CXX bindings, Boost.Compute)
+                \item OpenCL (Khronos \CXX API, Boost.Compute)
                 \item NVIDIA CUDA
             \end{itemize}
             \vspace{\baselineskip}
-        \item The source code is available under MIT license:
-            \begin{itemize}
-                \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
-            \end{itemize}
-            \vspace{\baselineskip}
+        \item Исходный код доступен под лицензией MIT
     \end{itemize}
 \end{frame}
 
@@ -769,42 +756,6 @@ compute::transform(A.begin(), A.end(), B.begin(), B.begin(), my_sum, q);
 \item The library is header-only, so you don't have to build it to use it. The
     source code of the library is available on GitHub under very liberal
     MIT license.
-}
-
-\section{Motivating example}
-\begin{frame}
-    \sectionpage
-\end{frame}
-
-\note{}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Hello OpenCL: vector sum}
-    \begin{itemize}
-        \item Compute sum of two vectors in parallel:
-            \begin{itemize}
-                \item \code{A}, \code{B}, and \code{C} are large vectors.
-                \item Compute \code{C = A + B}.
-            \end{itemize}
-            \vspace{\baselineskip}
-        \item Overview of (any) OpenCL solution:
-            \begin{enumerate}
-                \item Initialize OpenCL context
-                \item Allocate memory
-                \item Transfer input data
-                \item Run computations
-                \item Get the results
-            \end{enumerate}
-    \end{itemize}
-\end{frame}
-
-\note[itemize]{
-\item Let's start with a motivating example. This is classical hello world
-    example for OpenCL: addition of two large vector.
-\item To do anything with the OpenCL, you need to perform some standard steps,
-    like context initialization, memory allocation and transfer, and the
-    computations that you needed to do in the first place.
-\item So let's look at how these steps are done with native OpenCL API.
 }
 
 %----------------------------------------------------------------------------
@@ -880,35 +831,21 @@ compute::transform(A.begin(), A.end(), B.begin(), B.begin(), my_sum, q);
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}
-    \begin{center}
-        \huge{What can it do?}
-    \end{center}
-\end{frame}
+\section{Интерфейс VexCL}
+\subsection{Инициализация}
 
-\note{ }
-
-\section{VexCL interface}
-\begin{frame}
-    \sectionpage
-\end{frame}
-
-\note[itemize]{
-\item Here is a brief overview of the library interface.
-}
-
-\subsection{Initialization}
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Initialization}
+\begin{frame}[fragile]{Инициализация}
     \begin{itemize}
-        \item Multi-device and multi-platform computations are supported.
-        \item VexCL context is initialized from combination of device filters.
-        \item Device filter is a boolean functor acting on \code{const
-            vex::backend::device&}.
+        \item Поддерживается одновременная работа с несколькими устройствами.
+        \item Контекст VexCL получает \emph{фильтр устройств} при
+            инициализации.
+        \item Фильтр устройств --- это булевский функтор, получающий ссылку на
+            устройство.
     \end{itemize}
     \vspace{-0.5\baselineskip}
     \begin{overlayarea}{\textwidth}{0.4\textheight}
-    \begin{exampleblock}{Initialize VexCL context on selected devices}
+    \begin{exampleblock}{Инициализируем контекст VexCL на выбранных устройствах}
         \begin{onlyenv}<1>
         \begin{lstlisting}
 vex::Context ctx( vex::Filter::Any );
@@ -970,10 +907,10 @@ vex::Context ctx(
     \end{enumerate}
 }
 
-\subsection{Memory and work splitting}
+\subsection{Распределение нагрузки между картами}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Memory and work splitting}
+\begin{frame}[fragile]{Распределение памяти и вычислений между картами}
     \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
         \begin{onlyenv}<1|handout:0>
@@ -1096,10 +1033,10 @@ y = sin(2 * x) + sqrt(1 - x * x);
     run at the speed of the slowest device.
 }
 
-\subsection{Copying memory between host and devices}
+\subsection{Перенос данных}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Copies between host and device memory}
+\begin{frame}[fragile]{Перенос данных}
     \begin{exampleblock}{}
         \begin{lstlisting}
 vex::vector<double> d(ctx, n);
@@ -1110,7 +1047,7 @@ double a[100];
     \vspace{\baselineskip}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \begin{exampleblock}{STL-like range copies}
+            \begin{exampleblock}{Копирование диапазонов}
                 \begin{lstlisting}
 vex::copy(d.begin(), d.end(), h.begin());
 vex::copy(d.begin(), d.begin() + 100, a);
@@ -1118,7 +1055,7 @@ vex::copy(d.begin(), d.begin() + 100, a);
             \end{exampleblock}
         \end{column}
         \begin{column}{0.4\textwidth}
-            \begin{exampleblock}{Simple copies}
+            \begin{exampleblock}{Простые копии}
                 \begin{lstlisting}
 vex::copy(d, h);
 vex::copy(h, d);
@@ -1129,7 +1066,7 @@ vex::copy(h, d);
     \vspace{\baselineskip}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \begin{exampleblock}{Map OpenCL buffer to host pointer}
+            \begin{exampleblock}{Отображение буффера OpenCL на хостовый указатель}
                 \begin{lstlisting}
 auto p = d.map(devnum);
 std::sort(&p[0], &p[d.part_size(devnum)]);
@@ -1137,7 +1074,8 @@ std::sort(&p[0], &p[d.part_size(devnum)]);
             \end{exampleblock}
         \end{column}
         \begin{column}{0.4\textwidth}
-            \begin{exampleblock}{Access single element (\emph{slow})}
+            \begin{exampleblock}{Доступ к единственному элементу
+                (\emph{медленно})}
                 \begin{lstlisting}
 double v = d[42];
 d[0] = 0;
@@ -1159,36 +1097,36 @@ d[0] = 0;
     for example, an STL algorithm with device vector as a temporary solution.
 }
 
-\subsection{Vector expressions}
+\subsection{Векторные выражения}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{What vector expressions are supported?}
+\begin{frame}[fragile]{Язык векторных выражений VexCL}
     \begin{itemize}
-        \item All vectors in an expression have to be \emph{compatible}:
+        \item Все векторы в выражении должны быть \emph{совместимыми}:
             \begin{itemize}
-                \item Have same size
-                \item Located on same devices
+                \item Иметь один размер
+                \item Быть расположенными на одних и тех же устройствах
             \end{itemize}
-        \item What may be used:
+        \item Что можно использовать в выражениях:
             \begin{columns}
                 \begin{column}{0.4\textwidth}
                     \begin{itemize}
-                        \item Vectors, scalars, constants
-                        \item Arithmetic, logical operators
-                        \item Built-in functions
-                        \item User-defined functions
-                        \item Random number generators
-                        \item Slicing and permutations
+                        \item Векторы, скаляры, константы
+                        \item Арифм. и логич. операторы
+                        \item Встроенные функции
+                        \item Пользовательские функции
+                        \item Генераторы случайных чисел
+                        \item Сортировка, префиксные суммы
                     \end{itemize}
                 \end{column}
-                \begin{column}{0.42\textwidth}
+                \begin{column}{0.4\textwidth}
                     \begin{itemize}
-                        \item Reduce to a scalar (sum, min, max)
-                        \item Reduce across chosen dimensions
-                        \item Stencil operations
-                        \item Sparse matrix~-- vector products
-                        \item Fast Fourier Transform
-                        \item Sort, scan, reduce by key
+                        \item Временные значения
+                        \item Срезы и перестановки
+                        \item Редукция (сумма, экстремумы)
+                        \item Произв. матрицы на вектор
+                        \item Свертки
+                        \item Быстрое преобразование Фурье
                     \end{itemize}
                 \end{column}
             \end{columns}
@@ -1204,10 +1142,10 @@ d[0] = 0;
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Builtin operations and functions}
+\begin{frame}[fragile]{Встроенные операторы и функции}
     \begin{columns}
         \begin{column}{0.38\textwidth}
-            \begin{exampleblock}{This expression:}
+            \begin{exampleblock}{Выражение:}
                 \begin{lstlisting}
 x = 2 * y - sin(z);
                 \end{lstlisting}
@@ -1216,11 +1154,11 @@ x = 2 * y - sin(z);
         \begin{column}{0.55\textwidth}
             \begin{itemize}
                 \item \code{export VEXCL_SHOW_KERNELS=1}\\
-                    to see the generated code.
+                    чтобы увидеть сгенерированный код.
             \end{itemize}
         \end{column}
     \end{columns}
-    \begin{exampleblock}{\ldots results in this kernel:}
+    \begin{exampleblock}{\ldots генерирует ядро:}
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
@@ -1256,25 +1194,25 @@ kernel void vexcl_vector_kernel(
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Element indices}
+\begin{frame}[fragile]{Индексы элементов}
     \begin{itemize}
         \item \code{vex::element_index(size_t offset = 0, size_t size = 0)}\\
-            returns index of a vector element.
+            возвращает индекс текущего элемента вектора.
             \begin{itemize}
-                \item The numbering starts with \code{offset} and is continuous
-                    across devices.
-                \item The optional \code{size} may be used to explicitly set
-                    the expression size.
+                \item Нумерация начинается с \code{offset}, элементы на всех
+                    устройствах нумеруются последовательно.
+                \item Необязательный параметр \code{size} задает размер
+                    выражения.
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{Linear function:}
+    \begin{exampleblock}{Линейная функция:}
         \begin{lstlisting}
 vex::vector<double> X(ctx, N);
 double x0 = 0, dx = 1e-3;
 X = x0 + dx * vex::element_index();
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Single period of sine function:}
+    \begin{exampleblock}{Один период функции синуса:}
         \begin{lstlisting}
 X = sin(2 * M_PI / N * vex::element_index());
         \end{lstlisting}
@@ -1289,15 +1227,15 @@ X = sin(2 * M_PI / N * vex::element_index());
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{User-defined functions}
-    \begin{exampleblock}{Defining a function:}
+\begin{frame}[fragile]{Пользовательские функции}
+    \begin{exampleblock}{Определение функции:}
         \begin{lstlisting}
 VEX_FUNCTION( double, sqr, (double, x)(double, y),
     return x * x + y * y;
     );
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Using the function:}
+    \begin{exampleblock}{Использование функции:}
         \begin{lstlisting}
 Z = sqrt( sqr(X, Y) );
         \end{lstlisting}
@@ -1320,13 +1258,13 @@ Z = sqrt( sqr(X, Y) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{User functions are translated to OpenCL functions}
+\begin{frame}[fragile]{Пользовательские функции транслируются в функции OpenCL}
     \begin{exampleblock}{}
         \begin{lstlisting}
 Z = sqrt( sqr(X, Y) );
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{\ldots gets translated to:}
+    \begin{exampleblock}{\ldots ведет к генерации ядра:}
         \begin{lstlisting}
 double sqr(double x, double y) {
     return x * x + y * y;
@@ -1362,13 +1300,13 @@ kernel void vexcl_vector_kernel(
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Functions may be not only convenient, but also effective}
-    \begin{exampleblock}{Same example without using a function:}
+\begin{frame}[fragile]{Функции часто не только удобны, но и эффективны}
+    \begin{exampleblock}{Тот же пример без использования функции:}
         \begin{lstlisting}
 Z = sqrt( X * X + Y * Y );
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{\ldots gets translated to:}
+    \begin{exampleblock}{\ldots транслируется в:}
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
   ulong n,
@@ -1412,57 +1350,12 @@ kernel void vexcl_vector_kernel(
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Tagged terminals}
-    \begin{itemize}
-        \item Programmer may help VexCL to recognize same terminals by
-            tagging them:
-    \end{itemize}
-    \begin{columns}
-        \begin{column}{0.46\textwidth}
-            \begin{exampleblock}{Like this:}
-                \begin{lstlisting}
-using vex::tag;
-Z = sqrt(tag<1>(X) * tag<1>(X) +
-          tag<2>(Y) * tag<2>(Y));
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-        \begin{column}{0.46\textwidth}
-            \begin{exampleblock}{or, equivalently:}
-                \begin{lstlisting}
-auto x = tag<1>(X);
-auto y = tag<2>(Y);
-Z = sqrt(x * x + y * y);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-kernel void vexcl_vector_kernel(
-  ulong n,
-  global double * prm_1,
-  global double * prm_2,
-  global double * prm_3
-)
-{
-  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-    prm_1[idx] = sqrt( ( ( prm_2[idx] * prm_2[idx] ) + ( prm_3[idx] * prm_3[idx] ) ) );
-  }
-}
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Reusing intermediate results}
+\begin{frame}[fragile]{Повторное использование промежуточных результатов}
     \begin{columns}
         \begin{column}{0.48\textwidth}
             \begin{itemize}
-                \item Some expressions may have several inclusions of the
-                    same subexpression:
+                \item Некоторые выражения используют промежуточные результаты
+                    несколько раз:
             \end{itemize}
             \begin{exampleblock}{}
                 \begin{lstlisting}
@@ -1470,9 +1363,9 @@ Z = log(X) * (log(X) + Y);
                 \end{lstlisting}
             \end{exampleblock}
             \begin{itemize}
-                \item \code{log(X)} will be computed twice here.
-                \item One could tag \code{X} and hope that the compiler is
-                    smart enough\ldots
+                \item \code{log(X)} будет вычислен дважды.
+                \item В простых случаях компилятор сможет избавиться от
+                    избыточного кода\ldots
             \end{itemize}
         \end{column}
         \begin{column}{0.48\textwidth}
@@ -1499,10 +1392,10 @@ Z = log(X) * (log(X) + Y);
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Temporaries}
+\begin{frame}[fragile]{Промежуточные значения}
     \begin{itemize}
-        \item But it is also possible to introduce a temporary variable
-            explicitly:
+        \item VexCL позволяет явно сохранить и использовать промежуточный
+            результат:
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
@@ -1531,59 +1424,67 @@ kernel void vexcl_vector_kernel(
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Permutations} \singledevice
+\begin{frame}[fragile]{Перестановки} \singledevice
     \begin{itemize}
-        \item \code{vex::permutation(expr)} takes arbitrary integral
-            valued expression\\
-            and returns a functor:
-            \pause
+        \item \code{vex::permutation(expr)} принимает произвольное
+            целочисленное выражение и возвращает функтор:
             \begin{exampleblock}{}
                 \begin{lstlisting}
-auto reverse = vex::permutation(N - 1 - vex::element_index());
+auto reverse = vex::permutation(N - 1 - vex::element_index(0, N));
 y = reverse(x);
                 \end{lstlisting}
             \end{exampleblock}
-            \pause
-        \item Permutations are writable:
+        \item Перестановки поддерживают как чтение, так и запись:
             \begin{exampleblock}{}
                 \begin{lstlisting}
 reverse(y) = x;
                 \end{lstlisting}
             \end{exampleblock}
     \end{itemize}
+
+    \begin{exampleblock}{Пример: выделение вещественной и мнимой частей вектора}
+        \begin{lstlisting}
+vex::vector<double> x(ctx, n * 2), y(ctx, n);
+
+auto Re = vex::permutation(2 * vex::element_index(0, n));
+auto Im = vex::permutation(2 * vex::element_index(0, n) + 1);
+
+y = sqr(Re(x), Im(x));
+        \end{lstlisting}
+    \end{exampleblock}
 \end{frame}
 
 \note{ }
 
-\subsection{Slicing}
+\subsection{Срезы многомерных массивов}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Slicing} \singledevice
+\begin{frame}[fragile]{Срезы многомерных массивов} \singledevice
     \begin{itemize}
-        \item When working with dense multidimensional matrices, it is general
-            practice to store those in continuous 1D arrays.
+        \item При работе с многомерными массивами данные эффективнее всего
+            располагать в непрерывных одномерных массивах.
             \begin{itemize}
-                \item An instance of \code{vex::slicer<NDIM>} class allows to
-                    access sub-blocks of such matrix.
+                \item Класс \code{vex::slicer<NDIM>} позволяет работать со
+                    срезами таких массивов.
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{n-by-n matrix and a slicer:}
+    \begin{exampleblock}{Матрица NxN и slicer:}
         \begin{lstlisting}
 vex::vector<double> x(ctx, n * n);
-vex::slicer<2> slice(vex::extents[n][n]); // Can be used with any vector of appropriate size
+vex::slicer<2> slice(vex::extents[n][n]);
         \end{lstlisting}
     \end{exampleblock}
     \pause
-    \begin{exampleblock}{Access row or column of the matrix:}
+    \begin{exampleblock}{Доступ к строке или столбцу матрицы:}
         \begin{lstlisting}[firstnumber=last]
 using vex::_;
-y = slice[42](x);       // 42nd row
-y = slice[_][42](x);    // 42nd column
-slice[_][10](x) = y;    // Slices are writable
+y = slice[42](x);       // строка
+y = slice[_][42](x);    // столбец
+slice[_][10](x) = y;
         \end{lstlisting}
     \end{exampleblock}
     \pause
-    \begin{exampleblock}{Use ranges to select sub-blocks:}
+    \begin{exampleblock}{Использование диапазонов для выделения подблоков:}
         \begin{lstlisting}[firstnumber=last]
 z = slice[vex::range(0, 2, n)][vex::range(10, 20)](x);
         \end{lstlisting}
@@ -1592,27 +1493,49 @@ z = slice[vex::range(0, 2, n)][vex::range(10, 20)](x);
 
 \note{ }
 
+\begin{frame}[fragile]{Тензорное произведение}
+    \begin{description}[\;\;]
+        \item[Тензорное произведение] --- обобщенная версия скалярного
+            произведения.  Элементы двух многомерных массивов перемножаются и
+            суммируются вдоль заданных осей.
+    \end{description}
+    \begin{exampleblock}{Произведение матрицы на вектор}
+        \begin{lstlisting}
+vex::vector<double> A(ctx, n * m), x(ctx, m), y(ctx, n);
+vex::slicer<2> Adim(vex::extents[n][m]);
+vex::slicer<1> xdim(vex::extents[m]);
+
+y = vex::tensordot(Adim[_](A), xdim[_](x), vex::axes_pairs(1, 0));
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{Произведение двух матриц}
+        \begin{lstlisting}
+vex::vector<double> A(ctx, n * m), B(ctx, m * k), C(ctx, n * k);
+vex::slicer<2> Adim(vex::extents[n][m]);
+vex::slicer<1> Bdim(vex::extents[m][k]);
+
+C = vex::tensordot(Adim[_](A), Bdim[_](B), vex::axes_pairs(1, 0));
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Random number generation}
+\begin{frame}[fragile]{Генерация случайных чисел}
     \begin{itemize}
-        \item VexCL provides\footnote{Contributed by
-            \href{https://github.com/neapel}{Pascal Germroth}
-            $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}
-            \emph{counter-based} random number generators from
-            Random123\footnote{D. E. Shaw Research,
-                \href{http://www.deshawresearch.com/resources\_random123.html}{http://www.deshawresearch.com/resources\_random123.html}}
-            suite.
+        \item В VexCL реализованы позиционные генераторы случайных чисел
+            (Counter-Based RNG)
             \begin{itemize}
-                \item The generators are \emph{stateless}; mixing functions are
-                    applied to element indices.
-                \item Implemented families: \code{threefry} and \code{philox}.
-                \item Both pass TestU01/BigCrush; up to \alert{$2^{64}$}
-                    independent streams with a period of \alert{$2^{128}$}.
-                \item Performance: \alert{$\approx 10^{10}$}~Samples/sec (Tesla
-                    K20c).
+                \item Такие генераторы не имеют состояния и\\ позволяют
+                    получить случайное число по его номеру (позиции) за O(1).
+                \item Реализованные семейства: \code{threefry} и \code{philox}.
+                \item Удовлетворяют тестам TestU01/BigCrush; позволяют
+                    получить\\ до \alert{$2^{64}$} независимых
+                    последовательностей с периодом \alert{$2^{128}$}.
+                \item Производительность: \alert{$\approx 10^{10}$}~чисел/сек
+                    (Tesla K20c).
             \end{itemize}
-        \item \code{vex::Random<T,G>}~--- uniform distribution.
-        \item \code{vex::RandomNormal<T,G>}~--- normal distribution.
+        \item \code{vex::Random<T,G=philox>}~--- равномерное распределение.
+        \item \code{vex::RandomNormal<T,G=philox>}~--- нормальное распределение.
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
@@ -1632,29 +1555,30 @@ x = rnd(vex::element_index(), std::rand());
     applying mixing functions to element indices.
 }
 
-\subsection{Reductions}
+\subsection{Редукция}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Reductions}
+\begin{frame}[fragile]{Редукция}
     \begin{itemize}
-        \item Class \code{vex::Reductor<T, kind>} allows to reduce arbitrary
-            \emph{vector expression} to a\\ single value of type \code{T}.
-        \item Supported reduction kinds: \code{SUM}, \code{SUM_Kahan},
-            \code{MIN}, \code{MAX}
+        \item Класс \code{vex::Reductor<T, kind=SUM>} позволяет редуцировать
+            произвольное \emph{векторное выражение} и получить значение типа
+            \code{T}.
+        \item Виды редукции: \code{SUM}, \code{SUM_Kahan}, \code{MIN},
+            \code{MAX}
     \end{itemize}
-    \begin{exampleblock}{Inner product}
+    \begin{exampleblock}{Скалярное произведение}
         \begin{lstlisting}
-vex::Reductor<double, vex::SUM> sum(ctx);
+vex::Reductor<double> sum(ctx);
 double s = sum(x * y);
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Number of elements in x between 0 and 1}
+    \begin{exampleblock}{Число элементов в интервале (0, 1)}
         \begin{lstlisting}
-vex::Reductor<size_t, vex::SUM> sum(ctx);
+vex::Reductor<size_t> sum(ctx);
 size_t n = sum( (x > 0) && (x < 1) );
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{Maximum distance from origin}
+    \begin{exampleblock}{Максимальное расстояние от центра}
         \begin{lstlisting}
 vex::Reductor<double, vex::MAX> max(ctx);
 double d = max( sqrt(x * x + y * y) );
@@ -1677,23 +1601,23 @@ double d = max( sqrt(x * x + y * y) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Monte Carlo $\pi$}
+\begin{frame}[fragile]{Пример: число $\pi$ методом Монте-Карло}
     \vspace{-1\baselineskip}
     \begin{columns}
         \begin{column}{0.55\textwidth}
             \begin{itemize}
-                \item Compute approximate value of $\pi$:
+                \item Приближенная оценка $\pi$:
             \end{itemize}
             \vspace{\baselineskip}
             \begin{equation*}
-                \frac{\text{area of circle}}{\text{area of square}} =
+                \frac{\text{площадь круга}}{\text{площадь квадрата}} =
                 \frac{\pi r^2}{(2r)^2} = \frac{\pi}{4},
             \end{equation*}
             \begin{equation*}
-                \pi = 4 \frac{\text{area of circle}}{\text{area of square}}
-                \approx 4 \frac{\text{\color{chameleon2}{points in
-                circle}}}{\text{\color{chameleon2}{all}
-                \color{chameleon3}{points}}}
+                \pi = 4 \frac{\text{площадь круга}}{\text{площадь квадрата}}
+                \approx 4 \frac{\text{\color{chameleon2}{точки в
+                круге}}}{\text{\color{chameleon2}{все}
+                \color{chameleon3}{точки}}}
             \end{equation*}
         \end{column}
         \begin{column}{0.35\textwidth}
@@ -1704,7 +1628,7 @@ double d = max( sqrt(x * x + y * y) );
     \end{columns}
     \begin{exampleblock}{}
         \begin{lstlisting}[texcl=true]
-vex::Random<cl_double2> rnd; // Generates 2D points in $[0,1]\times[0,1]$
+vex::Random<cl_double2> rnd;
 vex::Reductor<size_t, vex::SUM> sum(ctx);
 
 double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
@@ -1719,7 +1643,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Monte Carlo $\pi$: the generated kernel}
+\begin{frame}[fragile]{Монте-Карло $\pi$: сгенерированное ядро}
     \begin{columns}
         \begin{column}[t]{0.2\textwidth}
             \begin{exampleblock}{}
@@ -1764,24 +1688,25 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \note{}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Sparse matrix~-- vector products} \additive
+\begin{frame}[fragile]{Произведение разреженной матрицы на вектор} \additive
     \begin{itemize}
-        \item Class \code{vex::SpMat<T>} holds representation of a sparse
-            matrix on compute devices.
-        \item Constructor accepts matrix in common CRS format:
+        \item Класс \code{vex::SpMat<T>} содержит представление разреженной
+            матрицы на вычислительных устройствах.
+        \item Конструктор принимает матрицу в формате CRS:
             \begin{itemize}
-                \item row indices, columns and values of nonzero entries.
+                \item Номера столбцов и значения ненулевых элементов, указатели
+                    на начало каждой строки.
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{Construct matrix}
+    \begin{exampleblock}{Конструирование матрицы}
         \begin{lstlisting}
 vex::SpMat<double> A(ctx, n, n, row.data(), col.data(), val.data());
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}{Compute residual value}
+    \begin{exampleblock}{Расчет невязки СЛАУ}
         \begin{lstlisting}[firstnumber=last]
-// vex::vector<double> u, f, r;
+vex::vector<double> u, f, r;
 r = f - A * u;
 double res = max( fabs(r) );
         \end{lstlisting}
@@ -1799,48 +1724,22 @@ double res = max( fabs(r) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Inlining sparse matrix~-- vector products}
-    \singledevice
-
+\begin{frame}[fragile]{Арифметика указателей} \singledevice
     \begin{itemize}
-        \item SpMV may only be used in additive expressions:
+        \item Функция \code{raw_pointer(const vector<T>&)} возвращает указатель
+            на данные вектора.
             \begin{itemize}
-                \item Needs data exchange between compute devices.
-                \item Impossible to implement with single kernel.
-            \end{itemize}
-        \item This restriction may be lifted for single-device contexts:
-    \end{itemize}
-    \begin{exampleblock}{}
-        \begin{lstlisting}[numbers=none]
-r = f - vex::make_inline(A * u);
-double res = max( fabs(r) );
-
-// Do not store intermediate results:
-res = max( fabs( f - vex::make_inline(A * u) ) );
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Raw pointer arithmetic} \singledevice
-    \begin{itemize}
-        \item \code{raw_pointer(const vector<T>&)} function returns pointer to
-            vector's data\\ inside vector expression.
-            \begin{itemize}
-                \item May be used to implement complex access patterns.
+                \item Может использоваться для реализации случайного доступа
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{1D Laplace operator:}
+    \begin{exampleblock}{Одномерный оператор Лапласа:}
         \begin{lstlisting}
-auto ptr   = vex::raw_pointer(x);
-auto idx   = vex::element_index();
+VEX_FUNCTION(double, laplace, (size_t, i)(size_t, n)(double*, x),
+    if (i == 0 || i == n-1) return 0;
+    return 2 * x[i] - x[i-1] - x[i+1];
+    );
 
-auto left  = if_else(idx > 0,     i - 1, i);
-auto right = if_else(idx + 1 < n, i + 1, i);
-
-y = 2 * ptr[idx] - ptr[left] - ptr[right];
+y = laplace(vex::element_index(), n, vex::raw_pointer(x));
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -1848,20 +1747,20 @@ y = 2 * ptr[idx] - ptr[left] - ptr[right];
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{N-body problem with raw pointers}
+\begin{frame}[fragile]{Пример: взаимодействие N тел}
     \begin{equation*}
         y_i = \sum_{j \neq i} e^{-|x_i - x_j|}
     \end{equation*}
     \begin{exampleblock}{}
         \begin{lstlisting}
-VEX_FUNCTION(double, nbody, (size_t, n)(size_t, i)(double*, x),
+VEX_FUNCTION(double, nbody, (size_t, i)(size_t, n)(double*, x),
     double sum = 0, myval = x[i];
     for(size_t j = 0; j < n; ++j)
         if (j != i) sum += exp(-fabs(x[j] - myval));
     return sum;
     );
 
-y = nbody(x.size(), vex::element_index(), raw_pointer(x));
+y = nbody(vex::element_index(), x.size(), raw_pointer(x));
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
@@ -1871,26 +1770,19 @@ y = nbody(x.size(), vex::element_index(), raw_pointer(x));
 \subsection{Fast Fourier Transform}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Fast Fourier Transform \singledevice}
+\begin{frame}[fragile]{Быстрое преобразование Фурье \singledevice}
     \begin{itemize}
-        \item VexCL provides FFT implementation\footnote{Contributed by
-            \href{https://github.com/neapel}{Pascal Germroth}
-            $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}:
-            \begin{itemize}
-                \item Arbitrary vector expressions as input
-                \item Multidimensional transforms
-                \item Arbitrary sizes
-                \item 2-3 times slower than Nvidia's CUFFT, about same speed as
-                    AMD's clFFT
-            \end{itemize}
+        \item Произвольное выражение на входе
+        \item Многомерные преобразования
+        \item Произвольные размеры массивов
+        \item В 2-3 медленнее Nvidia CUFFT, сравнимо по скорости с AMD clFFT
     \end{itemize}
-    \begin{exampleblock}{Solve Poisson equation with FFT:}
+    \begin{exampleblock}{Решение периодической задачи Пуассона:}
         \begin{lstlisting}
+vex::vector<double> rhs(ctx, n), u(ctx, n), K(ctx, n);
+
 vex::FFT<double, cl_double2> fft(ctx, n);
 vex::FFT<cl_double2, double> ifft(ctx, n, vex::inverse);
-
-vex::vector<double> rhs(ctx, n), u(ctx, n), K(ctx, n);
-// ... initialize vectors ...
 
 u = ifft( K * fft(rhs) );
         \end{lstlisting}
@@ -1900,14 +1792,14 @@ u = ifft( K * fft(rhs) );
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Summary}
+\begin{frame}[fragile]{}
     \begin{itemize}
-        \item VexCL allows to write compact and readable code.
+        \item VexCL позволяет писать компактный и читаемый код
             \begin{itemize}
-                \item Its great for fast prototyping of scientific GPGPU
-                    applications.
-                \item The performance is often on-par with manually written
-                    kernels.
+                \item Хорошо подходит для быстрой разработки научных GPGPU
+                    приложений.
+                \item Производительность часто сравнима с ядрами, написанными
+                    вручную.
             \end{itemize}
     \end{itemize}
     \vspace{\baselineskip}
@@ -1928,14 +1820,14 @@ u = ifft( K * fft(rhs) );
 %----------------------------------------------------------------------------
 \begin{frame}
     \begin{center}
-        \huge{How does it work?}
+        \huge{Как это работает?}
     \end{center}
 \end{frame}
 
 \note{ }
 
 %----------------------------------------------------------------------------
-\section{Expression templates}
+\section{Шаблоны выражений}
 \begin{frame}
     \sectionpage
 \end{frame}
@@ -1943,40 +1835,42 @@ u = ifft( K * fft(rhs) );
 \note{}
 
 %----------------------------------------------------------------------------
-\begin{frame}{Expression templates}
+\begin{frame}{Шаблоны выражений}
     \begin{itemize}
-        \item How to implement a DSL in \CXX \emph{effectively}?
+        \item Как \emph{эффективно} реализовать предметно-ориентированный язык
+            (DSL) в \CXX?
             \vspace{\baselineskip}
-        \item The idea is quite old:
-            \begin{description}[1995:]
-                \item[1995:] \emph{Todd Veldhuizen}, Expression templates,
-                    \CXX Report.
-                \item[1996:]
-                    Blitz{\raisebox{.2ex}{\relsize{-3}\bf ++}}\xspace is a \CXX
-                    class library for scientific computing\\
-                    \emph{which provides performance on par with Fortran
-                    77/90}.
-            \end{description}
-        \item Today:
+        \item Идея не нова:
             \begin{itemize}
-                \item Armadillo, Blaze, Boost.uBLAS, Eigen, MTL, etc.
+                \item \emph{Todd Veldhuizen}, Expression templates, \CXX Report,
+                    \alert{1995}
+            \end{itemize}
+        \item Первая (?) реализация:
+            \begin{itemize}
+                \item ''Blitz\plusplus~--- это библиотека классов \CXX для
+                    научных расчетов, имеющая производительность сравнимую с
+                    Фортраном 77/90''.
+            \end{itemize}
+        \item Сегодня:
+            \begin{itemize}
+                \item Boost.uBLAS, Blaze, MTL, Eigen, Armadillo, и~пр.
             \end{itemize}
             \vspace{\baselineskip}
-        \item \alert{\emph{But how does it work?}}
+        \item \emph{Как это работает?}
     \end{itemize}
 \end{frame}
 
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Simple example: Vector arithmetic}
-    \begin{exampleblock}{We want to be able to write:}
+\begin{frame}[fragile]{Простой пример: сложение векторов}
+    \begin{exampleblock}{Мы хотим иметь возможность написать:}
         \begin{lstlisting}
 x = y + z;
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}{and it has to be as effective as:}
+    \begin{exampleblock}{чтобы результат был так же эффективен как:}
         \begin{lstlisting}
 for(size_t i = 0; i < n; ++i)
     x[i] = y[i] + z[i];
@@ -1987,7 +1881,7 @@ for(size_t i = 0; i < n; ++i)
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{\CXX allows us to overload operators!}
+\begin{frame}[fragile]{\CXX допускает перегрузку операторов!}
     \begin{exampleblock}{}
         \begin{lstlisting}
 vector operator+(const vector &a, const vector &b) {
@@ -1998,14 +1892,14 @@ vector operator+(const vector &a, const vector &b) {
 }
         \end{lstlisting}
     \end{exampleblock}
-    \begin{itemize}
-        \item Any problems?
-            \begin{itemize}
-                \item<2> Extra memory allocation
-                \item<2> Extra memory I/O
-            \end{itemize}
-    \end{itemize}
     \begin{uncoverenv}<2>
+        \begin{itemize}
+            \item Проблемы:
+                \begin{itemize}
+                    \item Дополнительное выделение памяти
+                    \item Дополнительные операции чтения/записи
+                \end{itemize}
+        \end{itemize}
         \begin{columns}
             \begin{column}{0.45\textwidth}
                 \begin{exampleblock}{}
@@ -2015,8 +1909,8 @@ a = x + y + z;
                     \end{lstlisting}
                 \end{exampleblock}
                 \begin{itemize}
-                    \item 2 temporary vectors
-                    \item $8 \times \text{n}$ memory reads/writes
+                    \item 2 временных вектора
+                    \item $8 \times \text{n}$ операций чтения/записи
                 \end{itemize}
             \end{column}
             \begin{column}{0.45\textwidth}
@@ -2027,8 +1921,8 @@ for(size_t i = 0; i < n; ++i)
                     \end{lstlisting}
                 \end{exampleblock}
                 \begin{itemize}
-                    \item no temporaries
-                    \item $4 \times \text{n}$ memory reads/writes
+                    \item нет временных векторов
+                    \item $4 \times \text{n}$ операций чтения/записи
                 \end{itemize}
             \end{column}
         \end{columns}
@@ -2040,9 +1934,9 @@ for(size_t i = 0; i < n; ++i)
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Lazy evaluation v0.1}
+\begin{frame}[fragile]{Отложенный расчет v0.1}
     \begin{description}
-        \item[The idea:] postpone the actual evaluation until assignment.
+        \item[Идея:] отложим расчет результата до операции присваивания.
     \end{description}
     \pause
     \begin{exampleblock}{}
@@ -2051,9 +1945,6 @@ struct vsum {
     const vector &lhs;
     const vector &rhs;
 };
-        \end{lstlisting}
-        \pause
-        \begin{lstlisting}[firstnumber=last]
 
 vsum operator+(const vector &a, const vector &b) {
     return vsum{a, b};
@@ -2063,7 +1954,7 @@ vsum operator+(const vector &a, const vector &b) {
         \begin{lstlisting}[firstnumber=last]
 
 const vector& vector::operator=(const vsum &s) {
-    for(size_t i = 0; i < n; ++i)
+    for(size_t i = 0; i < data.size(); ++i)
         data[i] = s.lhs[i] + s.rhs[i];
     return *this;
 }
@@ -2074,14 +1965,14 @@ const vector& vector::operator=(const vsum &s) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Problem: its not composable}
-    \begin{exampleblock}{What will happen here?}
+\begin{frame}[fragile]{Решение недостаточно универсально}
+    \begin{exampleblock}{Следующее выражение приведет к ошибке компиляции:}
         \begin{lstlisting}
 a = x + y + z;
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}<2>{}
+    \begin{exampleblock}{}
         \begin{verbatim}
 lazy_v1.cpp:38:15: error: invalid operands to binary expression
       ('vsum' and 'vector')
@@ -2099,7 +1990,7 @@ vsum operator+(const vector &a, const vector &b) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile,shrink=2]{Lazy evaluation v0.2}
+\begin{frame}[fragile,shrink=2]{Отложенный расчет v0.2}
     \begin{exampleblock}{}
         \begin{lstlisting}
 template <class LHS, class RHS>
@@ -2107,7 +1998,7 @@ struct vsum {
     const LHS &lhs;
     const RHS &rhs;
 
-    double operator[](size_t i) const { return lhs[i] + rhs[i]; }
+    double operator[ ](size_t i) const { return lhs[i] + rhs[i]; }
 };
         \end{lstlisting}
         \pause
@@ -2123,7 +2014,7 @@ vsum<LHS, RHS> operator+(const LHS &a, const RHS &b) {
 
 template<class Expr>
 const vector& vector::operator=(const Expr &expr) {
-    for(int i = 0; i < n; ++i) data[i] = expr[i];
+    for(int i = 0; i < data.size(); ++i) data[i] = expr[i];
     return *this;
 }
         \end{lstlisting}
@@ -2133,7 +2024,7 @@ const vector& vector::operator=(const Expr &expr) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Lazy evaluation v0.3}
+\begin{frame}[fragile]{Добавим остальные операции}
     \begin{exampleblock}{}
         \begin{lstlisting}
 struct plus {
@@ -2148,7 +2039,7 @@ struct binary_op {
     const LHS &lhs;
     const RHS &rhs;
 
-    double operator[](size_t i) const { return OP::apply(lhs[i], rhs[i]); }
+    double operator[ ](size_t i) const { return OP::apply(lhs[i], rhs[i]); }
 };
         \end{lstlisting}
         \pause
@@ -2165,10 +2056,10 @@ binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Expression templates are trees}
+\begin{frame}[fragile]{Шаблоны выражений --- это деревья}
     \begin{columns}
-        \begin{column}{0.4\textwidth}
-            \begin{exampleblock}{The expression in the RHS of:}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{Выражение в правой части:}
                 \begin{onlyenv}<1>
                     \begin{lstlisting}
 a = x + y;
@@ -2180,7 +2071,7 @@ a = x + y - z;
                     \end{lstlisting}
                 \end{onlyenv}
             \end{exampleblock}
-            \begin{exampleblock}{... is of type:}
+            \begin{exampleblock}{... имеет тип:}
                 \begin{uncoverenv}<2->
                     \begin{lstlisting}[numbers=none]
 binary_op<
@@ -2202,16 +2093,16 @@ binary_op<
                 \end{uncoverenv}
             \end{exampleblock}
         \end{column}
-        \begin{column}{0.55\textwidth}
+        \begin{column}{0.45\textwidth}
             \begin{figure}
                 \begin{tikzpicture}
                     \uncover<2->{
-                    \draw (0,0) node(sub)            [treenode,circle]{$-$};
-                    \draw (sub) +( 1.50,-1) node(z)  [treenode,minimum size=0.5cm]{z};
+                    \draw (0,0) node(sub)            [draw,fill=white,circle,drop shadow]{$-$};
+                    \draw (sub) +( 1.50,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
                     }
-                    \draw (sub) +(-1.50,-1) node(add)[treenode,circle]{$+$};
-                    \draw (add) +(-1.50,-1) node(x)  [treenode,minimum size=0.5cm]{x};
-                    \draw (add) +( 1.50,-1) node(y)  [treenode,minimum size=0.5cm]{y};
+                    \draw (sub) +(-1.50,-1) node(add)[draw,fill=white,circle,drop shadow]{$+$};
+                    \draw (add) +(-1.50,-1) node(x)  [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
+                    \draw (add) +( 1.50,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
 
                     \uncover<2->{
                     \draw (sub) -- (add);
@@ -2220,7 +2111,7 @@ binary_op<
                     \draw (add) -- (x);
                     \draw (add) -- (y);
 
-                    \uncover<6->{
+                    \uncover<6>{
                         \draw (sub) +(-2.5, 1.2) node[anchor=west]{\code{#pragma omp parallel for}};
                     }
                     \uncover<3->{
@@ -2236,20 +2127,19 @@ binary_op<
             \end{figure}
             \begin{uncoverenv}<7>
                 \begin{itemize}
-                    \item The \CXX compiler walks the tree.
-                    \item \code{binary_op::operator[]} does the actual work.
+                    \item \CXX компилятор обходит дерево.
+                    \item Вся работа выполняется в \code{binary_op::operator[]}.
                 \end{itemize}
             \end{uncoverenv}
         \end{column}
     \end{columns}
 \end{frame}
 
-\note{
-}
+\note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{So far, so good}
-    \begin{exampleblock}{It is now possible to:}
+\begin{frame}[fragile]{Промежуточный итог}
+    \begin{exampleblock}{Теперь мы можем записать:}
         \begin{lstlisting}
 v = a * x + b * y;
 
@@ -2257,7 +2147,7 @@ double c = (x + y)[42];
         \end{lstlisting}
     \end{exampleblock}
 
-    \begin{exampleblock}{... and its as effective as:}
+    \begin{exampleblock}{... и это будет так же эффективно, как:}
         \begin{lstlisting}
 for(size_t i = 0; i < n; ++i)
     v[i] = a[i] * x[i] + b[i] * y[i];
@@ -2266,8 +2156,8 @@ double c = x[42] + y[42];
         \end{lstlisting}
     \end{exampleblock}
     \begin{itemize}
-        \item No temporaries involved.
-        \item Optimizing compiler is able to inline everything.
+        \item Дополнительная память не требуется
+        \item Накладные расходы пропадут при компиляции с оптимизацией
             \vspace{\baselineskip}
             \pause
         \item<alert@2> \emph{But how is that related to OpenCL code generation?}
@@ -2287,31 +2177,39 @@ double c = x[42] + y[42];
 
 \note{ }
 
+\section{Генерация кода OpenCL}
+\begin{frame}
+    \sectionpage
+\end{frame}
+
+\note{ }
+
 %----------------------------------------------------------------------------
-\begin{frame}{How does OpenCL work?}
+\begin{frame}{Как работает OpenCL?}
     \begin{enumerate}
-        \item A compute kernel is compiled at runtime from \CC source.
-        \item Kernel parameters are set through API calls.
-        \item Kernel is launched on a compute device.
+        \item Вычислительное ядро компилируется во время выполнения из \CC
+            кода.
+        \item Параметры ядра задаются вызовами API.
+        \item Ядро выполняется на вычислительном устройстве.
     \end{enumerate}
     \vspace{\baselineskip}
     \pause
     \begin{itemize}
-        \item Source may be read from a file, or stored in a static
-            string, or \alert{\emph{generated}}.
+        \item Исходный код ядра можно считать из файла, из статической
+            текстовой переменной, или \alert{\emph{сгенерировать}}.
     \end{itemize}
 \end{frame}
 
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Generating kernel source from an expression}
-    \begin{exampleblock}{We want this expression:}
+\begin{frame}[fragile]{Генерация исходного кода ядра из выражений \CXX}
+    \begin{exampleblock}{Следующее выражение:}
         \begin{lstlisting}
 a = x + y - z;
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{\ldots to result in this kernel:}
+    \begin{exampleblock}{\ldots должно привести к генерации ядра:}
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
@@ -2328,11 +2226,11 @@ kernel void vexcl_vector_kernel(
         \end{lstlisting}
     \end{exampleblock}
     \begin{tikzpicture}[overlay,scale=0.8]
-        \draw (11,6) node(sub)[treenode,circle]{$-$};
-        \draw (sub) +( 1.50,-1) node(z)  [treenode,minimum size=0.5cm]{z};
-        \draw (sub) +(-1.50,-1) node(add)[treenode,circle]{$+$};
-        \draw (add) +(-1.50,-1) node(x)  [treenode,minimum size=0.5cm]{x};
-        \draw (add) +( 1.50,-1) node(y)  [treenode,minimum size=0.5cm]{y};
+        \draw (11,6) node(sub)[draw,fill=white,ellipse,drop shadow]{$-$};
+        \draw (sub) +( 1.50,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
+        \draw (sub) +(-1.50,-1) node(add)[draw,fill=white,circle,drop shadow]{$+$};
+        \draw (add) +(-1.50,-1) node(x)  [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
+        \draw (add) +( 1.50,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
         \draw (sub) -- (add);
         \draw (sub) -- (z);
         \draw (add) -- (x);
@@ -2343,15 +2241,15 @@ kernel void vexcl_vector_kernel(
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Declaring parameters}
-    \begin{exampleblock}{Each terminal knows what parameters it needs:}
+\begin{frame}[fragile]{Объявление параметров}
+    \begin{exampleblock}{Каждый терминал знает, какие параметры ему нужны:}
         \begin{lstlisting}
-/*static*/ void vector::declare_params(std::ostream &src, unsigned &pos) {
+/*static*/ void vector::prm_decl(std::ostream &src, unsigned &pos) {
     src << ",\n    global double * prm" << ++pos;
 }
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{An expression just asks its terminals to do the work:}
+    \begin{exampleblock}{Выражение просто делегирует работу своим терминалам:}
         \begin{lstlisting}[firstnumber=last]
 template <class LHS, class OP, class RHS>
 /*static*/ void binary_op<LHS, OP, RHS>::declare_params(
@@ -2367,11 +2265,11 @@ template <class LHS, class OP, class RHS>
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Building string representation for expression}
+\begin{frame}[fragile]{Построение строкового представления выражения}
     \begin{exampleblock}{}
         \begin{lstlisting}
 struct plus {
-    static std::string to_string(std::ostream &src) { src << " + "; }
+    static void to_string(std::ostream &src) { src << " + "; }
 };
         \end{lstlisting}
         \pause
@@ -2385,7 +2283,9 @@ struct plus {
         \begin{lstlisting}[firstnumber=last]
 
 template <class LHS, class OP, class RHS>
-/*static*/ void binary_op<LHS, OP, RHS>::to_string(std::ostream &src, unsigned &pos) {
+/*static*/ void binary_op<LHS, OP, RHS>::to_string(
+                            std::ostream &src, unsigned &pos) const
+{
     src << "( ";
     LHS::to_string(src, pos);
     OP::to_string(src);
@@ -2401,7 +2301,7 @@ template <class LHS, class OP, class RHS>
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Generating kernel source}
+\begin{frame}[fragile]{Генерация исходного кода ядра}
     \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
         \begin{uncoverenv}<1>
@@ -2423,8 +2323,8 @@ std::string kernel_source() {
         \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
     src << ")\n{\n"
-            "  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
-            "    ";
+            "    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
+            "        ";
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1,3>
@@ -2436,7 +2336,7 @@ std::string kernel_source() {
         \end{uncoverenv}
         \begin{uncoverenv}<1>
             \begin{lstlisting}[firstnumber=last]
-    src << "  }\n}\n";
+    src << "    }\n}\n";
 
     return src.str();
 }
@@ -2448,7 +2348,7 @@ std::string kernel_source() {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Setting kernel arguments}
+\begin{frame}[fragile]{Задание параметров ядра}
     \begin{exampleblock}{}
         \begin{lstlisting}
 void vector::set_args(cl::Kernel &krn, unsigned &pos) {
@@ -2466,14 +2366,14 @@ void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
     \vspace{\baselineskip}
 
     \begin{itemize}
-        \item The methods are not static anymore!
+        \item Методы уже не статические!
     \end{itemize}
 \end{frame}
 
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Gluing it all together}
+\begin{frame}[fragile]{Объединяем все компоненты}
     \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
         \begin{uncoverenv}<1>
@@ -2484,7 +2384,7 @@ const vector& vector::operator=(const Expr &expr) {
         \end{uncoverenv}
         \begin{uncoverenv}<1,2>
             \begin{lstlisting}[firstnumber=last]
-    static cl::Kernel krn = build_kernel(device, kernel_source<This, Expr>());
+    static cl::Kernel kernel = build_kernel(device, kernel_source<This, Expr>());
             \end{lstlisting}
         \end{uncoverenv}
         \begin{uncoverenv}<1>
@@ -2492,11 +2392,11 @@ const vector& vector::operator=(const Expr &expr) {
 
     unsigned pos = 0;
 
-    krn.setArg(pos++, size);        // n
-    krn.setArg(pos++, buffer);      // result
-    expr.set_args(krn, pos);        // other parameters
+    kernel.setArg(pos++, size);     // размер
+    kernel.setArg(pos++, buffer);   // результат
+    expr.set_args(kernel, pos);     // параметры
 
-    queue.enqueueNDRangeKernel(krn, cl::NullRange, buffer.size(), cl::NullRange);
+    queue.enqueueNDRangeKernel(kernel, cl::NullRange, buffer.size(), cl::NullRange);
 
     return *this;
 }
@@ -2506,12 +2406,12 @@ const vector& vector::operator=(const Expr &expr) {
     \setbeamercovered{transparent=0}
     \begin{uncoverenv}<2>
         \begin{itemize}
-            \item Each kernel is uniquely identified by its expression type.
+            \item Ядро генерируется и компилируется однажды, применяется
+                множество раз:
                 \begin{itemize}
-                    \item Hence, we may use local static variable to cache the
-                        kernel.
-                    \item Kernel is generated and compiled once, applied many
-                        times.
+                    \item Каждое ядро однозначно определяется типом выражения.
+                    \item Можем использовать локальную статическую переменную
+                        для кеширования ядра.
                 \end{itemize}
         \end{itemize}
     \end{uncoverenv}
@@ -2520,17 +2420,21 @@ const vector& vector::operator=(const Expr &expr) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{What you saw is not what you get}
+\begin{frame}[fragile]{На самом деле все не (совсем) так}
     \begin{itemize}
-        \item The actual implementation is a bit more complicated:
+        \item Фактическая реализация немного сложнее:
             \begin{itemize}
-                \item There are unary, binary, n-ary expressions.
-                \item There are special terminals requiring either global or
-                    local preambles.
-                \item There are builtin and user-defined functions.
+                \item Кроме векторов, есть другие терминалы (скаляры,
+                    константы, \ldots)
+                \item Унарные, бинарные, $n$-арные выражения
+                \item Специальные терминалы, требующие задания
+                    преамбулы в коде ядра
+                \item Встроенные и пользовательские функции
                 \item \ldots
             \end{itemize}
-        \item Boost.Proto is used to keep the code mess contained.
+            \vspace{\baselineskip}
+        \item Для упрощения работы с шаблонами выражений используется
+            Boost.Proto.
     \end{itemize}
 \end{frame}
 
@@ -2543,8 +2447,8 @@ const vector& vector::operator=(const Expr &expr) {
 
 \begin{frame}{Projects already using VexCL}
     \begin{description}[\quad]
-        \item[AMGCL] --- implementation of several variants of algebraic
-            multigrid:
+        \item[AMGCL] --- решение разреженных СЛАУ алгебраическим многосеточным
+            методом:
             \begin{itemize}
                 \item \href{https://github.com/ddemidov/amgcl}{https://github.com/ddemidov/amgcl}
             \end{itemize}
@@ -2555,74 +2459,13 @@ const vector& vector::operator=(const Expr &expr) {
                 \item \href{https://github.com/libantioch/antioch}{https://github.com/libantioch/antioch}
             \end{itemize}
             \vspace{\baselineskip}
-        \item[Boost.odeint] --- numerical solution of ordinary differential
-            equations:
+        \item[Boost.odeint] --- численное решение обыкновенных дифуравнений:
             \begin{itemize}
                 \item \href{https://github.com/boostorg/odeint}{https://github.com/boostorg/odeint}
             \end{itemize}
     \end{description}
-    \vspace{\baselineskip}
-    \begin{itemize}
-        \item \emph{All of these libraries use the same generic code for CPU
-            and GPU paths}.
-    \end{itemize}
 \end{frame}
 
 \note{ }
 
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{AMGCL: an Algebraic MultiGrid implementation}
-    \begin{itemize}
-        \item Solves large sparse linear systems
-        \item Constructs an AMG hierachy from lego-like blocks
-        \item Supports several backends (OpenMP, VexCL, ViennaCL, CUDA, HPX,
-            \ldots)
-    \end{itemize}
-    \begin{onlyenv}<1>
-        \begin{exampleblock}{}
-            \begin{lstlisting}
-// Create solver for the given matrix (once)
-amgcl::make_solver<
-    amgcl::backend::builtin<double>,    // OpenMP-based builtin backend
-    amgcl::coarsening::smoothed_aggregation,
-    amgcl::relaxation::spai0,
-    amgcl::solver::bicgstab
-    > solve( boost::tie(n, ptr, col, val) );
-
-// Solve the system for the given RHS (multiple times)
-solve(rhs, x);  // std::vector<double> rhs, x;
-            \end{lstlisting}
-        \end{exampleblock}
-    \end{onlyenv}
-    \begin{onlyenv}<2>
-        \begin{exampleblock}{}
-            \begin{lstlisting}
-// Create solver for the given matrix (once)
-amgcl::make_solver<
-    amgcl::backend::vexcl<double>,  // VexCL backend
-    amgcl::coarsening::smoothed_aggregation,
-    amgcl::relaxation::spai0,
-    amgcl::solver::bicgstab
-    > solve( boost::tie(n, ptr, col, val) );
-
-// Solve the system for the given RHS (multiple times)
-solve(rhs, x);  // vex::vector<double> rhs, x;
-            \end{lstlisting}
-        \end{exampleblock}
-    \end{onlyenv}
-\end{frame}
-
-%----------------------------------------------------------------------------
-\begin{frame}
-    \begin{center}
-        \huge{Gracies!}
-    \end{center}
-    \vspace{3\baselineskip}
-    \begin{description}[\hspace{0.6\textwidth}]
-        \item[Source code:] \href{https://github.com/ddemidov/vexcl}{github.com/ddemidov/vexcl}
-        \item[The slides:] \href{https://speakerdeck.com/ddemidov}{speakerdeck.com/ddemidov}
-    \end{description}
-\end{frame}
-
-\note{ }
 \end{document}
