@@ -17,6 +17,23 @@ function(mplfigure fname)
 endfunction()
 
 mplfigure(mcpi)
+mplfigure(lorenz)
+
+add_custom_command(
+    OUTPUT
+        ${CMAKE_BINARY_DIR}/perf-1.pdf
+        ${CMAKE_BINARY_DIR}/perf-2.pdf
+        ${CMAKE_BINARY_DIR}/perf-3.pdf
+        ${CMAKE_BINARY_DIR}/perf-4.pdf
+        ${CMAKE_BINARY_DIR}/perf-5.pdf
+    COMMAND
+        ${CMAKE_CURRENT_SOURCE_DIR}/make_plots.py ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/make_plots.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/chameleon.py
+    )
 
 function(add_slides BEAMER_FILE)
     function(add_document SOURCE SUFFIX)
@@ -33,6 +50,12 @@ function(add_slides BEAMER_FILE)
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
+                    ${CMAKE_BINARY_DIR}/lorenz.pdf
+                    ${CMAKE_BINARY_DIR}/perf-1.pdf
+                    ${CMAKE_BINARY_DIR}/perf-2.pdf
+                    ${CMAKE_BINARY_DIR}/perf-3.pdf
+                    ${CMAKE_BINARY_DIR}/perf-4.pdf
+                    ${CMAKE_BINARY_DIR}/perf-5.pdf
             IMAGES tesla.png radeon.png intel.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
