@@ -328,22 +328,6 @@ queue.enqueueReadBuffer(b, CL_TRUE, 0, nbytes, x.data());
     \end{exampleblock}
 \end{frame}
 
-\begin{frame}[fragile]{Свойства буферов памяти}
-    \begin{itemize}
-        \item \code{CL_MEM_READ_WRITE}
-        \item \code{CL_MEM_WRITE_ONLY}
-        \item \code{CL_MEM_READ_ONLY}
-            \vspace{\baselineskip}
-        \item \code{CL_MEM_USE_HOST_PTR}
-        \item \code{CL_MEM_ALLOC_HOST_PTR}
-        \item \code{CL_MEM_COPY_HOST_PTR}
-            \vspace{\baselineskip}
-        \item \code{CL_MEM_HOST_WRITE_ONLY}
-        \item \code{CL_MEM_HOST_READ_ONLY}
-        \item \code{CL_MEM_HOST_NO_ACCESS}
-    \end{itemize}
-\end{frame}
-
 \begin{frame}[fragile]{Создание вычислительного ядра}
     \begin{description}[\;\;]
         \item[Ядро] --- функция, исполняющаяся на вычислительном устройстве.
@@ -1533,10 +1517,12 @@ C = vex::tensordot(Adim[_](A), Bdim[_](B), vex::axes_pairs(1, 0));
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Генерация случайных чисел}
     \begin{itemize}
-        \item В VexCL реализованы позиционные генераторы случайных чисел
+        \item В VexCL реализованы позиционные генераторы случайных
+            чисел\footnote{Random123 suite, D. E. Shaw Research,
+            \href{http://www.deshawresearch.com/resources\_random123.html}{deshawresearch.com/resources\_random123.html}}
             (Counter-Based RNG)
             \begin{itemize}
-                \item Такие генераторы не имеют состояния и\\ позволяют
+                \item Такие генераторы не имеют состояния и позволяют\\
                     получить случайное число по его номеру (позиции) за O(1).
                 \item Реализованные семейства: \code{threefry} и \code{philox}.
                 \item Удовлетворяют тестам TestU01/BigCrush; позволяют
@@ -1545,8 +1531,8 @@ C = vex::tensordot(Adim[_](A), Bdim[_](B), vex::axes_pairs(1, 0));
                 \item Производительность: \alert{$\approx
                     2\times10^{10}$}~чисел/сек (Tesla K40c).
             \end{itemize}
-        \item \code{vex::Random<T,G=philox>}~--- равномерное распределение.
-        \item \code{vex::RandomNormal<T,G=philox>}~--- нормальное распределение.
+        \item \code{vex::Random<T, G=philox>}~--- равномерное распределение.
+        \item \code{vex::RandomNormal<T, G=philox>}~--- нормальное распределение.
     \end{itemize}
     \begin{exampleblock}{}
         \begin{lstlisting}
@@ -1805,7 +1791,7 @@ u = ifft( K * fft(rhs) );
 \subsection{Мультивекторы и мультивыражения}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Multivectors}
+\begin{frame}[fragile]{Мультивекторы}
     \begin{itemize}
         \item Класс \code{vex::multivector<T,N>} владеет \code{N} экземплярами
             класса \code{vex::vector<T>} одного размера.
@@ -2257,7 +2243,7 @@ binary_op<
                     \draw (add) -- (x);
                     \draw (add) -- (y);
 
-                    \uncover<6>{
+                    \uncover<6->{
                         \draw (sub) +(-2.5, 1.2) node[anchor=west]{\code{#pragma omp parallel for}};
                     }
                     \uncover<3->{

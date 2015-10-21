@@ -68,7 +68,7 @@ for i in range(1,6):
     subplot(122)
     xlabel('N')
     ylabel('T(CUBLAS) / T')
-    ylim([1e-1, 3e1])
+    ylim([5e-2, 3e1])
 
     tight_layout()
 
