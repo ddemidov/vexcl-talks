@@ -6,6 +6,7 @@
     \setbeamertemplate{note page}[plain]
     \setbeamertemplate{caption}{\insertcaption}
 
+
     \usepackage[utf8]{inputenc}
     \usepackage[russian]{babel}
     \usepackage{graphicx}
@@ -44,9 +45,8 @@
     \newcommand{\www}[1]{\href{#1}{#1}}
 
     \input{ribbon}
-    \newcommand{\forkme}{\ribbon{east}{chameleon1}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
-    \newcommand{\singledevice}{\ribbon{east}{chameleon3}{1xGPU}}
-    \newcommand{\additive}{\ribbon{east}{chameleon3}{Additive expressions}}
+    \newcommand{\forkme}{\ribbon{east}{chameleon1}{white}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
+    \newcommand{\singledevice}{\ribbon{east}{chameleon2}{chameleon1}{Одно устройство}}
     \newcommand{\speakerdeck}{%
         \begin{tikzpicture}[remember picture, overlay]%
             \node[%
@@ -87,8 +87,6 @@
     \speakerdeck
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \section{Введение}
 
@@ -126,6 +124,7 @@
     for the problem at hand.  And that is what I am going to talk about today.
 }
 
+%----------------------------------------------------------------------------
 \begin{frame}{Поддерживаемые устройства}
     \begin{itemize}
         \item NVIDIA CUDA
@@ -141,21 +140,25 @@
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \section{Программный интерфейс OpenCL}
 \begin{frame}
     \sectionpage
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}{Справочная информация}
     \begin{itemize}
-        \item Сайт группы компаний Khronos
+        \item Сайт группы компаний Khronos:
             \begin{itemize}
                 \item Спецификации: \href{http://khronos.org/registry/cl}{khronos.org/registry/cl}
                 \item Ресурсы: \href{http://khronos.org/opencl/resources}{khronos.org/opencl/resources}
             \end{itemize}
+        \item \href{https://www.google.com}{google.com}
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}{Основные этапы при использовании OpenCL}
     \begin{itemize}
         \item Инициализация
@@ -175,6 +178,7 @@
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Платформа OpenCL}
     \begin{description}
         \item[Платформа] --- это конкретная реализация OpenCL от производителя
@@ -193,6 +197,7 @@
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{С интерфейс}
     \begin{exampleblock}{}
         \begin{lstlisting}
@@ -219,6 +224,7 @@ int main() {
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{\CXX интерфейс}
     \begin{exampleblock}{}
         \begin{lstlisting}
@@ -239,6 +245,7 @@ int main() {
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Устройство OpenCL}
     \begin{description}
         \item[Устройство] --- конкретное вычислительное устройство,
@@ -263,6 +270,7 @@ for(const auto &d : devices)
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Контекст OpenCL}
     \begin{description}[\;\;]
         \item[Контекст] --- служит для управления объектами и ресурсами
@@ -282,6 +290,7 @@ cl::Context context(devices);
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Очередь команд}
     \begin{description}
         \item[Очередь команд] --- позволяет отправить задание на выполнение на
@@ -303,6 +312,7 @@ cl::CommandQueue queue(context, devices[0]);
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Выделение и копирование памяти}
     \begin{description}[\;\;]
         \item[Буфер памяти] --- объект, владеющий некоторым объемом памяти в
@@ -328,6 +338,7 @@ queue.enqueueReadBuffer(b, CL_TRUE, 0, nbytes, x.data());
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Создание вычислительного ядра}
     \begin{description}[\;\;]
         \item[Ядро] --- функция, исполняющаяся на вычислительном устройстве.
@@ -351,6 +362,7 @@ cl::Kernel add(program, "add");
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Запуск ядра на выполнение}
     \begin{exampleblock}{Постановка ядра в очередь}
         \begin{lstlisting}
@@ -370,8 +382,8 @@ std::cout << x[0] << std::endl;
     \end{exampleblock}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \section{Hello OpenCL}
-
 \begin{frame}{Полный пример}
     \begin{itemize}
         \item Вычислить сумму двух векторов на видеокарте
@@ -391,6 +403,7 @@ std::cout << x[0] << std::endl;
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello OpenCL: Сумма двух векторов}
     \vspace{-1\baselineskip}
     \begin{columns}
@@ -453,12 +466,13 @@ std::cout << x[0] << std::endl;
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \section{Терминология: CUDA vs OpenCL}
-
 \begin{frame}
     \sectionpage
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Иерархия памяти}
     \begin{columns}
         \begin{column}{0.48\textwidth}
@@ -490,6 +504,7 @@ std::cout << x[0] << std::endl;
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Декораторы функций}
     \begin{columns}
         \begin{column}{0.48\textwidth}
@@ -515,6 +530,7 @@ std::cout << x[0] << std::endl;
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Индексация потоков}
     \begin{columns}
         \begin{column}{0.48\textwidth}
@@ -556,6 +572,7 @@ std::cout << x[0] << std::endl;
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Пример ядра}
     \begin{columns}
         \begin{column}{0.57\textwidth}
@@ -597,11 +614,13 @@ kernel void do_stuff(
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \section{Библиотеки \CXX, облегчающие OpenCL-программирование}
 \begin{frame}
     \sectionpage
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}{Доступные библиотеки \CXX}
     \begin{itemize}
         \item Boost.Compute
@@ -628,6 +647,7 @@ kernel void do_stuff(
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Boost.Compute}
     \begin{itemize}
         \item Почти полная реализация STL на OpenCL
@@ -648,6 +668,7 @@ kernel void do_stuff(
     \end{itemize}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello Boost.Compute: Сумма двух векторов}
     \vspace{-1\baselineskip}
     \begin{columns}
@@ -704,6 +725,7 @@ kernel void do_stuff(
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
 \begin{frame}[fragile]{Поддержка пользовательских операций}
     \begin{exampleblock}{Лямбда-функции}
         \begin{lstlisting}
@@ -726,6 +748,7 @@ compute::transform(A.begin(), A.end(), B.begin(), B.begin(), my_sum, q);
 
 %----------------------------------------------------------------------------
 \begin{frame}{VexCL~--- библиотека векторных выражений для OpenCL/CUDA}
+    \forkme
     \begin{itemize}
         \item Создана для облегчения разработки GPGPU приложений на \CXX
             \begin{itemize}
@@ -1186,8 +1209,6 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Индексы элементов}
     \begin{itemize}
@@ -1292,8 +1313,6 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Функции часто не только удобны, но и эффективны}
     \begin{exampleblock}{Тот же пример без использования функции:}
@@ -1342,7 +1361,48 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
-\note{ }
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Выделение идентичных терминалов}
+    \begin{itemize}
+        \item Программист может помочь VexCL узнать идентичные терминалы
+            пометив их:
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.46\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+using vex::tag;
+Z = sqrt(tag<1>(X) * tag<1>(X) +
+         tag<2>(Y) * tag<2>(Y));
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+auto x = tag<1>(X);
+auto y = tag<2>(Y);
+Z = sqrt(x * x + y * y);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+kernel void vexcl_vector_kernel(
+    ulong n,
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3
+)
+{
+    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+        prm_1[idx] = sqrt( ( ( prm_2[idx] * prm_2[idx] ) + ( prm_3[idx] * prm_3[idx] ) ) );
+    }
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Повторное использование промежуточных результатов}
@@ -1350,27 +1410,26 @@ kernel void vexcl_vector_kernel(
         \begin{column}{0.48\textwidth}
             \begin{itemize}
                 \item Некоторые выражения используют промежуточные результаты
-                    несколько раз:
-            \end{itemize}
-            \begin{exampleblock}{}
-                \begin{lstlisting}
-Z = log(X) * (log(X) + Y);
-                \end{lstlisting}
-            \end{exampleblock}
-            \begin{itemize}
-                \item \code{log(X)} будет вычислен дважды.
-                \item В простых случаях компилятор сможет избавиться от
-                    избыточного кода\ldots
+                    несколько раз.
+                    \vspace{2\baselineskip}
+                \item<2> В простых случаях компилятор сможет избавиться от
+                    избыточного кода.
             \end{itemize}
         \end{column}
         \begin{column}{0.48\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+z = log(x) * (log(x) + y);
+                \end{lstlisting}
+            \end{exampleblock}
+            \vspace{2\baselineskip}
             \begin{tikzpicture}
                 \draw (0,0) node(mul)[draw,fill=white,ellipse,drop shadow,minimum size=0.8cm]{$*$};
                 \draw (mul)  +( 1.50,-1) node(sum)  [draw,fill=white,ellipse,drop shadow,minimum size=0.8cm]{$+$};
-                \draw (mul)  +(-1.50,-1) node(log1) [draw,fill=chameleon2!50,ellipse,drop shadow,minimum size=0.5cm]{log};
-                \draw (sum)  +(-1.50,-1) node(log2) [draw,fill=chameleon2!50,ellipse,drop shadow,minimum size=0.5cm]{log};
-                \draw (log1) +( 0.00,-1) node(x1)   [draw,fill=chameleon2!50,drop shadow,minimum size=0.5cm]{x};
-                \draw (log2) +( 0.00,-1) node(x2)   [draw,fill=chameleon2!50,drop shadow,minimum size=0.5cm]{x};
+                \draw (mul)  +(-1.50,-1) node(log1) [draw,fill=chameleon5,ellipse,drop shadow,minimum size=0.5cm]{log};
+                \draw (sum)  +(-1.50,-1) node(log2) [draw,fill=chameleon5,ellipse,drop shadow,minimum size=0.5cm]{log};
+                \draw (log1) +( 0.00,-1) node(x1)   [draw,fill=chameleon5,drop shadow,minimum size=0.5cm]{x};
+                \draw (log2) +( 0.00,-1) node(x2)   [draw,fill=chameleon5,drop shadow,minimum size=0.5cm]{x};
                 \draw (sum)  +( 1.50,-1) node(y)    [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
 
                 \draw (mul)  -- (log1);
@@ -1383,8 +1442,6 @@ Z = log(X) * (log(X) + Y);
         \end{column}
     \end{columns}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Промежуточные значения}
@@ -1416,8 +1473,6 @@ kernel void vexcl_vector_kernel(
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Перестановки} \singledevice
     \begin{itemize}
@@ -1448,8 +1503,6 @@ y = sqr(Re(x), Im(x));
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 \subsection{Срезы многомерных массивов}
 
@@ -1486,9 +1539,8 @@ z = slice[vex::range(0, 2, n)][vex::range(10, 20)](x);
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
-\begin{frame}[fragile]{Тензорное произведение}
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Тензорное произведение} \singledevice
     \begin{description}[\;\;]
         \item[Тензорное произведение] --- обобщенная версия скалярного
             произведения.  Элементы двух многомерных массивов перемножаются и
@@ -1682,10 +1734,8 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
     \end{columns}
 \end{frame}
 
-\note{}
-
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Произведение разреженной матрицы на вектор} \additive
+\begin{frame}[fragile]{Произведение разреженной матрицы на вектор}
     \begin{itemize}
         \item Класс \code{vex::SpMat<T>} содержит представление разреженной
             матрицы на вычислительных устройствах.
@@ -1741,8 +1791,6 @@ y = laplace(vex::element_index(), n, vex::raw_pointer(x));
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Пример: взаимодействие N тел}
     \begin{equation*}
@@ -1761,8 +1809,6 @@ y = nbody(vex::element_index(), x.size(), raw_pointer(x));
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 \subsection{Fast Fourier Transform}
 
@@ -1785,8 +1831,6 @@ u = ifft( K * fft(rhs) );
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 \subsection{Мультивекторы и мультивыражения}
 
@@ -1921,7 +1965,45 @@ kernel void vexcl_multivector_kernel(ulong n,
     \end{exampleblock}
 \end{frame}
 
-\note{ }
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Пользовательские ядра}
+    \begin{itemize}
+        \item При использовании собственных ядер программист сам управляет
+            обменом между картами.
+    \end{itemize}
+    \begin{exampleblock}{Создание ядра}
+        \begin{onlyenv}<1>
+            \begin{lstlisting}
+vex::backend::kernel dummy(ctx.queue(0), R"(
+    int the_answer(ulong i) { return 42; }
+    kernel void dummy(ulong n, global int *x) {
+        for(ulong i = get_global_id(0); i < n; i += get_global_size(0))
+            x[i] = the_answer(i);
+    })",
+    "dummy"
+    );
+            \end{lstlisting}
+        \end{onlyenv}
+        \begin{onlyenv}<2->
+            \begin{lstlisting}
+vex::backend::kernel dummy(ctx.queue(0), VEX_STRINGIZE_SOURCE(
+    int the_answer(ulong i) { return 42; }
+    kernel void dummy(ulong n, global int *x) {
+        for(ulong i = get_global_id(0); i < n; i += get_global_size(0))
+            x[i] = the_answer(i);
+    }),
+    "dummy"
+    );
+            \end{lstlisting}
+        \end{onlyenv}
+    \end{exampleblock}
+    \begin{exampleblock}<3>{Вызов ядра}
+        \begin{lstlisting}
+vex::vector<int> x(ctx, n);
+dummy(ctx.queue(0), static_cast<cl_ulong>(n), x(0));
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{}
@@ -1947,8 +2029,6 @@ kernel void vexcl_multivector_kernel(ulong n,
     \end{itemize}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}
     \begin{center}
@@ -1956,15 +2036,11 @@ kernel void vexcl_multivector_kernel(ulong n,
     \end{center}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \section{Шаблоны выражений}
 \begin{frame}
     \sectionpage
 \end{frame}
-
-\note{}
 
 %----------------------------------------------------------------------------
 \begin{frame}{Шаблоны выражений}
@@ -1992,8 +2068,6 @@ kernel void vexcl_multivector_kernel(ulong n,
     \end{itemize}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Простой пример: сложение векторов}
     \begin{exampleblock}{Мы хотим иметь возможность написать:}
@@ -2009,8 +2083,6 @@ for(size_t i = 0; i < n; ++i)
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{\CXX допускает перегрузку операторов!}
@@ -2094,8 +2166,6 @@ const vector& vector::operator=(const vsum &s) {
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Решение недостаточно универсально}
     \begin{exampleblock}{Следующее выражение приведет к ошибке компиляции:}
@@ -2118,8 +2188,6 @@ vsum operator+(const vector &a, const vector &b) {
         \end{verbatim}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile,shrink=2]{Отложенный расчет v0.2}
@@ -2153,8 +2221,6 @@ const vector& vector::operator=(const Expr &expr) {
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Добавим остальные операции}
     \begin{exampleblock}{}
@@ -2184,8 +2250,6 @@ binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Шаблоны выражений --- это деревья}
@@ -2267,8 +2331,6 @@ binary_op<
     \end{columns}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Промежуточный итог}
     \begin{exampleblock}{Теперь мы можем записать:}
@@ -2307,8 +2369,6 @@ double c = x[42] + y[42];
     \sectionpage
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}{Как работает OpenCL?}
     \begin{enumerate}
@@ -2324,8 +2384,6 @@ double c = x[42] + y[42];
             текстовой переменной, или \alert{\emph{сгенерировать}}.
     \end{itemize}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Генерация исходного кода ядра из выражений \CXX}
@@ -2363,8 +2421,6 @@ kernel void vexcl_vector_kernel(
     \end{tikzpicture}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Объявление параметров}
     \begin{exampleblock}{Каждый терминал знает, какие параметры ему нужны:}
@@ -2386,8 +2442,6 @@ template <class LHS, class OP, class RHS>
         \end{lstlisting}
     \end{exampleblock}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Построение строкового представления выражения}
@@ -2470,8 +2524,6 @@ std::string kernel_source() {
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Задание параметров ядра}
     \begin{exampleblock}{}
@@ -2494,8 +2546,6 @@ void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
         \item Методы уже не статические!
     \end{itemize}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Объединяем все компоненты}
@@ -2542,8 +2592,6 @@ const vector& vector::operator=(const Expr &expr) {
     \end{uncoverenv}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{На самом деле все не (совсем) так}
     \begin{itemize}
@@ -2573,8 +2621,6 @@ const vector& vector::operator=(const Expr &expr) {
 \begin{frame}
     \sectionpage
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Параметрическое исследование системы Лоренца}
@@ -2727,8 +2773,6 @@ cublasDaxpy(...);       // $x_0 = x_0 + \alpha_n * x_n$
     \end{exampleblock}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Вариант с использованием Thrust}
     \begin{itemize}
@@ -2773,8 +2817,6 @@ x0 = a1 * x1 + a2 * x2;
     \end{columns}
 \end{frame}
 
-\note{ }
-
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Производительность (Tesla K40c)}
     \begin{figure}
@@ -2796,8 +2838,6 @@ x0 = a1 * x1 + a2 * x2;
         \end{itemize}
     \end{uncoverenv}
 \end{frame}
-
-\note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Специально написанное ядро}
@@ -3029,7 +3069,7 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 
 %----------------------------------------------------------------------------
 \begin{frame}{Проекты, использующие VexCL}
-    \speakerdeck
+    \forkme\speakerdeck
     \begin{description}[\quad]
         \item[AMGCL] --- решение разреженных СЛАУ алгебраическим многосеточным
             методом:
@@ -3055,7 +3095,5 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
             \end{itemize}
     \end{description}
 \end{frame}
-
-\note{ }
 
 \end{document}

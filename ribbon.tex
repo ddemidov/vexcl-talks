@@ -4,7 +4,7 @@
 \setlength{\ribbonoffset}{3em}
 
 % corner, color, text
-\newcommand{\ribbon}[3]{
+\newcommand{\ribbon}[4]{
   \ifthenelse{\equal{#1}{east}}{%
     \tikzset{ribbonrot/.style={rotate=-45}}
   }{%
@@ -23,11 +23,11 @@
             shadow xshift=0pt,
             shadow blur radius=.2em,
             shadow opacity=50,
-            text=white
+            text=#3,
             ](fmogh) at (0pt, 0pt) {%
-            \fontfamily{phv}\selectfont\bfseries\sf\tiny#3};
+            \fontfamily{phv}\selectfont\bfseries\sf\tiny#4};
         \draw[
-            white,
+            #3,
             dashed,
             line width=.04em,
             dash pattern=on .2em off 1.5\pgflinewidth
