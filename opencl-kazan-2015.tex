@@ -46,7 +46,7 @@
 
     \input{ribbon}
     \newcommand{\forkme}{\ribbon{east}{chameleon1}{white}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
-    \newcommand{\singledevice}{\ribbon{east}{chameleon2}{chameleon1}{Одно устройство}}
+    \newcommand{\singledevice}{\ribbon{east}{chameleon2}{chameleon4}{Одно устройство}}
     \newcommand{\speakerdeck}{%
         \begin{tikzpicture}[remember picture, overlay]%
             \node[%
@@ -93,7 +93,7 @@
 \begin{frame}{Современные GPGPU платформы}
     \begin{columns}
         \begin{column}{0.45\textwidth}
-            \begin{block}{CUDA}
+            \begin{block}{NVIDIA CUDA}
                 \begin{itemize}
                     \item Проприетарная архитектура
                     \item Работает только на видеокартах NVIDIA
@@ -180,35 +180,42 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Платформа OpenCL}
-    \begin{description}
-        \item[Платформа] --- это конкретная реализация OpenCL от производителя
-            аппаратного обеспечения (AMD, Intel, Nvidia, и т.д.)
-    \end{description}
-
-    Платформа позволяет получить:
-    \begin{itemize}
-        \item Свойства платформы:
+    \begin{description}[\;\;]
+        \item[Платформа] --- это реализация OpenCL от производителя
+            аппаратного обеспечения (AMD, Intel, NVIDIA, и т.д.)
+            \vspace{\baselineskip}
             \begin{itemize}
-                \item \code{CL_PLATFORM_NAME}
-                \item \code{CL_PLATFORM_VERSION}
-                \item \code{CL_PLATFORM_VENDOR}
+                \item С платформой связан список поддерживаемых устройств
             \end{itemize}
-        \item Список установленных устройств, поддерживаемых платформой
-    \end{itemize}
+    \end{description}
 \end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{С интерфейс}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
-        \begin{lstlisting}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
 #include <iostream>
 #include <vector>
 #include <stdexcept>
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
 #include <CL/cl.h>
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,3>
+            \begin{lstlisting}[firstnumber=last]
 
 void check(cl_int return_code) {
     if (return_code != CL_SUCCESS) throw std::runtime_error("OpenCL error");
 }
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,4>
+            \begin{lstlisting}[firstnumber=last]
 int main() {
     cl_uint np;
     check( clGetPlatformIDs(0, NULL, &np) );
@@ -220,19 +227,30 @@ int main() {
         std::cout << name << std::endl;
     }
 }
-        \end{lstlisting}
+            \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
 \end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{\CXX интерфейс}
+    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
-        \begin{lstlisting}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
 #include <iostream>
 #include <vector>
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
 
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,3>
+            \begin{lstlisting}[firstnumber=last]
 
 int main() {
     std::vector<cl::Platform> platforms;
@@ -241,7 +259,8 @@ int main() {
     for (const auto &p : platforms)
         std::cout << p.getInfo<CL_PLATFORM_NAME>() << std::endl;
 }
-        \end{lstlisting}
+            \end{lstlisting}
+        \end{uncoverenv}
     \end{exampleblock}
 \end{frame}
 
@@ -275,9 +294,9 @@ for(const auto &d : devices)
     \begin{description}[\;\;]
         \item[Контекст] --- служит для управления объектами и ресурсами
             OpenCL.\\
+            \vspace{\baselineskip}
             С контекстом связаны:
             \begin{itemize}
-                \item устройства
                 \item программы и ядра
                 \item буферы памяти
                 \item очереди команд
@@ -294,10 +313,10 @@ cl::Context context(devices);
 \begin{frame}[fragile]{Очередь команд}
     \begin{description}
         \item[Очередь команд] --- позволяет отправить задание на выполнение на
-            конкретное устройство.
+            устройство.
     \end{description}
     \begin{itemize}
-        \item Очередь связана с единственными контекстом и устройством.
+        \item Очередь связана с единственным устройством.
         \item Постановка задания в очередь выполняется асинхронно.
         \item Задания выполняются в порядке их постановки в очередь.
             \begin{itemize}
@@ -342,7 +361,7 @@ queue.enqueueReadBuffer(b, CL_TRUE, 0, nbytes, x.data());
 \begin{frame}[fragile]{Создание вычислительного ядра}
     \begin{description}[\;\;]
         \item[Ядро] --- функция, исполняющаяся на вычислительном устройстве.
-        \item[Программа] --- содержит исходные тесксты и/или скомпилированные
+        \item[Программа] --- содержит исходные тексты и/или скомпилированные
             ядра.
     \end{description}
     \begin{exampleblock}{Создание программы и ядра}
@@ -615,13 +634,13 @@ kernel void do_stuff(
 \end{frame}
 
 %----------------------------------------------------------------------------
-\section{Библиотеки \CXX, облегчающие OpenCL-программирование}
+\section{Программирование OpenCL с использованием библиотек \CXX}
 \begin{frame}
     \sectionpage
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}{Доступные библиотеки \CXX}
+\begin{frame}{GPGPU библиотеки \CXX}
     \begin{itemize}
         \item Boost.Compute
             \begin{itemize}
@@ -1064,14 +1083,6 @@ double a[100];
     \end{exampleblock}
     \vspace{\baselineskip}
     \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{exampleblock}{Копирование диапазонов}
-                \begin{lstlisting}
-vex::copy(d.begin(), d.end(), h.begin());
-vex::copy(d.begin(), d.begin() + 100, a);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
         \begin{column}{0.4\textwidth}
             \begin{exampleblock}{Простые копии}
                 \begin{lstlisting}
@@ -1080,23 +1091,30 @@ vex::copy(h, d);
                 \end{lstlisting}
             \end{exampleblock}
         \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{exampleblock}{Копирование диапазонов}
+                \begin{lstlisting}
+vex::copy(d.begin(), d.end(), h.begin());
+vex::copy(d.begin(), d.begin() + 100, a);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
     \end{columns}
     \vspace{\baselineskip}
     \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{exampleblock}{Поэлементный доступ\\ (\emph{медленно})}
+                \begin{lstlisting}
+double v = d[42];
+d[0] = 0;
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
         \begin{column}{0.5\textwidth}
             \begin{exampleblock}{Отображение буффера OpenCL на хостовый указатель}
                 \begin{lstlisting}
 auto p = d.map(devnum);
 std::sort(&p[0], &p[d.part_size(devnum)]);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-        \begin{column}{0.4\textwidth}
-            \begin{exampleblock}{Доступ к единственному элементу
-                (\emph{медленно})}
-                \begin{lstlisting}
-double v = d[42];
-d[0] = 0;
                 \end{lstlisting}
             \end{exampleblock}
         \end{column}
@@ -1412,7 +1430,7 @@ kernel void vexcl_vector_kernel(
                 \item Некоторые выражения используют промежуточные результаты
                     несколько раз.
                     \vspace{2\baselineskip}
-                \item<2> В простых случаях компилятор сможет избавиться от
+                \item В простых случаях компилятор сможет избавиться от
                     избыточного кода.
             \end{itemize}
         \end{column}
@@ -1516,10 +1534,10 @@ y = sqr(Re(x), Im(x));
                     срезами таких массивов.
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{Матрица NxN и slicer:}
+    \begin{exampleblock}{Матрица $n \times m$ и slicer:}
         \begin{lstlisting}
-vex::vector<double> x(ctx, n * n);
-vex::slicer<2> slice(vex::extents[n][n]);
+vex::vector<double> x(ctx, n * m);
+vex::slicer<2> slice(vex::extents[n][m]);
         \end{lstlisting}
     \end{exampleblock}
     \pause
@@ -1559,7 +1577,7 @@ y = vex::tensordot(Adim[_](A), xdim[_](x), vex::axes_pairs(1, 0));
         \begin{lstlisting}
 vex::vector<double> A(ctx, n * m), B(ctx, m * k), C(ctx, n * k);
 vex::slicer<2> Adim(vex::extents[n][m]);
-vex::slicer<1> Bdim(vex::extents[m][k]);
+vex::slicer<2> Bdim(vex::extents[m][k]);
 
 C = vex::tensordot(Adim[_](A), Bdim[_](B), vex::axes_pairs(1, 0));
         \end{lstlisting}
@@ -1572,7 +1590,7 @@ C = vex::tensordot(Adim[_](A), Bdim[_](B), vex::axes_pairs(1, 0));
         \item В VexCL реализованы позиционные генераторы случайных
             чисел\footnote{Random123 suite, D. E. Shaw Research,
             \href{http://www.deshawresearch.com/resources\_random123.html}{deshawresearch.com/resources\_random123.html}}
-            (Counter-Based RNG)
+            (counter-based random number generators).
             \begin{itemize}
                 \item Такие генераторы не имеют состояния и позволяют\\
                     получить случайное число по его номеру (позиции) за O(1).
@@ -1816,9 +1834,10 @@ y = nbody(vex::element_index(), x.size(), raw_pointer(x));
 \begin{frame}[fragile]{Быстрое преобразование Фурье \singledevice}
     \begin{itemize}
         \item Произвольное выражение на входе
-        \item Многомерные преобразования
+        \item Преобразование многомерных массивов
         \item Произвольные размеры массивов
-        \item В 2-3 медленнее Nvidia CUFFT, сравнимо по скорости с AMD clFFT
+        \item Пакетное преобразование (batch transform)
+        \item В 2-3 медленнее NVIDIA CUFFT, сравнимо по скорости с AMD clFFT
     \end{itemize}
     \begin{exampleblock}{Решение периодической задачи Пуассона:}
         \begin{lstlisting}
@@ -1838,7 +1857,7 @@ u = ifft( K * fft(rhs) );
 \begin{frame}[fragile]{Мультивекторы}
     \begin{itemize}
         \item Класс \code{vex::multivector<T,N>} владеет \code{N} экземплярами
-            класса \code{vex::vector<T>} одного размера.
+            класса \code{vex::vector<T>}.
         \item Поддерживает все операции, определенные для
             \code{vex::vector<T>}.
         \item Операции с мультивекторами выполняются в единственном ядре.
@@ -1870,7 +1889,7 @@ X = A * Y;                      // X(k) = A * Y(k);
         \item Некоторые операции не удается выразить через арифметику
             мультивекторов.
     \end{itemize}
-    \begin{block}{Пример: вращение 2D вектора на заданный угол}
+    \begin{block}{Пример: поворот 2D вектора на заданный угол}
         \vspace{-1\baselineskip}
         \begin{align*}
             y_0 &= x_0 \cos \alpha - x_1 \sin \alpha, \\
@@ -2053,11 +2072,11 @@ dummy(ctx.queue(0), static_cast<cl_ulong>(n), x(0));
                 \item \emph{Todd Veldhuizen}, Expression templates, \CXX Report,
                     \alert{1995}
             \end{itemize}
-        \item Первая (?) реализация:
+        \item Первая реализация:
             \begin{itemize}
-                \item ''Blitz\plusplus~--- это библиотека классов \CXX для
-                    научных расчетов, имеющая производительность сравнимую с
-                    Фортраном 77/90''.
+                \item ''{\rmfamily\textit{\textbf{\textcolor{chameleon2}{Blitz\plusplus}}~---
+                    библиотека классов \CXX для научных расчетов, имеющая
+                    производительность сравнимую с Фортраном 77/90}} ''.
             \end{itemize}
         \item Сегодня:
             \begin{itemize}
@@ -3058,7 +3077,8 @@ for(double t = 0; t < t_max; t += dt) lorenz_kernel(X, Y, Z, R);
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Производительность сгенерированного ядра}
     \begin{figure}
-        \includegraphics[width=\textwidth]{perf-5}
+        \only<1|handout:0> {\includegraphics[width=0.9\textwidth]{perf-4}}%
+        \only<2>{\includegraphics[width=0.9\textwidth]{perf-5}}%
     \end{figure}
 \end{frame}
 
