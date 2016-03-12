@@ -1,0 +1,7 @@
+VexCL: Experiences in Developing a C++ Wrapper Library for OpenCL
+
+VexCL is a C++ vector expression template library for fast GPGPU prototyping
+and developement. It provides convenient notation for various vector
+operations, and generates OpenCL/CUDA kernels on the fly from C++ expressions.
+The talk describes challenges met during implementation of the library and some
+C++ techniques used to overcome those.
