@@ -1,0 +1,38 @@
+\usepackage{ifthen}
+\usetikzlibrary{shadows.blur}
+\newlength{\ribbonoffset}
+\setlength{\ribbonoffset}{3em}
+
+% corner, color, text
+\newcommand{\ribbon}[3]{
+  \ifthenelse{\equal{#1}{east}}{%
+    \tikzset{ribbonrot/.style={rotate=-45}}
+  }{%
+    \tikzset{ribbonrot/.style={rotate=45}}
+  }
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[ribbonrot, shift={(0, -\ribbonoffset)}] at (current page.north #1) {
+      \begin{tikzpicture}[remember picture, overlay,scale=0.5]
+        \node[
+            fill=#2,
+            text centered,
+            minimum width=50em,
+            minimum height=1.2em,
+            blur shadow,
+            shadow yshift=0pt,
+            shadow xshift=0pt,
+            shadow blur radius=.2em,
+            shadow opacity=50,
+            text=white
+            ](fmogh) at (0pt, 0pt) {%
+            \fontfamily{phv}\selectfont\bfseries\tiny#3};
+        \draw[
+            white,
+            dashed,
+            line width=.04em,
+            dash pattern=on .2em off 1.5\pgflinewidth
+            ] (-25em,1em) rectangle (25em,-1em);
+      \end{tikzpicture}
+    };
+  \end{tikzpicture}
+}

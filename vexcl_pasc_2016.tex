@@ -1,0 +1,198 @@
+\documentclass[@BEAMER_OPTIONS@]{beamer}
+    @USE_PGFPAGES@
+
+    \usetheme[alternativetitlepage=true,titleline=true]{Torino}
+    \setbeamertemplate{navigation symbols}{}
+    \setbeamertemplate{note page}[plain]
+    \setbeamertemplate{caption}{\insertcaption}
+
+    \usepackage[utf8]{inputenc}
+    \usepackage{graphicx}
+    \usepackage{subfigure}
+    \usepackage{xspace}
+    \usepackage{adjustbox}
+    \usepackage{tikz}
+    \usepackage{relsize}
+    \usepackage{fancyvrb}
+    \fvset{fontsize=\footnotesize}
+    \RecustomVerbatimEnvironment{verbatim}{Verbatim}{}
+    \usepgflibrary{arrows}
+    \usetikzlibrary{shadows,decorations.pathreplacing,patterns,shapes}
+    \tikzstyle{every picture}=[semithick,>=stealth,remember picture]
+    \usepackage{inconsolata}
+    \usepackage{listings}
+    \lstset{
+        language=C++,
+        basicstyle=\footnotesize\ttfamily,
+        keywordstyle=\color{black}\bfseries,
+        commentstyle=\color{chameleon1}\it\rmfamily,
+        stringstyle=\color{chameleon1},
+        numbers=left,
+        numberstyle=\tiny,
+        aboveskip=-0.02\baselineskip,
+        belowskip=-0.02\baselineskip,
+        columns=flexible,
+        extendedchars=false,
+        showstringspaces=false,
+        morekeywords={global,kernel,ulong,size_t,get_global_id,get_global_size}
+        }
+    \newcommand{\code}[1]{\lstinline|#1|}
+    \protected\def\plusplus{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-3}\bf ++}}\xspace}
+    \newcommand{\CXX}{{\rm C}\plusplus}
+    \newcommand{\CC}{{\rm C99}\xspace}
+
+    \input{ribbon}
+    \newcommand{\forkme}{\ribbon{east}{chameleon1}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
+    \newcommand{\singledevice}{\ribbon{east}{chameleon3}{Single device only}}
+    \newcommand{\additive}{\ribbon{east}{chameleon3}{Additive expressions}}
+
+    \tikzset{
+        treenode/.style={
+            draw,
+            fill=white,
+            blur shadow,
+            shadow xshift=1pt,
+            shadow yshift=-1pt,
+            shadow blur radius=2pt,
+            shadow opacity=40
+            }
+        }
+
+
+    \title{VexCL}
+    \subtitle{Experiences in developing a C++ wrapper library for OpenCL}
+
+    \author{Denis Demidov}
+    \institute{
+        Kazan Federal University /\\
+        Institute of System Research, Russian Academy of Sciences
+        \\ \vspace{\baselineskip}
+        }
+    \date{08-10.06.2016, PASC16, Lausanne}
+
+\begin{document}
+
+%----------------------------------------------------------------------------
+\begin{frame}{}
+    \titlepage
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\section{Introduction}
+
+%----------------------------------------------------------------------------
+\begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
+    \forkme
+
+    \begin{itemize}
+        \item Created for ease of \CXX based GPGPU development:
+            \begin{itemize}
+                \item Convenient notation for vector expressions
+                \item OpenCL/CUDA JIT code generation
+                \item Easily combined with existing libraries/code
+                \item Header-only
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item Supported backends:
+            \begin{itemize}
+                \item OpenCL (Khronos \CXX bindings, Boost.Compute)
+                \item NVIDIA CUDA
+            \end{itemize}
+            \vspace{\baselineskip}
+        \item The source code is available under MIT license:
+            \begin{itemize}
+                \item \href{https://github.com/ddemidov/vexcl}{https://github.com/ddemidov/vexcl}
+            \end{itemize}
+            \vspace{\baselineskip}
+    \end{itemize}
+\end{frame}
+
+\note[itemize]{
+\item VexCL is a vector expression template library for OpenCL. It allows you
+    to use convenient matlab-like notation for vector operations and it
+    generates the appropriate compute kernels for you automatically.
+\item The library is header-only, so you don't have to build it to use it. The
+    source code of the library is available on GitHub under very liberal
+    MIT license.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello OpenCL: vector sum}
+    \setbeamercovered{transparent=40}
+    \vspace{-1\baselineskip}
+    \begin{columns}
+        \begin{column}[t]{0.2\textwidth}
+            \begin{exampleblock}{OpenCL}
+                \begin{adjustbox}{width=0.19\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \begin{uncoverenv}<1-2>
+                            \lstinputlisting[linerange={1-8}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1-2,3>
+                            \lstinputlisting[firstnumber=last, linerange={9-35}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1-2,4>
+                            \lstinputlisting[firstnumber=last, linerange={36-48}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1-2,5>
+                            \lstinputlisting[firstnumber=last, linerange={49-86}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1-2,6>
+                            \lstinputlisting[firstnumber=last, linerange={87-90}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1-2>
+                            \lstinputlisting[firstnumber=last, linerange={91}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[t]{0.7\textwidth}
+            \begin{onlyenv}<2->
+            \begin{exampleblock}{VexCL}
+                \begin{adjustbox}{width=0.83\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \begin{uncoverenv}<2>
+                            \lstinputlisting[linerange={1-5}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<2,3>
+                            \lstinputlisting[firstnumber=last, linerange={6-8}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<2,4>
+                            \lstinputlisting[firstnumber=last, linerange={9-13}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<2,5>
+                            \lstinputlisting[firstnumber=last, linerange={14-16}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<2,6>
+                            \lstinputlisting[firstnumber=last, linerange={17-20}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<2>
+                            \lstinputlisting[firstnumber=last, linerange={21}]{code/hello-vexcl.cpp}
+                        \end{uncoverenv}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+            \end{onlyenv}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\note[itemize]{
+\item Here is the simplest example of using vexcl: addition of two vectors on a
+    gpu card.
+\item The first line is the context initialization. We provide a device filter
+    to the context constructor and get all compute devices that satisfy the
+    filter. Here we filter by type and get all available GPUs.
+\item Data allocation and transfer is also simplified. \code{vex::vector}
+    constructor allocates memory on device and possibly transfers initial data
+    as well. The parameters here are list of command queues and either size or
+    input host vector.
+\item Line ten does what's needs to be done here. This simple expression leads
+    to automatic kernel generation and launch. And then we copy the results
+    back to host and see what we got.
+}
+
+\end{document}
