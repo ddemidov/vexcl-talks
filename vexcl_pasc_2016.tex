@@ -68,7 +68,7 @@
         Institute of System Research, Russian Academy of Sciences
         \\ \vspace{\baselineskip}
         }
-    \date{08-10.06.2016, PASC16, Lausanne}
+    \date{06.2016, Lausanne}
 
 \begin{document}
 
@@ -119,7 +119,7 @@
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Hello OpenCL: vector sum}
+\begin{frame}[fragile]{Motivation/Hello World}
     \setbeamercovered{transparent=40}
     \vspace{-1\baselineskip}
     \begin{columns}
@@ -127,22 +127,22 @@
             \begin{exampleblock}{OpenCL}
                 \begin{adjustbox}{width=0.19\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \begin{uncoverenv}<1-2>
+                        \begin{uncoverenv}<1>
                             \lstinputlisting[linerange={1-8}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1-2,3>
+                        \begin{uncoverenv}<1,2>
                             \lstinputlisting[firstnumber=last, linerange={9-35}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1-2,4>
+                        \begin{uncoverenv}<1,3>
                             \lstinputlisting[firstnumber=last, linerange={36-48}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1-2,5>
+                        \begin{uncoverenv}<1,4>
                             \lstinputlisting[firstnumber=last, linerange={49-86}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1-2,6>
+                        \begin{uncoverenv}<1,5>
                             \lstinputlisting[firstnumber=last, linerange={87-90}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1-2>
+                        \begin{uncoverenv}<1>
                             \lstinputlisting[firstnumber=last, linerange={91}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
                     \end{minipage}
@@ -150,26 +150,26 @@
             \end{exampleblock}
         \end{column}
         \begin{column}[t]{0.7\textwidth}
-            \begin{onlyenv}<2->
+            \begin{onlyenv}<1->
             \begin{exampleblock}{VexCL}
                 \begin{adjustbox}{width=0.83\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \begin{uncoverenv}<2>
+                        \begin{uncoverenv}<1>
                             \lstinputlisting[linerange={1-5}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<2,3>
+                        \begin{uncoverenv}<1,2>
                             \lstinputlisting[firstnumber=last, linerange={6-8}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<2,4>
+                        \begin{uncoverenv}<1,3>
                             \lstinputlisting[firstnumber=last, linerange={9-13}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<2,5>
+                        \begin{uncoverenv}<1,4>
                             \lstinputlisting[firstnumber=last, linerange={14-16}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<2,6>
+                        \begin{uncoverenv}<1,5>
                             \lstinputlisting[firstnumber=last, linerange={17-20}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<2>
+                        \begin{uncoverenv}<1>
                             \lstinputlisting[firstnumber=last, linerange={21}]{code/hello-vexcl.cpp}
                         \end{uncoverenv}
                     \end{minipage}
@@ -194,5 +194,604 @@
     to automatic kernel generation and launch. And then we copy the results
     back to host and see what we got.
 }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{OpenCL/CUDA code is generated from user expressions}
+    \begin{columns}
+        \begin{column}{0.38\textwidth}
+            \begin{exampleblock}{Expression:}
+                \begin{lstlisting}
+x = 2 * y - sin(z);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}{0.55\textwidth}
+            \begin{exampleblock}{when compiled with:}
+                \begin{onlyenv}<1>
+                    \begin{lstlisting}[language=bash,numbers=none]
+g++ -DVEXCL_BACKEND_OPENCL -lOpenCL ...
+                    \end{lstlisting}
+                \end{onlyenv}
+                \begin{onlyenv}<2|handout:0>
+                    \begin{lstlisting}[language=bash,numbers=none]
+g++ -DVEXCL_BACKEND_CUDA -lcuda ...
+                    \end{lstlisting}
+                \end{onlyenv}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+    \begin{exampleblock}{Generated kernel:}
+        \begin{onlyenv}<1>
+            \begin{lstlisting}
+kernel void vexcl_vector_kernel
+(
+  ulong n,
+  global double * prm_1,        // x
+  int prm_2,                    // 2
+  global double * prm_3,        // y
+  global double * prm_4         // z
+)
+{
+  for(ulong idx = get_global_id(0); idx < n; idx += get_global_size(0))
+  {
+    prm_1[idx] = ( ( prm_2 * prm_3[idx] ) - sin( prm_4[idx] ) );
+  }
+}
+            \end{lstlisting}
+        \end{onlyenv}
+        \begin{onlyenv}<2|handout:0>
+            \begin{lstlisting}
+extern "C" __global__ void vexcl_vector_kernel (
+  ulong n,
+  double * prm_1,               // x
+  int prm_2,                    // 2
+  double * prm_3,               // y
+  double * prm_4                // z
+)
+{
+  for(ulong idx = blockDim.x*blockIdx.x + threadIdx.x, grid_size = blockDim.x*gridDim.x;
+      idx < n; idx += grid_size)
+  {
+    prm_1[idx] = ( ( prm_2 * prm_3[idx] ) - sin( prm_4[idx] ) );
+  }
+}
+            \end{lstlisting}
+        \end{onlyenv}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Monte Carlo $\pi$}
+    \vspace{-1\baselineskip}
+    \begin{columns}
+        \begin{column}{0.55\textwidth}
+            \begin{itemize}
+                \item Compute approximate value of $\pi$:
+            \end{itemize}
+            \vspace{\baselineskip}
+            \begin{equation*}
+                \frac{\text{area of circle}}{\text{area of square}} =
+                \frac{\pi r^2}{(2r)^2} = \frac{\pi}{4},
+            \end{equation*}
+            \begin{equation*}
+                \pi = 4 \frac{\text{area of circle}}{\text{area of square}}
+                \approx 4 \frac{\text{\color{chameleon1}{points in
+                circle}}}{\text{\color{chameleon1}{all}
+                \color{chameleon2}{points}}}
+            \end{equation*}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{mcpi}
+            \end{figure}
+        \end{column}
+    \end{columns}
+    \begin{exampleblock}{}
+        \begin{lstlisting}[texcl=true]
+vex::Random<cl_double2> rnd;
+vex::Reductor<size_t, vex::SUM> sum(ctx);
+double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item Here is a bit more complex example of what you can do with VexCL.
+\item Imagine we want to compute an approximate value of $\pi$ with Monte-Carlo
+    method. We can use the following equalities to do this.
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Expression templates}
+    \begin{itemize}
+        \item VexCL uses expression templates to generate compute kernels.
+            \begin{itemize}
+                \item \emph{Todd Veldhuizen}, Expression templates, \CXX Report, 1995.
+            \end{itemize}
+    \end{itemize}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+template <class LHS, class OP, class RHS>
+struct binary_op {
+    const LHS &lhs;
+    const RHS &rhs;
+};
+
+template <class LHS, class RHS>
+binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
+    return binary_op<LHS, plus, RHS>{a, b};
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Vector operations}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+template <class LHS, class OP, class RHS>
+double binary_op<LHS, OP, RHS>::operator[](size_t i) const {
+    return OP::apply(lhs[i], rhs[i]);
+}
+vector& vector::operator=(const Expr &expr) {
+    for(size_t i = 0; i < _n; ++i) _data[i] = expr[i];
+}
+        \end{lstlisting}
+    \end{exampleblock}
+
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+a = x + y - z;
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}{0.55\textwidth}
+            \begin{figure}
+                \begin{tikzpicture}
+                    \draw (0,0) node(sub)            [treenode,circle]{$-$};
+                    \draw (sub) +( 1.50,-1) node(z)  [treenode,minimum size=0.5cm]{z};
+                    \draw (sub) +(-1.50,-1) node(add)[treenode,circle]{$+$};
+                    \draw (add) +(-1.50,-1) node(x)  [treenode,minimum size=0.5cm]{x};
+                    \draw (add) +( 1.50,-1) node(y)  [treenode,minimum size=0.5cm]{y};
+
+                    \draw (sub) -- (add);
+                    \draw (sub) -- (z);
+                    \draw (add) -- (x);
+                    \draw (add) -- (y);
+
+                    \uncover<5->{
+                        \draw (sub) +(-2.5, 1.2) node[anchor=west]{\code{#pragma omp parallel for}};
+                    }
+                    \uncover<2->{
+                        \draw (sub) +(-2.5, 0.7) node[anchor=west]{\code{for(size_t i = 0; i < n; ++i)}};
+                        \draw (sub) +(-1.8, 0.0) node[anchor=west]{\code{a[i] =}};
+                    }
+                    \uncover<2> {\draw (sub) +(0.7, 0) node{\code{[i]}};}
+                    \uncover<3> {\draw (add) +(0.7, 0) node{\code{[i]}};}
+                    \uncover<3->{\draw (z)   +(0.6, 0) node{\code{[i]}};}
+                    \uncover<4->{\draw (x)   +(0.6, 0) node{\code{[i]}};}
+                    \uncover<4->{\draw (y)   +(0.6, 0) node{\code{[i]}};}
+                \end{tikzpicture}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Source code generation}
+    \begin{exampleblock}{Expression:}
+        \begin{lstlisting}
+a = x + y - z;
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{Kernel:}
+        \begin{lstlisting}
+kernel void vexcl_vector_kernel(
+    ulong n,
+    global double * res,
+    global double * prm1,
+    global double * prm2,
+    global double * prm3
+)
+{
+    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+        res[idx] = ( ( prm1[idx] + prm2[idx] ) - prm3[idx] );
+    }
+}
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{tikzpicture}[overlay,scale=0.8]
+        \draw (11,6) node(sub)[treenode,circle]{$-$};
+        \draw (sub) +( 1.50,-1) node(z)  [treenode,minimum size=0.5cm]{z};
+        \draw (sub) +(-1.50,-1) node(add)[treenode,circle]{$+$};
+        \draw (add) +(-1.50,-1) node(x)  [treenode,minimum size=0.5cm]{x};
+        \draw (add) +( 1.50,-1) node(y)  [treenode,minimum size=0.5cm]{y};
+        \draw (sub) -- (add);
+        \draw (sub) -- (z);
+        \draw (add) -- (x);
+        \draw (add) -- (y);
+    \end{tikzpicture}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Declaring parameters}
+    \begin{exampleblock}{Each terminal knows what parameters it needs:}
+        \begin{lstlisting}
+/*static*/ void vector::declare_params(std::ostream &src, unsigned &pos) {
+    src << ",\n    global double * prm" << ++pos;
+}
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{An expression just asks its terminals to do the work:}
+        \begin{lstlisting}[firstnumber=last]
+template <class LHS, class OP, class RHS>
+/*static*/ void binary_op<LHS, OP, RHS>::declare_params(
+                            std::ostream &src, unsigned &pos)
+{
+    LHS::declare_params(src, pos);
+    RHS::declare_params(src, pos);
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Building string representation for expression}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+struct plus {
+    static std::string to_string(std::ostream &src) { src << " + "; }
+};
+        \end{lstlisting}
+        \pause
+        \begin{lstlisting}[firstnumber=last]
+
+/*static*/ void vector::to_string(std::ostream &src, unsigned &pos) {
+    src << "prm" << ++pos << "[idx]";
+}
+        \end{lstlisting}
+        \pause
+        \begin{lstlisting}[firstnumber=last]
+
+template <class LHS, class OP, class RHS>
+/*static*/ void binary_op<LHS, OP, RHS>::to_string(std::ostream &src, unsigned &pos) {
+    src << "( ";
+    LHS::to_string(src, pos);
+    OP::to_string(src);
+    RHS::to_string(src, pos);
+    src << " )";
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note[itemize]{
+\item The obvious observation is that\ldots
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Generating kernel source}
+    \setbeamercovered{transparent=40}
+    \begin{exampleblock}{}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
+template <class LHS, class RHS>
+std::string kernel_source() {
+    std::ostringstream src;
+
+    src << "kernel void vexcl_vector_kernel(\n    ulong n";
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
+    unsigned pos = 0;
+    LHS::declare_params(src, pos);
+    RHS::declare_params(src, pos);
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
+    src << ")\n{\n"
+            "  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
+            "    ";
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,3>
+            \begin{lstlisting}[firstnumber=last]
+    pos = 0;
+    LHS::to_string(src, pos); src << " = ";
+    RHS::to_string(src, pos); src << ";\n";
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
+    src << "  }\n}\n";
+
+    return src.str();
+}
+            \end{lstlisting}
+        \end{uncoverenv}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Setting kernel arguments}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+void vector::set_args(cl::Kernel &krn, unsigned &pos) {
+    krn.setArg(pos++, buffer);
+}
+
+template <class LHS, class OP, class RHS>
+void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
+    lhs.set_args(krn, pos);
+    rhs.set_args(krn, pos);
+}
+        \end{lstlisting}
+    \end{exampleblock}
+
+    \vspace{\baselineskip}
+
+    \begin{itemize}
+        \item The methods are not static anymore!
+    \end{itemize}
+\end{frame}
+
+\note{ David Loncarek}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Gluing it all together}
+    \setbeamercovered{transparent=40}
+    \begin{exampleblock}{}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}
+template <class Expr>
+const vector& vector::operator=(const Expr &expr) {
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1,2>
+            \begin{lstlisting}[firstnumber=last]
+    static cl::Kernel krn = build_kernel(device, kernel_source<This, Expr>());
+            \end{lstlisting}
+        \end{uncoverenv}
+        \begin{uncoverenv}<1>
+            \begin{lstlisting}[firstnumber=last]
+
+    unsigned pos = 0;David Loncarek
+
+    krn.setArg(pos++, size);        // n
+    krn.setArg(pos++, buffer);      // result
+    expr.set_args(krn, pos);        // other parameters
+
+    queue.enqueueNDRangeKernel(krn, cl::NullRange, buffer.size(), cl::NullRange);
+
+    return *this;
+}
+            \end{lstlisting}
+        \end{uncoverenv}
+    \end{exampleblock}
+    \setbeamercovered{transparent=0}
+    \begin{uncoverenv}<2>
+        \begin{itemize}
+            \item Each kernel is uniquely identified by its expression type.
+                \begin{itemize}
+                    \item Hence, we may use local static variable to cache the
+                        kernel.
+                    \item Kernel is generated and compiled once, applied many
+                        times.
+                \end{itemize}
+        \end{itemize}
+    \end{uncoverenv}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}{Using Boost.Proto}
+    \begin{itemize}
+        \item The problem: this does not scale very well
+            \begin{itemize}
+                \item There are unary, binary, n-ary expressions.
+                \item There are special terminals requiring either global or
+                    local preambles.
+                \item There are builtin and user-defined functions.
+                \item \ldots
+            \end{itemize}
+        \item The solution: Boost.Proto
+            \begin{itemize}
+                \item Framework for building Embedded Domain-Specific
+                    Languages in \CXX.
+                \item Provides tools for constructing, type-checking,
+                    transforming and executing expression templates.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Defining Boost.Proto grammar}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+struct vector_grammar
+    : proto::or_<
+          proto::and_<
+              proto::terminal<proto::_>,
+              proto::if_<is_vector_expr_terminal<proto::_value>() >
+          >,
+          proto::or_<
+              proto::unary_plus<vector_grammar>,
+              proto::negate<vector_grammar>,
+              ...
+              proto::plus <vector_grammar, vector_grammar>,
+              proto::minus<vector_grammar, vector_grammar>,
+              ...
+          >,
+          ...
+      >
+{};
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[anchor=north east,yshift=-1cm] at (current page.north east) {
+            \includegraphics[width=3.6cm]{owl1}
+        };
+    \end{tikzpicture}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Bringing our types into proto domain}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+template <class Expr> struct vector_expression;
+
+struct vector_domain
+    : proto::domain<proto::generator<vector_expression>, vector_grammar> {};
+
+template <class Expr> struct vector_expression
+    : proto::extends<Expr, vector_expression<Expr>, vector_domain> {};
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}<2->{}
+        \begin{lstlisting}
+struct vector_terminal {};
+
+template <> struct is_vector_expr_terminal<vector_terminal>
+    : std::true_type {};
+
+template <class T> class vector
+    : vector_expression<typename proto::terminal<vector_terminal>::type>
+{
+    ...
+};
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{onlyenv}<1-2>
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[anchor=north east,yshift=-1cm] at (current page.north east) {
+                \includegraphics[width=3.6cm]{owl2}
+            };
+        \end{tikzpicture}
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+        \begin{tikzpicture}[remember picture,overlay]
+            \node[anchor=north east,yshift=-1cm] at (current page.north east) {
+                \includegraphics[width=3.6cm]{owl3}
+            };
+        \end{tikzpicture}
+    \end{onlyenv}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Adding new terminals}
+    \setbeamercovered{transparent=40}
+    \begin{exampleblock}{\code{vex::element_index()}}
+        \begin{lstlisting}
+x = sin( 2 * M_PI * vex::element_index() / n );
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+struct elem_index {
+    size_t offset;
+    size_t length;
+};
+
+template <> struct is_vector_expr_terminal< elem_index > : std::true_type {};
+
+inline auto element_index(size_t offset = 0, size_t length = 0) {
+    return proto::as_expr<vector_domain>( elem_index{offset, length} );
+}
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Parameter declaration}
+    \setbeamercovered{transparent=40}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+template <>
+struct kernel_param_declaration< elem_index >
+{
+    static std::string get(
+        const elem_index&, const cl::Device&, const std::string &prm_name,
+        detail::kernel_generator_state_ptr
+        )
+    {
+        std::ostringstream s;
+        s << ",\n\t" << type_name<size_t>() << " " << prm_name;
+        return s.str();
+    }
+};
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Contribution to expression string}
+    \begin{exampleblock}{}
+            \begin{lstlisting}
+template <>
+struct partial_vector_expr< elem_index >
+{
+    \end{lstlisting}
+    \begin{lstlisting}[firstnumber=last]
+    static std::string get(
+        const elem_index&, const cl::Device&, const std::string &prm_name,
+        detail::kernel_generator_state_ptr
+        )
+    \end{lstlisting}
+    \begin{lstlisting}[firstnumber=last]
+    {
+        std::ostringstream s;
+        s << "(" << prm_name << " + idx)";
+        return s.str();
+    }
+    \end{lstlisting}
+    \begin{lstlisting}[firstnumber=last]
+};
+            \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Setting kernel arguments}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+template <>
+struct kernel_arg_setter< elem_index >
+{
+    static void set(
+        const elem_index &term, cl::Kernel &kernel, unsigned /*device*/,
+        size_t index_offset, unsigned &position,
+        detail::kernel_generator_state_ptr
+        )
+    {
+        kernel.setArg(position++, term.offset + index_offset);
+    }
+};
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{itemize}
+        \item Done!
+        \item \code{vex::element_index()} may now be used in
+            vector expressions of arbitrary complexity
+    \end{itemize}
+\end{frame}
+
+\note{}
 
 \end{document}

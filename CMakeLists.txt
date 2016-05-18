@@ -16,6 +16,8 @@ function(mplfigure fname)
         )
 endfunction()
 
+mplfigure(mcpi)
+
 function(add_slides BEAMER_FILE)
     function(add_document SOURCE SUFFIX)
         configure_file(
@@ -30,6 +32,8 @@ function(add_slides BEAMER_FILE)
                     beamercolorthemechameleon.sty
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
+                    ${CMAKE_BINARY_DIR}/mcpi.pdf
+            IMAGES  owl1.png owl2.png owl3.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 
