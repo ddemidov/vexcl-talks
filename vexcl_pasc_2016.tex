@@ -448,16 +448,10 @@ template <class LHS, class OP, class RHS>
 struct plus {
     static std::string to_string(std::ostream &src) { src << " + "; }
 };
-        \end{lstlisting}
-        \pause
-        \begin{lstlisting}[firstnumber=last]
 
 /*static*/ void vector::to_string(std::ostream &src, unsigned &pos) {
     src << "prm" << ++pos << "[idx]";
 }
-        \end{lstlisting}
-        \pause
-        \begin{lstlisting}[firstnumber=last]
 
 template <class LHS, class OP, class RHS>
 /*static*/ void binary_op<LHS, OP, RHS>::to_string(std::ostream &src, unsigned &pos) {
@@ -477,46 +471,27 @@ template <class LHS, class OP, class RHS>
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Generating kernel source}
-    \setbeamercovered{transparent=40}
     \begin{exampleblock}{}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}
+        \begin{lstlisting}
 template <class LHS, class RHS>
 std::string kernel_source() {
     std::ostringstream src;
 
     src << "kernel void vexcl_vector_kernel(\n    ulong n";
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,2>
-            \begin{lstlisting}[firstnumber=last]
     unsigned pos = 0;
     LHS::declare_params(src, pos);
     RHS::declare_params(src, pos);
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}[firstnumber=last]
     src << ")\n{\n"
             "  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {\n"
             "    ";
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,3>
-            \begin{lstlisting}[firstnumber=last]
     pos = 0;
     LHS::to_string(src, pos); src << " = ";
     RHS::to_string(src, pos); src << ";\n";
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}[firstnumber=last]
     src << "  }\n}\n";
 
     return src.str();
 }
-            \end{lstlisting}
-        \end{uncoverenv}
+        \end{lstlisting}
     \end{exampleblock}
 \end{frame}
 
@@ -652,10 +627,10 @@ struct vector_grammar
 template <class Expr> struct vector_expression;
 
 struct vector_domain
-    : proto::domain<proto::generator<vector_expression>, vector_grammar> {};
+  : proto::domain<proto::generator<vector_expression>, vector_grammar> {};
 
 template <class Expr> struct vector_expression
-    : proto::extends<Expr, vector_expression<Expr>, vector_domain> {};
+  : proto::extends<Expr, vector_expression<Expr>, vector_domain> {};
         \end{lstlisting}
     \end{exampleblock}
     \begin{exampleblock}<2->{}
@@ -663,10 +638,10 @@ template <class Expr> struct vector_expression
 struct vector_terminal {};
 
 template <> struct is_vector_expr_terminal<vector_terminal>
-    : std::true_type {};
+  : std::true_type {};
 
 template <class T> class vector
-    : vector_expression<typename proto::terminal<vector_terminal>::type>
+  : vector_expression<typename proto::terminal<vector_terminal>::type>
 {
     ...
 };
@@ -790,6 +765,25 @@ struct kernel_arg_setter< elem_index >
         \item \code{vex::element_index()} may now be used in
             vector expressions of arbitrary complexity
     \end{itemize}
+\end{frame}
+
+\note{}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Limitations of expressions templates}
+    \begin{exampleblock}{Impossible to alter execution details for an expression:}
+        \begin{lstlisting}
+vex::vector<double> x({q1}, n);
+vex::vector<double> y({q2}, n);
+x = 2 * y;  // Which command queue to use?
+        \end{lstlisting}
+    \end{exampleblock}
+    \begin{exampleblock}{One-by-one execution may be ineffective:}
+        \begin{lstlisting}
+u = x + y;
+v = x - y;
+        \end{lstlisting}
+    \end{exampleblock}
 \end{frame}
 
 \note{}
