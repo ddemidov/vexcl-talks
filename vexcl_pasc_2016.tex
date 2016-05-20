@@ -80,7 +80,7 @@
 \note{ }
 
 %----------------------------------------------------------------------------
-\section{Introduction}
+\section{Motivation}
 
 %----------------------------------------------------------------------------
 \begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
@@ -303,6 +303,8 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
     method. We can use the following equalities to do this.
 }
 
+\section{Expression templates}
+
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Expression templates}
     \begin{itemize}
@@ -498,100 +500,63 @@ std::string kernel_source() {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Setting kernel arguments}
+\begin{frame}[fragile]{Generating/launching the kernel on demand}
     \begin{exampleblock}{}
         \begin{lstlisting}
-void vector::set_args(cl::Kernel &krn, unsigned &pos) {
-    krn.setArg(pos++, buffer);
-}
-
-template <class LHS, class OP, class RHS>
-void binary_op<LHS, OP, RHS>::set_args(cl::Kernel &krn, unsigned &pos) {
-    lhs.set_args(krn, pos);
-    rhs.set_args(krn, pos);
-}
-        \end{lstlisting}
-    \end{exampleblock}
-
-    \vspace{\baselineskip}
-
-    \begin{itemize}
-        \item The methods are not static anymore!
-    \end{itemize}
-\end{frame}
-
-\note{ David Loncarek}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Gluing it all together}
-    \setbeamercovered{transparent=40}
-    \begin{exampleblock}{}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}
 template <class Expr>
 const vector& vector::operator=(const Expr &expr) {
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1,2>
-            \begin{lstlisting}[firstnumber=last]
     static cl::Kernel krn = build_kernel(device, kernel_source<This, Expr>());
-            \end{lstlisting}
-        \end{uncoverenv}
-        \begin{uncoverenv}<1>
-            \begin{lstlisting}[firstnumber=last]
 
-    unsigned pos = 0;David Loncarek
+    unsigned pos = 0;
 
-    krn.setArg(pos++, size);        // n
-    krn.setArg(pos++, buffer);      // result
-    expr.set_args(krn, pos);        // other parameters
+    krn.setArg(pos++, size);       // n
+    this->set_args(krn, pos);      // result
+    expr.set_args(krn, pos);       // other parameters
 
     queue.enqueueNDRangeKernel(krn, cl::NullRange, buffer.size(), cl::NullRange);
 
     return *this;
 }
-            \end{lstlisting}
-        \end{uncoverenv}
+        \end{lstlisting}
     \end{exampleblock}
-    \setbeamercovered{transparent=0}
-    \begin{uncoverenv}<2>
-        \begin{itemize}
-            \item Each kernel is uniquely identified by its expression type.
-                \begin{itemize}
-                    \item Hence, we may use local static variable to cache the
-                        kernel.
-                    \item Kernel is generated and compiled once, applied many
-                        times.
-                \end{itemize}
-        \end{itemize}
-    \end{uncoverenv}
+    \begin{itemize}
+        \item The kernel is uniquely identified by the expression type.
+            \begin{itemize}
+                \item Hence, we may use local static variable to cache the
+                    kernel.
+                \item Kernel is generated and compiled once, applied many
+                    times.
+            \end{itemize}
+    \end{itemize}
 \end{frame}
 
 \note{ }
 
 %----------------------------------------------------------------------------
 \begin{frame}{Using Boost.Proto}
-    \begin{itemize}
-        \item The problem: this does not scale very well
+    \begin{description}[\quad]
+        \item[Problem:] this does not scale very well
             \begin{itemize}
                 \item There are unary, binary, n-ary expressions.
                 \item There are special terminals requiring either global or
                     local preambles.
                 \item There are builtin and user-defined functions.
-                \item \ldots
+                \item We need to be able to combine all of the above in an
+                    expression.
             \end{itemize}
-        \item The solution: Boost.Proto
+            \vspace{\baselineskip}
+        \item[Solution:] Boost.Proto
             \begin{itemize}
                 \item Framework for building Embedded Domain-Specific
                     Languages in \CXX.
                 \item Provides tools for constructing, type-checking,
                     transforming and executing expression templates.
             \end{itemize}
-    \end{itemize}
+    \end{description}
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Defining Boost.Proto grammar}
+\begin{frame}[fragile]{Proto grammar}
     \begin{exampleblock}{}
         \begin{lstlisting}
 struct vector_grammar
@@ -621,40 +586,44 @@ struct vector_grammar
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Bringing our types into proto domain}
+\begin{frame}[fragile]{Proto contexts}
     \begin{exampleblock}{}
-        \begin{lstlisting}
-template <class Expr> struct vector_expression;
-
-struct vector_domain
-  : proto::domain<proto::generator<vector_expression>, vector_grammar> {};
-
-template <class Expr> struct vector_expression
-  : proto::extends<Expr, vector_expression<Expr>, vector_domain> {};
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}<2->{}
-        \begin{lstlisting}
-struct vector_terminal {};
-
-template <> struct is_vector_expr_terminal<vector_terminal>
-  : std::true_type {};
-
-template <class T> class vector
-  : vector_expression<typename proto::terminal<vector_terminal>::type>
-{
-    ...
+        \begin{adjustbox}{width=0.85\textwidth, height=\textheight, keepaspectratio}
+            \begin{minipage}{\textwidth}
+                \begin{lstlisting}
+template <class Term> struct term_to_string {
+    static void get(std::ostream &os, unsigned &pos) { os << "prm_" << ++pos; }
 };
-        \end{lstlisting}
+struct to_string_context {
+    std::ostream &os; unsigned pos = 0;
+    template <typename Expr, typename Tag = typename Expr::proto_tag> struct eval;
+
+    template <typename Expr> struct eval<Expr, boost::proto::tag::plus> {
+        typedef void result_type;
+        void operator()(const Expr &expr, to_string_context &ctx) const {
+            os << "( ";     proto::eval(proto::left (expr), ctx);
+            os << " + ";    proto::eval(proto::right(expr), ctx); os << " )";
+        }
+    };
+    template <typename Expr> struct eval<Expr, boost::proto::tag::terminal> {
+        typedef void result_type;
+        void operator()(const Expr &expr, to_string_context &ctx) const {
+            term_to_string<typename proto::result_of::value<Expr>::type>::get(std::cout, ctx.pos);
+        }
+    };
+};
+                \end{lstlisting}
+            \end{minipage}
+        \end{adjustbox}
     \end{exampleblock}
-    \begin{onlyenv}<1-2>
+    \begin{onlyenv}<1>
         \begin{tikzpicture}[remember picture,overlay]
             \node[anchor=north east,yshift=-1cm] at (current page.north east) {
                 \includegraphics[width=3.6cm]{owl2}
             };
         \end{tikzpicture}
     \end{onlyenv}
-    \begin{onlyenv}<3>
+    \begin{onlyenv}<2>
         \begin{tikzpicture}[remember picture,overlay]
             \node[anchor=north east,yshift=-1cm] at (current page.north east) {
                 \includegraphics[width=3.6cm]{owl3}
@@ -665,7 +634,9 @@ template <class T> class vector
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Adding new terminals}
-    \setbeamercovered{transparent=40}
+    \begin{itemize}
+        \item Once the DSL engine is done, adding new terminals is easy:
+    \end{itemize}
     \begin{exampleblock}{\code{vex::element_index()}}
         \begin{lstlisting}
 x = sin( 2 * M_PI * vex::element_index() / n );
@@ -718,7 +689,7 @@ struct kernel_param_declaration< elem_index >
     \begin{exampleblock}{}
             \begin{lstlisting}
 template <>
-struct partial_vector_expr< elem_index >
+struct expr_to_string< elem_index >
 {
     \end{lstlisting}
     \begin{lstlisting}[firstnumber=last]
@@ -761,13 +732,122 @@ struct kernel_arg_setter< elem_index >
         \end{lstlisting}
     \end{exampleblock}
     \begin{itemize}
-        \item Done!
-        \item \code{vex::element_index()} may now be used in
-            vector expressions of arbitrary complexity
+        \item \code{vex::element_index()} may now be used in vector expressions
     \end{itemize}
 \end{frame}
 
 \note{}
+
+\section{Backends}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Supporting different backends}
+    \begin{itemize}
+        \item Supported backends:
+            \begin{itemize}
+                \item OpenCL (Khronos \CXX bindings)
+                \item OpenCL (Boost.Compute)
+                \item NVIDIA CUDA
+            \end{itemize}
+            \vspace{\baselineskip}
+
+        \item Differences between backends:
+            \begin{itemize}
+                \item Host-side API
+                \item Compute kernel language
+                \item JIT compilation support
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Abstraction layer}
+    \begin{itemize}
+        \item Any backend in VexCL consists of:
+            \vspace{0.5\baselineskip}
+
+            \begin{tabular}{ll}
+                \verb|filter.hpp|        & Device filters            \\
+                \verb|device_vector.hpp| & Memory abstraction        \\
+                \verb|source.hpp|        & Source generation         \\
+                \verb|compiler.hpp|      & Compiling compute kernels \\
+                \verb|kernel.hpp|        & Compute kernel            \\
+                \verb|context.hpp|       & Host-side objects         \\
+            \end{tabular}
+    \end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Source generation}
+    \begin{exampleblock}{}
+        \begin{lstlisting}
+class source_generator {
+    source_generator &kernel(const std::string &name);
+
+    template <typename Return>
+    source_generator& function(const std::string &name);
+
+    template <typename Param>
+    source_generator& parameter(const std::string &name);
+
+    source_generator& open(const std::string &bracket);
+    source_generator& close(const std::string &bracket);
+
+    source_generator& new_line();
+    source_generator& grid_stride_loop(
+                const std::string &idx = "idx", const std::string &bnd = "n");
+
+    template <class T>
+    friend source_generator& operator<<(source_generator &src, const T &t);
+};
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Source generation: example}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+source_generator src;
+src.function<double>("squared_radius")
+    .open("(")
+    .parameter<double>("a")
+    .parameter<double>("b")
+    .close(")").open("{");
+src.new_line() << "return a*a + b*b;";
+src.close("}");
+std::cout << src.str() << std::endl;
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{}
+                \vspace{0.5\baselineskip}
+                \begin{lstlisting}
+double squared_radius
+(
+  double a,
+  double b
+)
+{
+  return a*a + b*b;
+}
+                \end{lstlisting}
+                \vspace{0.5\baselineskip}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\section{Generic code}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Writing generic code}
+\end{frame}
+
+\section{Limitations of ET}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Limitations of expressions templates}
@@ -775,15 +855,26 @@ struct kernel_arg_setter< elem_index >
         \begin{lstlisting}
 vex::vector<double> x({q1}, n);
 vex::vector<double> y({q2}, n);
-x = 2 * y;  // Which command queue to use?
+x = 2 * y;
         \end{lstlisting}
     \end{exampleblock}
+    \begin{itemize}
+        \item Which queue to use?
+        \item How to configure the kernel?
+    \end{itemize}
+
+    \vspace{\baselineskip}
+
     \begin{exampleblock}{One-by-one execution may be ineffective:}
         \begin{lstlisting}
 u = x + y;
 v = x - y;
         \end{lstlisting}
     \end{exampleblock}
+    \begin{itemize}
+        \item \code{x} and {y} are read twice.
+        \item How to fuse the expressions into a single kernel?
+    \end{itemize}
 \end{frame}
 
 \note{}
