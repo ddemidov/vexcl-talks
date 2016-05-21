@@ -310,10 +310,11 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
     \begin{itemize}
         \item VexCL uses expression templates to generate compute kernels.
             \begin{itemize}
-                \item \emph{Todd Veldhuizen}, Expression templates, \CXX Report, 1995.
+                \item Todd Veldhuizen, \emph{Expression templates}, \CXX
+                    Report, 1995.
             \end{itemize}
     \end{itemize}
-    \begin{exampleblock}{}
+    \begin{exampleblock}{Example: vector operations}
         \begin{lstlisting}
 template <class LHS, class OP, class RHS>
 struct binary_op {
@@ -333,6 +334,8 @@ binary_op<LHS, plus, RHS> operator+(const LHS &a, const RHS &b) {
 \begin{frame}[fragile]{Vector operations}
     \begin{exampleblock}{}
         \begin{lstlisting}
+struct plus { static double apply(double a, double b) { return a + b; } };
+
 template <class LHS, class OP, class RHS>
 double binary_op<LHS, OP, RHS>::operator[](size_t i) const {
     return OP::apply(lhs[i], rhs[i]);
@@ -342,7 +345,7 @@ vector& vector::operator=(const Expr &expr) {
 }
         \end{lstlisting}
     \end{exampleblock}
-
+    \vspace{-1\baselineskip}
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{exampleblock}{}
@@ -394,14 +397,14 @@ a = x + y - z;
         \begin{lstlisting}
 kernel void vexcl_vector_kernel(
     ulong n,
-    global double * res,
-    global double * prm1,
-    global double * prm2,
-    global double * prm3
+    global double * prm_1,
+    global double * prm_2,
+    global double * prm_3,
+    global double * prm_4
 )
 {
     for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        res[idx] = ( ( prm1[idx] + prm2[idx] ) - prm3[idx] );
+        prm_1[idx] = ( ( prm_2[idx] + prm_3[idx] ) - prm_4[idx] );
     }
 }
         \end{lstlisting}
@@ -423,16 +426,17 @@ kernel void vexcl_vector_kernel(
 \begin{frame}[fragile]{Declaring parameters}
     \begin{exampleblock}{Each terminal knows what parameters it needs:}
         \begin{lstlisting}
-/*static*/ void vector::declare_params(std::ostream &src, unsigned &pos) {
+/*static*/ void vector::declare_params(std::ostream &src, unsigned &pos)
+{
     src << ",\n    global double * prm" << ++pos;
 }
         \end{lstlisting}
     \end{exampleblock}
+    \vspace{0.5\baselineskip}
     \begin{exampleblock}{An expression just asks its terminals to do the work:}
         \begin{lstlisting}[firstnumber=last]
 template <class LHS, class OP, class RHS>
-/*static*/ void binary_op<LHS, OP, RHS>::declare_params(
-                            std::ostream &src, unsigned &pos)
+/*static*/ void binary_op<LHS, OP, RHS>::declare_params(std::ostream &src, unsigned &pos)
 {
     LHS::declare_params(src, pos);
     RHS::declare_params(src, pos);
@@ -522,9 +526,9 @@ const vector& vector::operator=(const Expr &expr) {
     \begin{itemize}
         \item The kernel is uniquely identified by the expression type.
             \begin{itemize}
-                \item Hence, we may use local static variable to cache the
+                \item Local static variable may be used to cache the
                     kernel.
-                \item Kernel is generated and compiled once, applied many
+                \item The kernel is generated and compiled once, applied many
                     times.
             \end{itemize}
     \end{itemize}
@@ -556,8 +560,8 @@ const vector& vector::operator=(const Expr &expr) {
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Proto grammar}
-    \begin{exampleblock}{}
+\begin{frame}[fragile]
+    \begin{exampleblock}{Proto grammar}
         \begin{lstlisting}
 struct vector_grammar
     : proto::or_<
@@ -579,36 +583,37 @@ struct vector_grammar
         \end{lstlisting}
     \end{exampleblock}
     \begin{tikzpicture}[remember picture,overlay]
-        \node[anchor=north east,yshift=-1cm] at (current page.north east) {
+        \node[anchor=north east,yshift=-2cm] at (current page.north east) {
             \includegraphics[width=3.6cm]{owl1}
         };
     \end{tikzpicture}
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Proto contexts}
-    \begin{exampleblock}{}
-        \begin{adjustbox}{width=0.85\textwidth, height=\textheight, keepaspectratio}
+\begin{frame}[fragile]
+    \begin{exampleblock}{Proto contexts}
+        \begin{adjustbox}{width=0.9\textwidth, height=\textheight, keepaspectratio}
             \begin{minipage}{\textwidth}
                 \begin{lstlisting}
-template <class Term> struct term_to_string {
+template <class Term> struct partial_vector_expr {
     static void get(std::ostream &os, unsigned &pos) { os << "prm_" << ++pos; }
 };
-struct to_string_context {
+struct vector_expr_context {
     std::ostream &os; unsigned pos = 0;
     template <typename Expr, typename Tag = typename Expr::proto_tag> struct eval;
 
     template <typename Expr> struct eval<Expr, boost::proto::tag::plus> {
         typedef void result_type;
-        void operator()(const Expr &expr, to_string_context &ctx) const {
+        void operator()(const Expr &expr, vector_expr_context &ctx) const {
             os << "( ";     proto::eval(proto::left (expr), ctx);
             os << " + ";    proto::eval(proto::right(expr), ctx); os << " )";
         }
     };
+    ...
     template <typename Expr> struct eval<Expr, boost::proto::tag::terminal> {
         typedef void result_type;
-        void operator()(const Expr &expr, to_string_context &ctx) const {
-            term_to_string<typename proto::result_of::value<Expr>::type>::get(std::cout, ctx.pos);
+        void operator()(const Expr &expr, vector_expr_context &ctx) const {
+            partial_vector_expr<typename proto::result_of::value<Expr>::type>::get(os, ctx.pos);
         }
     };
 };
@@ -618,14 +623,14 @@ struct to_string_context {
     \end{exampleblock}
     \begin{onlyenv}<1>
         \begin{tikzpicture}[remember picture,overlay]
-            \node[anchor=north east,yshift=-1cm] at (current page.north east) {
+            \node[anchor=north east,yshift=-2cm] at (current page.north east) {
                 \includegraphics[width=3.6cm]{owl2}
             };
         \end{tikzpicture}
     \end{onlyenv}
     \begin{onlyenv}<2>
         \begin{tikzpicture}[remember picture,overlay]
-            \node[anchor=north east,yshift=-1cm] at (current page.north east) {
+            \node[anchor=north east,yshift=-2cm] at (current page.north east) {
                 \includegraphics[width=3.6cm]{owl3}
             };
         \end{tikzpicture}
@@ -637,12 +642,13 @@ struct to_string_context {
     \begin{itemize}
         \item Once the DSL engine is done, adding new terminals is easy:
     \end{itemize}
-    \begin{exampleblock}{\code{vex::element_index()}}
-        \begin{lstlisting}
-x = sin( 2 * M_PI * vex::element_index() / n );
+    \begin{exampleblock}{}
+        \begin{lstlisting}[escapechar=@]
+x = sin( 2 * M_PI * @{\bf vex::element\_index()}@ / n );
         \end{lstlisting}
     \end{exampleblock}
-    \begin{exampleblock}{}
+    \begin{exampleblock}{Let Proto know the terminal is allowed in vector
+        expressions:}
         \begin{lstlisting}
 struct elem_index {
     size_t offset;
@@ -661,51 +667,27 @@ inline auto element_index(size_t offset = 0, size_t length = 0) {
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Parameter declaration}
-    \setbeamercovered{transparent=40}
-    \begin{exampleblock}{}
+\begin{frame}[fragile]
+    \begin{exampleblock}{Parameter declaration:}
         \begin{lstlisting}
-template <>
-struct kernel_param_declaration< elem_index >
-{
+template <> struct kernel_param_declaration<elem_index> {
     static std::string get(
-        const elem_index&, const cl::Device&, const std::string &prm_name,
-        detail::kernel_generator_state_ptr
-        )
+        const elem_index&, const cl::Device&, const std::string &prm_name)
     {
-        std::ostringstream s;
-        s << ",\n\t" << type_name<size_t>() << " " << prm_name;
-        return s.str();
+        return ",\n\t" + type_name<size_t>() + " " + prm_name;
     }
 };
         \end{lstlisting}
     \end{exampleblock}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Contribution to expression string}
-    \begin{exampleblock}{}
+    \vspace{0.5\baselineskip}
+    \begin{exampleblock}{Contribution to expression string:}
             \begin{lstlisting}
-template <>
-struct expr_to_string< elem_index >
-{
-    \end{lstlisting}
-    \begin{lstlisting}[firstnumber=last]
+template <> struct partial_vector_expr<elem_index> {
     static std::string get(
-        const elem_index&, const cl::Device&, const std::string &prm_name,
-        detail::kernel_generator_state_ptr
-        )
-    \end{lstlisting}
-    \begin{lstlisting}[firstnumber=last]
+            const elem_index&, const cl::Device&, const std::string &prm_name)
     {
-        std::ostringstream s;
-        s << "(" << prm_name << " + idx)";
-        return s.str();
+        return "(" + prm_name + " + idx)";
     }
-    \end{lstlisting}
-    \begin{lstlisting}[firstnumber=last]
 };
             \end{lstlisting}
     \end{exampleblock}
@@ -714,25 +696,23 @@ struct expr_to_string< elem_index >
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Setting kernel arguments}
-    \begin{exampleblock}{}
+\begin{frame}[fragile]
+    \begin{exampleblock}{Setting kernel arguments:}
         \begin{lstlisting}
-template <>
-struct kernel_arg_setter< elem_index >
-{
+template <> struct kernel_arg_setter<elem_index> {
     static void set(
-        const elem_index &term, cl::Kernel &kernel, unsigned /*device*/,
-        size_t index_offset, unsigned &position,
-        detail::kernel_generator_state_ptr
-        )
+        const elem_index &term, cl::Kernel &krn, unsigned /* device */,
+        size_t index_offset, unsigned &position)
     {
-        kernel.setArg(position++, term.offset + index_offset);
+        krn.setArg(position++, term.offset + index_offset);
     }
 };
         \end{lstlisting}
     \end{exampleblock}
+    \vspace{\baselineskip}
     \begin{itemize}
-        \item \code{vex::element_index()} may now be used in vector expressions
+        \item Done! We can use \code{vex::element_index()} in arbitrary
+            vector expressions.
     \end{itemize}
 \end{frame}
 

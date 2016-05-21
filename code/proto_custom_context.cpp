@@ -3,13 +3,13 @@
 
 namespace proto = boost::proto;
 
-template <class Term> struct to_string {
+template <class Term> struct partial_vector_expr {
     static void get(std::ostream &os, unsigned &pos) {
         os << "prm_" << ++pos;
     }
 };
 
-struct to_string_context {
+struct vector_expr_context {
     template <typename Expr, typename Tag = typename Expr::proto_tag>
     struct eval {};
 
@@ -18,7 +18,7 @@ struct to_string_context {
     template <typename Expr>
     struct eval<Expr, boost::proto::tag::plus> {
         typedef void result_type;
-        void operator()(const Expr &expr, to_string_context &ctx) const {
+        void operator()(const Expr &expr, vector_expr_context &ctx) const {
             std::cout << "( ";
             proto::eval(proto::left(expr), ctx);
             std::cout << " + ";
@@ -30,15 +30,15 @@ struct to_string_context {
     template <typename Expr>
     struct eval<Expr, boost::proto::tag::terminal> {
         typedef void result_type;
-        void operator()(const Expr &expr, to_string_context &ctx) const {
-            to_string<typename proto::result_of::value<Expr>::type>::get(std::cout, ctx.pos);
+        void operator()(const Expr &expr, vector_expr_context &ctx) const {
+            partial_vector_expr<typename proto::result_of::value<Expr>::type>::get(std::cout, ctx.pos);
         }
     };
 };
 
 int main() {
     auto expr = proto::as_expr(2) + "hi";
-    to_string_context ctx;
+    vector_expr_context ctx;
     proto::eval( expr, ctx );
     std::cout << std::endl;
 }
