@@ -60,7 +60,7 @@
 
 
     \title{VexCL}
-    \subtitle{Experiences in developing a C++ wrapper library for OpenCL}
+    \subtitle{Experiences in Developing a C++ Wrapper Library for OpenCL}
 
     \author{Denis Demidov}
     \institute{
@@ -747,12 +747,12 @@ template <> struct kernel_arg_setter<elem_index> {
             \vspace{0.5\baselineskip}
 
             \begin{tabular}{ll}
-                \verb|filter.hpp|        & Device filters            \\
-                \verb|device_vector.hpp| & Memory abstraction        \\
-                \verb|source.hpp|        & Source generation         \\
-                \verb|compiler.hpp|      & Compiling compute kernels \\
-                \verb|kernel.hpp|        & Compute kernel            \\
-                \verb|context.hpp|       & Host-side objects         \\
+                {\tt filter.hpp}         & Device filters                  \\
+                {\tt device\_vector.hpp} & Memory abstraction              \\
+                {\tt \bf source.hpp}     & {\bf Source generation}         \\
+                {\tt \bf compiler.hpp}   & {\bf Compiling compute kernels} \\
+                {\tt kernel.hpp}         & Compute kernel                  \\
+                {\tt context.hpp}        & Host-side objects               \\
             \end{tabular}
     \end{itemize}
 \end{frame}
@@ -802,10 +802,10 @@ std::cout << src.str() << std::endl;
                 \end{lstlisting}
             \end{exampleblock}
         \end{column}
-        \begin{column}{0.45\textwidth}
-            \begin{exampleblock}{}
-                \vspace{0.5\baselineskip}
-                \begin{lstlisting}
+        \begin{column}{0.5\textwidth}
+            \begin{onlyenv}<1>
+                \begin{exampleblock}{OpenCL}
+                    \begin{lstlisting}
 double squared_radius
 (
   double a,
@@ -814,14 +814,50 @@ double squared_radius
 {
   return a*a + b*b;
 }
-                \end{lstlisting}
-                \vspace{0.5\baselineskip}
-            \end{exampleblock}
+                    \end{lstlisting}
+                \end{exampleblock}
+            \end{onlyenv}
+            \begin{onlyenv}<2>
+                \begin{exampleblock}{CUDA}
+                    \begin{lstlisting}
+__device__ double squared_radius
+(
+  double a,
+  double b
+)
+{
+  return a*a + b*b;
+}
+                    \end{lstlisting}
+                \end{exampleblock}
+            \end{onlyenv}
         \end{column}
     \end{columns}
 \end{frame}
 
 \section{Generic code}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Compiling compute kernels}
+    \begin{itemize}
+        \item JIT compilation:
+            \begin{description}[OpenCL:\;\;]
+                \item[OpenCL:] builtin functionality
+                \item[CUDA:] generated sources are saved to disk and passed to\\
+                    \code{nvcc} to create PTX module.
+            \end{description}
+            \vspace{\baselineskip}
+        \item Offline kernel caching:
+            \begin{description}[OpenCL:\;\;]
+                \item[OpenCL:] save/load binaries
+                \item[CUDA:] free side effect of the compilation process
+            \end{description}
+            \begin{itemize}
+                \item SHA1 hash of the source is used as unique id of the
+                    cached kernel.
+            \end{itemize}
+    \end{itemize}
+\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}{Writing generic code}
