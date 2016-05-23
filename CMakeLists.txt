@@ -33,7 +33,7 @@ function(add_slides BEAMER_FILE)
                     beamerouterthemedecolines.sty
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
-            IMAGES  owl1.png owl2.png
+            IMAGES  owl1.png owl2.png owl3.png quote.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 

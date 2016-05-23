@@ -15,9 +15,10 @@ else:
 
 from pylab import *
 
-rc('font',   size=22)
+rc('font',   size=26)
 figure(figsize=(7,7))
 
+np.random.seed(0)
 x = np.random.uniform(0, 1, 3000)
 y = np.random.uniform(0, 1, 3000)
 

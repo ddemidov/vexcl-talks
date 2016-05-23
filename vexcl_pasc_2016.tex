@@ -34,7 +34,7 @@
         columns=flexible,
         extendedchars=false,
         showstringspaces=false,
-        morekeywords={global,kernel,ulong,size_t,get_global_id,get_global_size}
+        morekeywords={global,kernel,ulong,size_t,get_global_id,get_global_size,omp,parallel}
         }
     \newcommand{\code}[1]{\lstinline|#1|}
     \protected\def\plusplus{{\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\relsize{-3}\bf ++}}\xspace}
@@ -200,7 +200,7 @@
     \begin{columns}
         \begin{column}{0.38\textwidth}
             \begin{exampleblock}{Expression:}
-                \begin{lstlisting}
+                \begin{lstlisting}[numbers=none]
 x = 2 * y - sin(z);
                 \end{lstlisting}
             \end{exampleblock}
@@ -349,7 +349,7 @@ vector& vector::operator=(const Expr &expr) {
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{exampleblock}{}
-                \begin{lstlisting}
+                \begin{lstlisting}[numbers=none]
 a = x + y - z;
                 \end{lstlisting}
             \end{exampleblock}
@@ -389,7 +389,7 @@ a = x + y - z;
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Source code generation}
     \begin{exampleblock}{Expression:}
-        \begin{lstlisting}
+        \begin{lstlisting}[numbers=none]
 a = x + y - z;
         \end{lstlisting}
     \end{exampleblock}
@@ -433,7 +433,7 @@ kernel void vexcl_vector_kernel(
         \end{lstlisting}
     \end{exampleblock}
     \vspace{0.5\baselineskip}
-    \begin{exampleblock}{An expression just asks its terminals to do the work:}
+    \begin{exampleblock}{An expression just asks its terminals to do the job:}
         \begin{lstlisting}[firstnumber=last]
 template <class LHS, class OP, class RHS>
 /*static*/ void binary_op<LHS, OP, RHS>::declare_params(std::ostream &src, unsigned &pos)
@@ -448,7 +448,7 @@ template <class LHS, class OP, class RHS>
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Building string representation for expression}
+\begin{frame}[fragile]{Building string representation for an expression}
     \begin{exampleblock}{}
         \begin{lstlisting}
 struct plus {
@@ -640,10 +640,10 @@ struct vector_expr_context {
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Adding new terminals}
     \begin{itemize}
-        \item Once the DSL engine is done, adding new terminals is easy:
+        \item Once the DSL engine is set up, adding new terminals is easy:
     \end{itemize}
     \begin{exampleblock}{}
-        \begin{lstlisting}[escapechar=@]
+        \begin{lstlisting}[escapechar=@,numbers=none]
 x = sin( 2 * M_PI * @{\bf vex::element\_index()}@ / n );
         \end{lstlisting}
     \end{exampleblock}
@@ -785,54 +785,66 @@ class source_generator {
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Source generation: example}
-    \begin{columns}
-        \begin{column}{0.45\textwidth}
-            \begin{exampleblock}{}
+\begin{frame}[fragile]
+    \begin{exampleblock}{}
+        \begin{adjustbox}{width=0.83\textwidth, height=0.4\textheight, keepaspectratio}
+            \begin{minipage}{\textwidth}
                 \begin{lstlisting}
 source_generator src;
-src.function<double>("squared_radius")
+src.kernel("mul2")
     .open("(")
-    .parameter<double>("a")
-    .parameter<double>("b")
-    .close(")").open("{");
-src.new_line() << "return a*a + b*b;";
-src.close("}");
+    .parameter< size_t >("n")
+    .parameter< global_ptr<double> >("x")
+    .parameter< global_ptr<const double> >("y")
+    .close(")");
+src.open("{").grid_stride_loop("idx", "n").open("{");
+src.new_line() << "x[idx] = 2 * y[idx];";
+src.close("}").close("}");
 std::cout << src.str() << std::endl;
                 \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{onlyenv}<1>
-                \begin{exampleblock}{OpenCL}
+            \end{minipage}
+        \end{adjustbox}
+    \end{exampleblock}
+    \begin{onlyenv}<1>
+        \begin{exampleblock}{OpenCL}
+            \begin{adjustbox}{width=0.83\textwidth, height=0.4\textheight, keepaspectratio}
+                \begin{minipage}{\textwidth}
                     \begin{lstlisting}
-double squared_radius
-(
-  double a,
-  double b
+kernel void mul2 (
+  ulong n,
+  global double * x,
+  global const double * y
 )
 {
-  return a*a + b*b;
+  for(ulong idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
+    x[idx] = 2 * y[idx];
+  }
 }
                     \end{lstlisting}
-                \end{exampleblock}
-            \end{onlyenv}
-            \begin{onlyenv}<2>
-                \begin{exampleblock}{CUDA}
+                \end{minipage}
+            \end{adjustbox}
+        \end{exampleblock}
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+        \begin{exampleblock}{CUDA}
+            \begin{adjustbox}{width=0.83\textwidth, height=0.4\textheight, keepaspectratio}
+                \begin{minipage}{\textwidth}
                     \begin{lstlisting}
-__device__ double squared_radius
-(
-  double a,
-  double b
+extern "C" __global__ void mul2 (
+  ulong n,
+  double * x,
+  const double * y,
 )
 {
-  return a*a + b*b;
+  for(ulong idx=blockDim.x*blockIdx.x+threadIdx.x, grid_size=blockDim.x*gridDim.x; idx<n; idx+=grid_size) {
+    x[idx] = 2 * y[idx];
+  }
 }
                     \end{lstlisting}
-                \end{exampleblock}
-            \end{onlyenv}
-        \end{column}
-    \end{columns}
+                \end{minipage}
+            \end{adjustbox}
+        \end{exampleblock}
+    \end{onlyenv}
 \end{frame}
 
 \section{Generic code}
@@ -860,39 +872,133 @@ __device__ double squared_radius
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}{Writing generic code}
+\begin{frame}[fragile]{Writing generic code}
+    \begin{itemize}
+        \item OpenCL compute kernel language is a dialect of \CC:
+            \begin{itemize}
+                \item No templates, no function overloads, etc.
+                \item CUDA backend uses same subset of \CXX by necessity.
+            \end{itemize}
+        \item Can we still write generic code?
+    \end{itemize}
+    \vspace{-1\baselineskip}
+    \begin{overlayarea}{\textwidth}{0.8\textheight}
+        \begin{onlyenv}<2>
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+template <class T>
+std::string mul2_source() {
+    source_generator src;
+    src.kernel("mul2")
+        .open("(")
+        .parameter< size_t >("n")
+        .parameter< global_ptr<T> >("x")
+        .parameter< global_ptr<const T> >("y")
+        .close(")");
+    src.open("{").grid_stride_loop("idx", "n").open("{");
+    src.new_line() << "x[idx] = 2 * y[idx];";
+    src.close("}").close("}");
+    return src.str();
+}
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{onlyenv}
+        \begin{onlyenv}<3->
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+struct mul2_t {
+    template <class Expr>
+    auto operator()(Expr &&expr) const {
+        typedef typename vex::detail::return_type<Expr>::type value_type;
+        VEX_FUNCTION(value_type, _mul2, (value_type, x), return 2 * x; );
+        return _mul2(expr);
+    }
+} const mul2;
+                \end{lstlisting}
+            \end{exampleblock}
+            \begin{exampleblock}{}
+                \begin{lstlisting}[numbers=none]
+v = mul2(x + y);
+                \end{lstlisting}
+            \end{exampleblock}
+            \begin{uncoverenv}<4>
+                \begin{itemize}
+                    \item \alert{We don't need compiler's help when we can
+                        generate our own code!}
+                \end{itemize}
+                \begin{tikzpicture}[remember picture,overlay]
+                    \node[anchor=south east,yshift=0.25cm] at (current page.south east) {
+                        \includegraphics[width=2.6cm]{quote}
+                    };
+                \end{tikzpicture}
+            \end{uncoverenv}
+        \end{onlyenv}
+    \end{overlayarea}
 \end{frame}
 
 \section{Limitations of ET}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Limitations of expressions templates}
-    \begin{exampleblock}{Impossible to alter execution details for an expression:}
-        \begin{lstlisting}
+    \begin{itemize}
+        \item Impossible to alter execution details for an expression
+            \begin{itemize}
+                \item Which queue to use here?
+            \end{itemize}
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
 vex::vector<double> x({q1}, n);
 vex::vector<double> y({q2}, n);
 x = 2 * y;
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{itemize}
-        \item Which queue to use?
-        \item How to configure the kernel?
-    \end{itemize}
-
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}<2->{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}[numbers=none]
+vex::enqueue({q2}, x) = 2 * y;
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
     \vspace{\baselineskip}
-
-    \begin{exampleblock}{One-by-one execution may be ineffective:}
-        \begin{lstlisting}
+    \begin{itemize}
+        \item One-by-one execution may be ineffective:
+            \begin{itemize}
+                \item \code{x} and \code{y} below are read twice.
+                \item How to fuse the expressions into a single kernel?
+            \end{itemize}
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
 u = x + y;
 v = x - y;
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{itemize}
-        \item \code{x} and {y} are read twice.
-        \item How to fuse the expressions into a single kernel?
-    \end{itemize}
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}<3->{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}[numbers=none]
+vex::tie(u, v) = std::tie(x + y, x - y);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \note{}
+
+%----------------------------------------------------------------------------
+\begin{frame}
+    \begin{figure}
+        $\vcenter{\hbox{\includegraphics[width=3.6cm]{owl3}}}$
+        \Large{Questions?}
+    \end{figure}
+\end{frame}
 
 \end{document}
