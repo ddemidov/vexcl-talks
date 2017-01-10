@@ -1,7 +1,7 @@
 def scale(rgb):
     return [c / 255.0 for c in rgb]
 
-chameleon1 = scale((40, 22, 111))
-chameleon2 = scale((0, 124, 195))
-chameleon3 = scale((108, 128, 152))
-chameleon4 = scale((145, 163, 187))
+chameleon1 = scale((185,  18,  27))
+chameleon2 = scale((246, 228, 151))
+chameleon3 = scale((189, 141,  70))
+chameleon4 = scale(( 76,  27,  27))

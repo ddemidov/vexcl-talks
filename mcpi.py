@@ -24,8 +24,8 @@ y = np.random.uniform(0, 1, 3000)
 
 i = (x * x + y * y) < 1.0
 
-plot(x[i==0], y[i==0], 'o', markersize=3, markeredgecolor=chameleon1, markerfacecolor=chameleon1)
-plot(x[i==1], y[i==1], 'o', markersize=3, markeredgecolor=chameleon2, markerfacecolor=chameleon2)
+plot(x[i==0], y[i==0], 'o', markersize=3, markeredgecolor=chameleon4, markerfacecolor=chameleon4)
+plot(x[i==1], y[i==1], 'o', markersize=3, markeredgecolor=chameleon1, markerfacecolor=chameleon1)
 
 x = np.linspace(0, 1, 100)
 y = np.sqrt(1 - x * x)

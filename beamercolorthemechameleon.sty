@@ -7,30 +7,30 @@
 
 \mode<presentation>
 
-\definecolor{chameleon1}{RGB}{40, 22, 111} % title
-\definecolor{chameleon2}{RGB}{145, 163, 187} % top
-\definecolor{chameleon3}{RGB}{108, 128, 152} % middle
-\definecolor{chameleon4}{RGB}{0, 124, 195} % bottom
-\definecolor{chameleon5}{RGB}{250, 240, 250} % block background
+\definecolor{chameleon1}{RGB}{185,  18,  27} % title
+\definecolor{chameleon2}{RGB}{246, 228, 151} % top
+\definecolor{chameleon3}{RGB}{189, 141,  70} % middle
+\definecolor{chameleon4}{RGB}{ 76,  27,  27} % bottom
+\definecolor{chameleon5}{RGB}{252, 250, 225} % block background
 
 \setbeamercolor*{palette primary}{fg=white,bg=chameleon2}
 \setbeamercolor*{palette secondary}{fg=white,bg=chameleon3}
 \setbeamercolor*{palette tertiary}{fg=white,bg=chameleon4}
-\setbeamercolor*{palette quaternary}{fg=white,bg=chameleon1}
+\setbeamercolor*{palette quaternary}{fg=chameleon2,bg=chameleon1} % Title text
 
 \setbeamercolor*{titlelike}{bg=chameleon4}
 \setbeamercolor*{frametitle}{bg=chameleon4}
-\setbeamercolor*{part title}{bg=chameleon1,fg=white}
+\setbeamercolor*{part title}{parent=palette quaternary}
 \setbeamercolor*{item}{fg=chameleon4}
 
 \setbeamercolor*{separation line}{}
 \setbeamercolor*{fine separation line}{}
 
-\setbeamercolor*{block title}{fg=white,bg=chameleon1}
-\setbeamercolor*{block title example}{fg=white,bg=chameleon1}
+\setbeamercolor*{block title}{fg=chameleon4,bg=chameleon3}
+\setbeamercolor*{block title example}{parent=block title}
 \setbeamercolor*{block body}{bg=chameleon5,fg=black}
-\setbeamercolor*{block body example}{bg=chameleon5,fg=black}
-\setbeamercolor*{alerted text}{fg=chameleon3}
+\setbeamercolor*{block body example}{parent=block body}
+\setbeamercolor*{alerted text}{fg=chameleon1}
 
 \mode
 <all>
