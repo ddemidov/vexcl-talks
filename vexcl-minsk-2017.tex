@@ -115,26 +115,50 @@
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Hello VexCL: vector sum}
+\begin{frame}{Реализация: шаблоны выражений}
+    \begin{itemize}
+        \item Как эффективно реализовать предметно-ориентированный язык в \CXX?
+            \vspace{\baselineskip}
+        \item Основная идея не нова:
+            \begin{description}[Сегодня:]
+                \item[1995:] \emph{Todd Veldhuizen}, Expression templates,
+                    \CXX Report.
+                \item[1996:]
+                    Blitz{\raisebox{.2ex}{\relsize{-3}\bf ++}}\xspace:
+                    библиотека \CXX для научных расчетов,\\
+                    \emph{сравнимая по произодительности с Фортраном 77/90}.
+                \item[Сегодня:] Armadillo, Blaze, Boost.uBLAS, Eigen, MTL,
+                    и~т.~д.
+            \end{description}
+            \vspace{\baselineskip}
+        \item VexCL использует этот подход для автоматической генерации\\
+            вычислительных ядер OpenCL/CUDA
+    \end{itemize}
+\end{frame}
+
+\note{ }
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Hello VexCL: сложение векторов}
     \vspace{-1\baselineskip}
     \begin{columns}
-        \begin{column}{0.2\textwidth}
-            \begin{minipage}[c][\textheight][c]{\linewidth}
-                \begin{exampleblock}{OpenCL}
-                    \begin{adjustbox}{width=0.19\textwidth, height=\textheight, keepaspectratio}
-                        \begin{minipage}{\textwidth}
-                            \lstinputlisting[linerange={1-72}]{code/hello-opencl.cpp}
-                        \end{minipage}
-                    \end{adjustbox}
-                \end{exampleblock}
-            \end{minipage}
-        \end{column}
         \begin{column}{0.7\textwidth}
             \begin{minipage}[c][\textheight][c]{\linewidth}
                 \begin{exampleblock}{VexCL}
                     \begin{adjustbox}{width=0.7\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
                             \lstinputlisting[linerange={1-19}]{code/hello-vexcl.cpp}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{minipage}
+        \end{column}
+        \begin{column}{0.25\textwidth}
+            \begin{minipage}[c][\textheight][c]{\linewidth}
+                \begin{exampleblock}{OpenCL}
+                    \begin{adjustbox}{width=0.24\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \lstinputlisting[linerange={1-72}]{code/hello-opencl.cpp}
                         \end{minipage}
                     \end{adjustbox}
                 \end{exampleblock}
@@ -189,22 +213,13 @@ vex::Context ctx( vex::Filter::GPU );
 vex::Context ctx(vex::Filter::Accelerator && vex::Filter::Platform("Intel"));
         \end{lstlisting}
         \end{onlyenv}
-        \begin{onlyenv}<4|handout:0>
-        \begin{lstlisting}
-vex::Context ctx(
-    vex::Filter::DoublePrecision &&
-    [](const vex::backend::device &d) {
-        return d.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() >= 16_GB;
-    });
-        \end{lstlisting}
-        \end{onlyenv}
     \end{exampleblock}
     \end{overlayarea}
     \begin{figure}
         \uncover<1-2>{
             \includegraphics[width=0.2\textwidth]{tesla.png}\quad
         }
-        \uncover<1,2,4>{
+        \uncover<1,2>{
             \includegraphics[width=0.2\textwidth]{radeon.png}\quad
         }
         \uncover<1,3>{
@@ -357,67 +372,6 @@ y = sin(2 * x) + sqrt(1 - x * x);
 \item Care must be taken with the use of several devices. VexCL tries to split
     the memory as fair as it can, but it is probable that your program will
     run at the speed of the slowest device.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Перенос данных}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-vex::vector<double> d(ctx, n);
-std::vector<double> h(n);
-double a[100];
-        \end{lstlisting}
-    \end{exampleblock}
-    \vspace{\baselineskip}
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-            \begin{exampleblock}{Простые копии}
-                \begin{lstlisting}
-vex::copy(d, h);
-vex::copy(h, d);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{exampleblock}{Копирование диапазонов}
-                \begin{lstlisting}
-vex::copy(d.begin(), d.end(), h.begin());
-vex::copy(d.begin(), d.begin() + 100, a);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
-    \vspace{\baselineskip}
-    \begin{columns}
-        \begin{column}{0.4\textwidth}
-            \begin{exampleblock}{Поэлементный доступ\\ (\emph{медленно})}
-                \begin{lstlisting}
-double v = d[42];
-d[0] = 0;
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{exampleblock}{Отображение буффера OpenCL на хостовый указатель}
-                \begin{lstlisting}
-auto p = d.map(devnum);
-std::sort(&p[0], &p[d.part_size(devnum)]);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\note[itemize]{
-\item Copies between host and device memory may be done with simple copy
-    function that copy the complete vector either way,
-\item or, if you need to do partial copy, you can use STL-like syntax.
-\item Vectors also overload array subscript operator, so you can have direct
-    read or write access to any element of a vector. But this should be used
-    with caution because it is slow. The intended use for this is a single
-    element access or debugging.
-\item Data may also be accessed through iterators, so it is possible to use,
-    for example, an STL algorithm with device vector as a temporary solution.
 }
 
 %----------------------------------------------------------------------------
@@ -602,66 +556,6 @@ kernel void vexcl_vector_kernel(
 }
         \end{lstlisting}
     \end{exampleblock}
-    \begin{tikzpicture}[overlay,scale=0.6]
-        \draw (16,8.75) node(sqrt)[draw,fill=white,ellipse,drop shadow]{sqrt};
-
-        \draw (sqrt) +(0.00,-2) node(sqr)[draw,fill=white,ellipse,drop shadow]{sqr};
-
-        \draw (sqr) +(-2.00,-1) node(x) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-        \draw (sqr) +( 2.20,-1) node(y) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
-
-        \draw (sqrt) -- (sqr);
-        \draw (sqr)  -- (x);
-        \draw (sqr)  -- (y);
-    \end{tikzpicture}
-\end{frame}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Функции часто не только удобны, но и эффективны}
-    \begin{exampleblock}{Тот же пример без использования функции:}
-        \begin{lstlisting}
-Z = sqrt( X * X + Y * Y );
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{\ldots транслируется в:}
-        \begin{lstlisting}
-kernel void vexcl_vector_kernel(
-  ulong n,
-  global double * prm_1,
-  global double * prm_2,
-  global double * prm_3,
-  global double * prm_4,
-  global double * prm_5
-)
-{
-  for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-    prm_1[idx] = sqrt( ( ( prm_2[idx] * prm_3[idx] ) + ( prm_4[idx] * prm_5[idx] ) ) );
-  }
-}
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{tikzpicture}[overlay,scale=0.6]
-        \draw (16,8.75) node(sqrt)[draw,fill=white,ellipse,drop shadow]{sqrt};
-
-        \draw (sqrt) +(0.00,-2) node(sum)[draw,fill=white,ellipse,drop shadow]{$+$};
-
-        \draw (sum) +(-3.00,-1) node(mul1)[draw,fill=white,drop shadow,ellipse]{$*$};
-        \draw (sum) +( 3.00,-1) node(mul2)[draw,fill=white,drop shadow,ellipse]{$*$};
-
-        \draw (mul1) +(-2.00,-1) node(x1) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-        \draw (mul1) +( 2.00,-1) node(x2) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-
-        \draw (mul2) +(-2.00,-1) node(y1) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
-        \draw (mul2) +( 2.00,-1) node(y2) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
-
-        \draw (sqrt) -- (sum);
-        \draw (sum)  -- (mul1);
-        \draw (sum)  -- (mul2);
-        \draw (mul1) -- (x1);
-        \draw (mul1) -- (x2);
-        \draw (mul2) -- (y1);
-        \draw (mul2) -- (y2);
-    \end{tikzpicture}
 \end{frame}
 
 %----------------------------------------------------------------------------
@@ -831,63 +725,6 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Произведение разреженной матрицы на вектор}
-    \begin{itemize}
-        \item Класс \code{vex::SpMat<T>} содержит представление разреженной
-            матрицы на вычислительных устройствах.
-        \item Конструктор принимает матрицу в формате CRS:
-            \begin{itemize}
-                \item Номера столбцов и значения ненулевых элементов, указатели
-                    на начало каждой строки.
-            \end{itemize}
-    \end{itemize}
-    \begin{exampleblock}{Конструирование матрицы}
-        \begin{lstlisting}
-vex::SpMat<double> A(ctx, n, n, row.data(), col.data(), val.data());
-        \end{lstlisting}
-    \end{exampleblock}
-
-    \begin{exampleblock}{Расчет невязки СЛАУ}
-        \begin{lstlisting}[firstnumber=last]
-vex::vector<double> u, f, r;
-r = f - A * u;
-double res = max( fabs(r) );
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note[itemize]{
-\item Sparse matrix -- vector operation is also provided. A matrix is imported
-    from commonly used compressed row storage format.
-\item Note that matrix-vector product is not a first-class citizen in vector
-    expressions. It uses neighbor values; and neighbors may reside on a
-    different compute device. So extra work is needed to exchange data between
-    devices. That is why matrix-vector products may only be used in additive
-    expressions.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Быстрое преобразование Фурье \singledevice}
-    \begin{itemize}
-        \item Произвольное выражение на входе
-        \item Преобразование многомерных массивов
-        \item Произвольные размеры массивов
-        \item Пакетное преобразование (batch transform)
-        \item В 2-3 медленнее NVIDIA CUFFT, сравнимо по скорости с AMD clFFT
-    \end{itemize}
-    \begin{exampleblock}{Решение периодической задачи Пуассона:}
-        \begin{lstlisting}
-vex::vector<double> rhs(ctx, n), u(ctx, n), K(ctx, n);
-
-vex::FFT<double, cl_double2> fft(ctx, n);
-vex::FFT<cl_double2, double> ifft(ctx, n, vex::inverse);
-
-u = ifft( K * fft(rhs) );
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-%----------------------------------------------------------------------------
 \section{Оценка производительности}
 
 \begin{frame}
@@ -933,7 +770,7 @@ u = ifft( K * fft(rhs) );
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}{Boost.odeint}
+\begin{frame}{Boost.odeint}{Библиотека алгоритмов для интегрирования ОДУ}
     \begin{block}{Общий вид ОДУ}
         \begin{equation*}
             \frac{\mbox{d} x}{\mbox{d} t } = \dot{x} = f(x , t),
