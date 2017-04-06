@@ -24,11 +24,8 @@ class display_params:
 
 #----------------------------------------------------------------------------
 prm = {
-        'vexcl_generated' : display_params('VexCL (gen)','o-', chameleon1, chameleon2),
-        'vexcl_naive'     : display_params('VexCL',      'o-', chameleon2, chameleon3),
-        'thrust'          : display_params('Thrust',     'o-', chameleon3, chameleon2),
-        'cublas'          : display_params('CUBLAS',     'o-', chameleon4, chameleon1),
-        'cpu'             : display_params('OpenMP',     '--', 'k'),
+        'cpu'             : display_params('OpenMP',     'o-', chameleon2, chameleon4),
+        'vexcl_naive'     : display_params('VexCL',      'o-', chameleon4, chameleon2),
         }
 
 def get_data(fname):
@@ -41,36 +38,35 @@ def get_data(fname):
 
     return (ns, ts)
 
-ref = get_data('cublas')
+ref = get_data('cpu')
 
-devices = ['cublas', 'thrust', 'vexcl_naive', 'cpu', 'vexcl_generated']
+devices = ['cpu', 'vexcl_naive']
 
-for i in range(1,6):
-    figure(figsize=(14,7))
-    for f in devices[:i]:
-        data = get_data(f)
-
-        subplot(121)
-        loglog(data[0], data[1], prm[f].style, label=prm[f].label, ms=8, linewidth=2,
-                color=prm[f].color, markeredgecolor=prm[f].color,
-                markeredgewidth=2,  markerfacecolor=prm[f].face)
-
-        subplot(122)
-        loglog(data[0], ref[1] / data[1], prm[f].style, label=prm[f].label, ms=8, linewidth=2,
-                color=prm[f].color, markeredgecolor=prm[f].color,
-                markeredgewidth=2,  markerfacecolor=prm[f].face)
+figure(figsize=(14,7))
+for f in devices:
+    data = get_data(f)
 
     subplot(121)
-    xlabel('N')
-    ylabel('T(sec)')
-    ylim([5e-2, 1e4])
-    legend(loc='upper left', frameon=False)
+    loglog(data[0], data[1], prm[f].style, label=prm[f].label, ms=8, linewidth=2,
+            color=prm[f].color, markeredgecolor=prm[f].color,
+            markeredgewidth=2,  markerfacecolor=prm[f].face)
 
     subplot(122)
-    xlabel('N')
-    ylabel('T(CUBLAS) / T')
-    ylim([5e-2, 3e1])
+    loglog(data[0], ref[1] / data[1], prm[f].style, label=prm[f].label, ms=8, linewidth=2,
+            color=prm[f].color, markeredgecolor=prm[f].color,
+            markeredgewidth=2,  markerfacecolor=prm[f].face)
 
-    tight_layout()
+subplot(121)
+xlabel('N')
+ylabel('T(sec)')
+ylim([5e-2, 1e4])
+legend(loc='upper left', frameon=False)
 
-    savefig("%s/perf-%s.pdf" % (outdir, i))
+subplot(122)
+xlabel('N')
+ylabel('T(OpenMP) / T')
+ylim([5e-2, 3e1])
+
+tight_layout()
+
+savefig("{}/perf.pdf".format(outdir))

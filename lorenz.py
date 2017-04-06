@@ -28,7 +28,7 @@ def lorenz_system(x, t):
         ]
 
 x0 = np.array([10, 10, 10])
-t  = np.linspace(0, 50, 5000)
+t  = np.linspace(0, 25, 5000)
 
 x = odeint(lorenz_system, x0, t)
 
@@ -36,7 +36,8 @@ rc('font', size=22)
 
 fig = figure(num=1, figsize=(9,7))
 ax = fig.gca(projection='3d')
-ax.plot(x[:,0], x[:,1], x[:,2], label='trajectory', color=chameleon3)
+ax.plot(x[:,0], x[:,1], x[:,2], color=chameleon4, alpha=0.75)
+title('Lorenz attractor trajectory')
 locator_params(nbins=5)
 
 if quiet: savefig(outfile)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(minsk)
+project(delft)
 include(UseLATEX.cmake)
 
 set(BEAMER_OPTIONS "compress,unicode,aspectratio=1610")
@@ -21,11 +21,7 @@ mplfigure(lorenz)
 
 add_custom_command(
     OUTPUT
-        ${CMAKE_BINARY_DIR}/perf-1.pdf
-        ${CMAKE_BINARY_DIR}/perf-2.pdf
-        ${CMAKE_BINARY_DIR}/perf-3.pdf
-        ${CMAKE_BINARY_DIR}/perf-4.pdf
-        ${CMAKE_BINARY_DIR}/perf-5.pdf
+        ${CMAKE_BINARY_DIR}/perf.pdf
     COMMAND
         ${CMAKE_CURRENT_SOURCE_DIR}/make_plots.py ${CMAKE_BINARY_DIR}
     WORKING_DIRECTORY
@@ -51,20 +47,8 @@ function(add_slides BEAMER_FILE)
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
                     ${CMAKE_BINARY_DIR}/lorenz.pdf
-                    ${CMAKE_BINARY_DIR}/perf-1.pdf
-                    ${CMAKE_BINARY_DIR}/perf-2.pdf
-                    ${CMAKE_BINARY_DIR}/perf-3.pdf
-                    ${CMAKE_BINARY_DIR}/perf-4.pdf
-                    ${CMAKE_BINARY_DIR}/perf-5.pdf
-            IMAGES tesla.png radeon.png intel.png
-                   ncwg.pdf
-                   neapel-1.pdf neapel-2.pdf
-                   antioch-1.pdf antioch-2.pdf
-                   ship-channel.jpg
-                   smidt.pdf
-                   kratos.pdf
-                   fdbb.pdf
-                   microseism.jpg
+                    ${CMAKE_BINARY_DIR}/perf.pdf
+            IMAGES tesla.png radeon.png intel.png compiling.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 
@@ -77,6 +61,6 @@ function(add_slides BEAMER_FILE)
     endif ()
 endfunction()
 
-add_slides(vexcl-minsk-2017)
+add_slides(vexcl-delft-2017)
 
 add_subdirectory(code)
