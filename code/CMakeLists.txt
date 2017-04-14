@@ -12,19 +12,20 @@ include_directories(
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations -Wno-ignored-attributes")
 
-foreach(f ${examples})
+foreach(f hello-opencl.cpp hello-vexcl.cpp lorenz.cpp pi.cpp pi-kernel.cpp
+        pylorenz.cpp lorenz.ipynb)
     configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/${f}.cpp
-        ${CMAKE_CURRENT_BINARY_DIR}/${f}.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/${f}
+        ${CMAKE_CURRENT_BINARY_DIR}/${f}
         COPYONLY
         )
+endforeach()
 
+foreach(f hello-opencl hello-vexcl lorenz pi)
     add_executable(${f} ${f}.cpp)
     target_link_libraries(${f} ${OpenCL_LIBRARY} ${Boost_LIBRARIES})
 endforeach()
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/pi-kernel.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/pi-kernel.cpp
-    COPYONLY
-    )
+add_subdirectory(pybind11)
+pybind11_add_module(pylorenz pylorenz.cpp)
+target_link_libraries(pylorenz PRIVATE ${OpenCL_LIBRARY} ${Boost_LIBRARIES})

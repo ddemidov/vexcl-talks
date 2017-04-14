@@ -1052,19 +1052,16 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                 \begin{adjustbox}{width=0.42\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
                         \begin{uncoverenv}<1>
-                            \lstinputlisting[numbers=none,linerange={1-7}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[numbers=none,linerange={1-7}]{code/lorenz.cpp}
                         \end{uncoverenv}
                         \begin{uncoverenv}<1,2>
-                            \lstinputlisting[numbers=none,linerange={8-9}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[numbers=none,linerange={8-14}]{code/lorenz.cpp}
                         \end{uncoverenv}
                         \begin{uncoverenv}<1,3>
-                            \lstinputlisting[numbers=none,linerange={10-20}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[numbers=none,linerange={15-26}]{code/lorenz.cpp}
                         \end{uncoverenv}
                         \begin{uncoverenv}<1,4>
-                            \lstinputlisting[numbers=none,linerange={21-25}]{code/lorenz-naive.cpp}
-                        \end{uncoverenv}
-                        \begin{uncoverenv}<1,5>
-                            \lstinputlisting[numbers=none,linerange={26-44}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[numbers=none,linerange={27-45}]{code/lorenz.cpp}
                         \end{uncoverenv}
                     \end{minipage}
                 \end{adjustbox}
@@ -1072,10 +1069,10 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
         \end{column}
         \begin{column}[c]{0.62\textwidth}
             \begin{onlyenv}<2>
-                \begin{exampleblock}{1. State type}
+                \begin{exampleblock}{1. State type and stepper type}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=9, linerange={9-9}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[firstnumber=9, linerange={9-14}]{code/lorenz.cpp}
                         \end{minipage}
                     \end{adjustbox}
                 \end{exampleblock}
@@ -1084,25 +1081,16 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                 \begin{exampleblock}{2. System function}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=10, linerange={10-20}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[firstnumber=10, linerange={16-26}]{code/lorenz.cpp}
                         \end{minipage}
                     \end{adjustbox}
                 \end{exampleblock}
             \end{onlyenv}
             \begin{onlyenv}<4>
-                \begin{exampleblock}{3. Stepper (integration algorithm)}
+                \begin{exampleblock}{3. Integrate}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=22, linerange={22-25}]{code/lorenz-naive.cpp}
-                        \end{minipage}
-                    \end{adjustbox}
-                \end{exampleblock}
-            \end{onlyenv}
-            \begin{onlyenv}<5>
-                \begin{exampleblock}{4. Integrate}
-                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
-                        \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=27, linerange={27-44}]{code/lorenz-naive.cpp}
+                            \lstinputlisting[firstnumber=27, linerange={28-45}]{code/lorenz.cpp}
                         \end{minipage}
                     \end{adjustbox}
                 \end{exampleblock}
@@ -1153,4 +1141,72 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
     \end{columns}
 \end{frame}
 
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Creating python bindings for \CXX with PyBind11}
+    \setbeamercovered{transparent=40}
+    \vspace{-0.5\baselineskip}
+    \begin{columns}
+        \begin{column}[c]{0.25\textwidth}
+            \begin{exampleblock}{}
+                \begin{adjustbox}{width=0.27\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \begin{uncoverenv}<1>
+                            \lstinputlisting[numbers=none, linerange={1-10}]{code/pylorenz.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,2>
+                            \lstinputlisting[numbers=none, linerange={11-17}]{code/pylorenz.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,3>
+                            \lstinputlisting[numbers=none, linerange={18-22}]{code/pylorenz.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,4>
+                            \lstinputlisting[numbers=none, linerange={23-52}]{code/pylorenz.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1,5>
+                            \lstinputlisting[numbers=none, linerange={53-70}]{code/pylorenz.cpp}
+                        \end{uncoverenv}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[c]{0.7\textwidth}
+            \begin{onlyenv}<2>
+                \begin{exampleblock}{1. State type and stepper type}
+                    \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \lstinputlisting[firstnumber=12, linerange={12-17}]{code/pylorenz.cpp}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{onlyenv}
+            \begin{onlyenv}<3>
+                \begin{exampleblock}{2. Context initialization}
+                    \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \lstinputlisting[firstnumber=19, linerange={19-22}]{code/pylorenz.cpp}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{onlyenv}
+            \begin{onlyenv}<4>
+                \begin{exampleblock}{3. System function}
+                    \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \lstinputlisting[firstnumber=24, linerange={24-52}]{code/pylorenz.cpp}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{onlyenv}
+            \begin{onlyenv}<5>
+                \begin{exampleblock}{4. Python bindings}
+                    \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \lstinputlisting[firstnumber=54, linerange={54-70}]{code/pylorenz.cpp}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{onlyenv}
+        \end{column}
+    \end{columns}
+\end{frame}
 \end{document}

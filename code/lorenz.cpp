@@ -7,6 +7,12 @@
 namespace odeint = boost::numeric::odeint;
 
 typedef vex::multivector<double, 3> state_type;
+
+typedef odeint::runge_kutta4_classic<
+    state_type, double, state_type, double,
+    odeint::vector_space_algebra, odeint::default_operations
+    > Stepper;
+
 struct lorenz_system {
     const vex::vector<double> &R;
     double sigma, b;
@@ -18,11 +24,6 @@ struct lorenz_system {
 		x(0) * x(1) - b * x(2));
     }
 };
-
-typedef odeint::runge_kutta4_classic<
-    state_type, double, state_type, double,
-    odeint::vector_space_algebra, odeint::default_operations
-    > Stepper;
 
 int main(int argc, char *argv[]) {
     const size_t n = (argc > 1) ? std::stoi(argv[1]) : 32;
