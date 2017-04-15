@@ -16,8 +16,8 @@ typedef odeint::runge_kutta4_classic<
     odeint::vector_space_algebra, odeint::default_operations
     > Stepper;
 
-vex::Context& ctx() {
-    static vex::Context c(vex::Filter::Env);
+vex::Context& ctx(std::string name = "") {
+    static vex::Context c(vex::Filter::Env && vex::Filter::Name(name));
     return c;
 }
 
@@ -54,8 +54,9 @@ struct lorenz_system {
 PYBIND11_PLUGIN(pylorenz) {
     py::module m("pylorenz", "Parameter study for the Lorenz attractor system");
 
-    m.def("context", [](){ std::ostringstream s; s << ctx(); py::print(s.str()); },
-            "List devices in VexCL context");
+    m.def("context", [](std::string name) {
+            std::ostringstream s; s << ctx(name); py::print(s.str());
+            }, "List devices in VexCL context", py::arg("name") = std::string(""));
 
     py::class_<lorenz_system>(m, "Stepper", "Advance the ODE in time")
         .def(py::init<double, double, py::array_t<double>>(),
