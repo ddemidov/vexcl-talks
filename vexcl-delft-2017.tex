@@ -1148,7 +1148,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
     \begin{columns}
         \begin{column}[c]{0.25\textwidth}
             \begin{exampleblock}{}
-                \begin{adjustbox}{width=0.27\textwidth, height=\textheight, keepaspectratio}
+                \begin{adjustbox}{width=0.28\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
                         \begin{uncoverenv}<1>
                             \lstinputlisting[numbers=none, linerange={1-10}]{code/pylorenz.cpp}
@@ -1163,7 +1163,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                             \lstinputlisting[numbers=none, linerange={23-52}]{code/pylorenz.cpp}
                         \end{uncoverenv}
                         \begin{uncoverenv}<1,5>
-                            \lstinputlisting[numbers=none, linerange={53-71}]{code/pylorenz.cpp}
+                            \lstinputlisting[numbers=none, linerange={53-67}]{code/pylorenz.cpp}
                         \end{uncoverenv}
                     \end{minipage}
                 \end{adjustbox}
@@ -1201,7 +1201,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                 \begin{exampleblock}{4. Python bindings}
                     \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=54, linerange={54-71}]{code/pylorenz.cpp}
+                            \lstinputlisting[firstnumber=54, linerange={54-67}]{code/pylorenz.cpp}
                         \end{minipage}
                     \end{adjustbox}
                 \end{exampleblock}
@@ -1209,4 +1209,31 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
         \end{column}
     \end{columns}
 \end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Calling \CXX code from Python}
+    \begin{exampleblock}{}
+        \begin{lstlisting}[language=python]
+import pylorenz as lorenz
+
+n = 32   # Number of parameters
+m = 500  # Length of trajectory
+
+# Parameters
+R = linspace(0.1, 10, n)
+sigma = 10.0
+b = 8/3
+
+# Initial solution
+S = empty((m, 3, n))
+S[0,:,:] = 10.0
+
+# Integration
+ode = lorenz.Stepper(sigma, b, R)
+for i in range(1,m):
+    S[i] = ode.advance(S[i-1], 1, 0.01)
+        \end{lstlisting}
+    \end{exampleblock}
+\end{frame}
+
 \end{document}

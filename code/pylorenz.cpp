@@ -52,19 +52,15 @@ struct lorenz_system {
 };
 
 PYBIND11_PLUGIN(pylorenz) {
-    py::module m("pylorenz", "Parameter study for the Lorenz attractor system");
+    py::module m("pylorenz");
 
     m.def("context", [](std::string name) {
             std::ostringstream s; s << ctx(name); py::print(s.str());
-            }, "List devices in VexCL context", py::arg("name") = std::string(""));
+            }, py::arg("name") = std::string(""));
 
-    py::class_<lorenz_system>(m, "Stepper", "Advance the ODE in time")
-        .def(py::init<double, double, py::array_t<double>>(),
-                "Class constructor",
-                py::arg("sigma"), py::arg("b"), py::arg("R"))
-        .def("advance", &lorenz_system::advance,
-                "Advance ODE in time for the given number of steps",
-                py::arg("x0"), py::arg("steps"), py::arg("dt"))
+    py::class_<lorenz_system>(m, "Stepper")
+        .def(py::init<double, double, py::array_t<double>>())
+        .def("advance", &lorenz_system::advance)
         ;
 
     return m.ptr();
