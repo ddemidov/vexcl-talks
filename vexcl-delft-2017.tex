@@ -157,25 +157,22 @@
                             \lstinputlisting[numbers=none,linerange={10-14}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
                         \begin{uncoverenv}<1,3>
-                            \lstinputlisting[numbers=none,linerange={15-31}]{code/hello-opencl.cpp}
+                            \lstinputlisting[numbers=none,linerange={15-33}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
                         \begin{uncoverenv}<1,4>
-                            \lstinputlisting[numbers=none,linerange={32-33}]{code/hello-opencl.cpp}
-                        \end{uncoverenv}
-                        \begin{uncoverenv}<1,5>
                             \lstinputlisting[numbers=none,linerange={34-42}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
+                        \begin{uncoverenv}<1,5>
+                            \lstinputlisting[numbers=none,linerange={43-62}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
                         \begin{uncoverenv}<1,6>
-                            \lstinputlisting[numbers=none,linerange={43-49}]{code/hello-opencl.cpp}
-                        \end{uncoverenv}
-                        \begin{uncoverenv}<1,7>
-                            \lstinputlisting[numbers=none,linerange={50-62}]{code/hello-opencl.cpp}
-                        \end{uncoverenv}
-                        \begin{uncoverenv}<1,8>
                             \lstinputlisting[numbers=none,linerange={63-68}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
-                        \begin{uncoverenv}<1,9>
+                        \begin{uncoverenv}<1,7>
                             \lstinputlisting[numbers=none,linerange={69-71}]{code/hello-opencl.cpp}
+                        \end{uncoverenv}
+                        \begin{uncoverenv}<1>
+                            \lstinputlisting[numbers=none,linerange={72-72}]{code/hello-opencl.cpp}
                         \end{uncoverenv}
                     \end{minipage}
                 \end{adjustbox}
@@ -195,22 +192,13 @@
                 \begin{exampleblock}{2. Get the first available GPU}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=16, linerange={16-31}]{code/hello-opencl.cpp}
+                            \lstinputlisting[firstnumber=16, linerange={16-33}]{code/hello-opencl.cpp}
                         \end{minipage}
                     \end{adjustbox}
                 \end{exampleblock}
             \end{onlyenv}
             \begin{onlyenv}<4>
-                \begin{exampleblock}{3. Create command queue}
-                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
-                        \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=33, linerange={33-33}]{code/hello-opencl.cpp}
-                        \end{minipage}
-                    \end{adjustbox}
-                \end{exampleblock}
-            \end{onlyenv}
-            \begin{onlyenv}<5>
-                \begin{exampleblock}{4. Prepare and copy input data}
+                \begin{exampleblock}{3. Prepare and copy input data}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
                             \lstinputlisting[firstnumber=35, linerange={35-42}]{code/hello-opencl.cpp}
@@ -218,26 +206,17 @@
                     \end{adjustbox}
                 \end{exampleblock}
             \end{onlyenv}
+            \begin{onlyenv}<5>
+                \begin{exampleblock}{4. Write and compile the compute kernel}
+                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
+                        \begin{minipage}{\textwidth}
+                            \lstinputlisting[firstnumber=44, linerange={44-62}]{code/hello-opencl.cpp}
+                        \end{minipage}
+                    \end{adjustbox}
+                \end{exampleblock}
+            \end{onlyenv}
             \begin{onlyenv}<6>
-                \begin{exampleblock}{5. Write the compute kernel source}
-                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
-                        \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=44, linerange={44-49}]{code/hello-opencl.cpp}
-                        \end{minipage}
-                    \end{adjustbox}
-                \end{exampleblock}
-            \end{onlyenv}
-            \begin{onlyenv}<7>
-                \begin{exampleblock}{6. Compile the compute kernel}
-                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
-                        \begin{minipage}{\textwidth}
-                            \lstinputlisting[firstnumber=51, linerange={51-62}]{code/hello-opencl.cpp}
-                        \end{minipage}
-                    \end{adjustbox}
-                \end{exampleblock}
-            \end{onlyenv}
-            \begin{onlyenv}<8>
-                \begin{exampleblock}{7. Set kernel arguments and launch the computation}
+                \begin{exampleblock}{5. Set kernel arguments and launch the computation}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
                             \lstinputlisting[firstnumber=64, linerange={64-68}]{code/hello-opencl.cpp}
@@ -245,8 +224,8 @@
                     \end{adjustbox}
                 \end{exampleblock}
             \end{onlyenv}
-            \begin{onlyenv}<9>
-                \begin{exampleblock}{8. Get the results from the compute device}
+            \begin{onlyenv}<7>
+                \begin{exampleblock}{6. Get the results from the compute device}
                     \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
                             \lstinputlisting[firstnumber=70, linerange={70-71}]{code/hello-opencl.cpp}
@@ -322,25 +301,16 @@ vex::Context ctx( vex::Filter::GPU );
         \end{onlyenv}
         \begin{onlyenv}<3|handout:0>
         \begin{lstlisting}
-vex::Context ctx(vex::Filter::Accelerator && vex::Filter::Platform("Intel"));
-        \end{lstlisting}
-        \end{onlyenv}
-        \begin{onlyenv}<4|handout:0>
-        \begin{lstlisting}
-vex::Context ctx(
-    vex::Filter::DoublePrecision &&
-    [](const vex::backend::device &d) {
-        return d.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() >= 16_GB;
-    });
+vex::Context ctx(vex::Filter::Name("Intel"));
         \end{lstlisting}
         \end{onlyenv}
     \end{exampleblock}
     \end{overlayarea}
     \begin{figure}
-        \uncover<1-2>{
+        \uncover<1,2>{
             \includegraphics[width=0.2\textwidth]{tesla.png}\quad
         }
-        \uncover<1,2,4>{
+        \uncover<1,2>{
             \includegraphics[width=0.2\textwidth]{radeon.png}\quad
         }
         \uncover<1,3>{
@@ -377,12 +347,12 @@ vex::Context ctx(
     \begin{exampleblock}{}
         \begin{onlyenv}<1|handout:0>
         \begin{lstlisting}
-vex::Context ctx( vex::Filter::Name("Tesla") );
+vex::Context ctx( vex::Filter::Count(1) );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<2|handout:0>
         \begin{lstlisting}
-vex::Context ctx( vex::Filter::Type(CL_DEVICE_TYPE_GPU) );
+vex::Context ctx( vex::Filter::GPU );
         \end{lstlisting}
         \end{onlyenv}
         \begin{onlyenv}<3>
