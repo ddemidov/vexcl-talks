@@ -6,7 +6,6 @@
     \setbeamertemplate{note page}[plain]
     \setbeamertemplate{caption}{\insertcaption}
 
-
     \usepackage{graphicx}
     \usepackage{subfigure}
     \usepackage{xspace}
@@ -45,6 +44,7 @@
     \input{ribbon}
     \newcommand{\forkme}{\ribbon{east}{chameleon1}{white}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
     \newcommand{\footnoteline}{\begin{beamercolorbox}[wd=\textwidth,ht=.1ex,dp=0ex]{linemid}\end{beamercolorbox}}
+    \renewcommand{\footnoterule}{\footnoteline\kern 2pt}
 
     \tikzset{
         treenode/.style={
@@ -65,7 +65,7 @@
     \institute{Institute of System Research / Russian Academy of Sciences,\\
     Kazan Federal University
     }
-    \date{June 2017}
+    \date{TUDelft, June 2017}
 
 \begin{document}
 
@@ -1023,22 +1023,22 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 
 %----------------------------------------------------------------------------
 \begin{frame}{Using Boost.odeint}
-    \begin{block}{ODE in general:}
-        \begin{equation*}
-            \frac{\mbox{d} x}{\mbox{d} t } = \dot{x} = f(x , t),
-            \quad \quad x(0) = x_0.
-        \end{equation*}
+    \begin{block}{Generic ODE:}
+        \begin{gather*}
+            \frac{\mbox{d} x}{\mbox{d} t } = \dot{x} = f(x , t),\\
+             x(0) = x_0.
+        \end{gather*}
     \end{block}
 
     \vspace{\baselineskip}
 
     \begin{exampleblock}{Using Boost.odeint:}
-        \begin{enumerate}
+        \begin{itemize}
             \item Define state type (what is $x$?)
             \item Choose integration method
             \item Provide system function (define $f(x,t)$)
             \item Integrate over time
-        \end{enumerate}
+        \end{itemize}
     \end{exampleblock}
 \end{frame}
 
@@ -1109,7 +1109,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Summary}
     \begin{columns}
-        \begin{column}[t]{0.6\textwidth}
+        \begin{column}{0.65\textwidth}
             \begin{itemize}
                 \item VexCL allows to write compact and readable code.
                     \begin{itemize}
@@ -1118,6 +1118,9 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                             \vspace{0.5\baselineskip}
                         \item The performance is often on-par with manually
                             written kernels.
+                            \vspace{0.5\baselineskip}
+                        \item \emph{Using custom kernels or third-party codes is
+                            still possible.}
                     \end{itemize}
                     \vspace{\baselineskip}
                     \pause
@@ -1125,12 +1128,12 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                     \begin{itemize}
                         \item Compilation takes a lot of RAM and a lot of
                             time.
-                        \item But, it's easy to combine \CXX with Python.
+                        \item But, it's easy to combine \CXX with Python:
                             \www{http://pybind11.readthedocs.io}
                     \end{itemize}
             \end{itemize}
         \end{column}
-        \begin{column}[t]{0.35\textwidth}
+        \begin{column}{0.3\textwidth}
             \begin{uncoverenv}<2>
                 \begin{figure}
                     \includegraphics[width=\textwidth]{compiling.png}
@@ -1142,11 +1145,11 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Creating python bindings for \CXX with PyBind11}
+\begin{frame}[fragile]{Creating python bindings for \CXX with pybind11}
     \setbeamercovered{transparent=40}
     \vspace{-0.5\baselineskip}
     \begin{columns}
-        \begin{column}[c]{0.25\textwidth}
+        \begin{column}[c]{0.3\textwidth}
             \begin{exampleblock}{}
                 \begin{adjustbox}{width=0.28\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
@@ -1169,7 +1172,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                 \end{adjustbox}
             \end{exampleblock}
         \end{column}
-        \begin{column}[c]{0.7\textwidth}
+        \begin{column}[c]{0.6\textwidth}
             \begin{onlyenv}<2>
                 \begin{exampleblock}{1. State type and stepper type}
                     \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
@@ -1234,6 +1237,19 @@ for i in range(1,m):
     S[i] = ode.advance(S[i-1], 1, 0.01)
         \end{lstlisting}
     \end{exampleblock}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}{}
+    \begin{description}[Documentation:]
+        \item[Source code:] \www{https://github.com/ddemidov/vexcl}
+            \vspace{\baselineskip}
+        \item[Documentation:] \www{http://vexcl.readthedocs.io}
+            \vspace{\baselineskip}
+        \item[Slides:] \www{https://speakerdeck.com/ddemidov}
+            \vspace{\baselineskip}
+        \item[Example codes:] \www{https://github.com/ddemidov/vexcl-talks}
+    \end{description}
 \end{frame}
 
 \end{document}
