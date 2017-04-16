@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(delft)
 include(UseLATEX.cmake)
 
+#set(BEAMER_OPTIONS "compress,unicode,smaller,aspectratio=169")
 set(BEAMER_OPTIONS "compress,unicode,aspectratio=1610")
 set(USE_PGFPAGES "")
 

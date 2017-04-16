@@ -22,7 +22,7 @@
     \usepackage{listings}
     \lstset{
         language=C++,
-        basicstyle=\footnotesize\rmfamily,
+        basicstyle=\footnotesize\ttfamily,
         keywordstyle=\color{chameleon4}\bfseries,
         commentstyle=\color{chameleon1}\it\rmfamily,
         stringstyle=\color{chameleon4},
@@ -703,7 +703,6 @@ kernel void vexcl_vector_kernel(
             Random123\footnote{D. E. Shaw Research,
                 \href{http://www.deshawresearch.com/resources\_random123.html}{http://www.deshawresearch.com/resources\_random123.html}}
             suite.
-            \vspace{-0.5\baselineskip}
             \begin{itemize}
                 \item The generators are \emph{stateless}; mixing functions are
                     applied to element indices.
@@ -821,15 +820,14 @@ double res = max( fabs(r) );
             \end{itemize}
     \end{itemize}
     \begin{exampleblock}{1D Laplace operator:}
-        \begin{lstlisting}
+        \begin{lstlisting}[keepspaces=true]
 auto ptr   = vex::raw_pointer(x);
 auto idx   = vex::element_index();
 
 auto left  = if_else(idx > 0,     i - 1, i);
 auto right = if_else(idx + 1 < n, i + 1, i);
 
-y = 2 * ptr[idx] - ptr[left] - ptr[right];
-        \end{lstlisting}
+y = 2 * ptr[idx] - ptr[left] - ptr[right];\end{lstlisting}
     \end{exampleblock}
 \end{frame}
 
@@ -909,37 +907,36 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
     \begin{columns}
         \begin{column}[t]{0.2\textwidth}
             \begin{exampleblock}{}
-                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                \begin{adjustbox}{width=0.30\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \lstinputlisting[linerange={1-49}]{code/pi-kernel.cpp}
+                        \lstinputlisting[numbers=none,linerange={1-50}]{code/pi-kernel.cpp}
                     \end{minipage}
                 \end{adjustbox}
             \end{exampleblock}
         \end{column}
         \begin{column}[t]{0.2\textwidth}
             \begin{exampleblock}{}
-                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                \begin{adjustbox}{width=0.30\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \lstinputlisting[firstnumber=last,linerange={50-98}]{code/pi-kernel.cpp}
+                        \lstinputlisting[numbers=none,linerange={51-100}]{code/pi-kernel.cpp}
                     \end{minipage}
                 \end{adjustbox}
             \end{exampleblock}
         \end{column}
         \begin{column}[t]{0.2\textwidth}
             \begin{exampleblock}{}
-                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                \begin{adjustbox}{width=0.30\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \lstinputlisting[firstnumber=last,linerange={99-147}]{code/pi-kernel.cpp}
+                        \lstinputlisting[numbers=none,linerange={101-150}]{code/pi-kernel.cpp}
                     \end{minipage}
                 \end{adjustbox}
             \end{exampleblock}
         \end{column}
         \begin{column}[t]{0.3\textwidth}
             \begin{exampleblock}{}
-                \begin{adjustbox}{width=0.23\textwidth, height=\textheight, keepaspectratio}
+                \begin{adjustbox}{width=0.30\textwidth, height=\textheight, keepaspectratio}
                     \begin{minipage}{\textwidth}
-                        \lstinputlisting[firstnumber=last,linerange={148-196}]{code/pi-kernel.cpp}
-                        \vspace{\baselineskip}
+                        \lstinputlisting[numbers=none,linerange={151-200}]{code/pi-kernel.cpp}
                     \end{minipage}
                 \end{adjustbox}
             \end{exampleblock}
@@ -1049,7 +1046,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
             \end{onlyenv}
             \begin{onlyenv}<3>
                 \begin{exampleblock}{2. System function}
-                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
+                    \begin{adjustbox}{width=0.73\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
                             \lstinputlisting[firstnumber=10, linerange={16-26}]{code/lorenz.cpp}
                         \end{minipage}
@@ -1154,7 +1151,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
             \end{onlyenv}
             \begin{onlyenv}<3>
                 \begin{exampleblock}{2. Context initialization}
-                    \begin{adjustbox}{width=0.6\textwidth, height=\textheight, keepaspectratio}
+                    \begin{adjustbox}{width=0.75\textwidth, height=\textheight, keepaspectratio}
                         \begin{minipage}{\textwidth}
                             \lstinputlisting[firstnumber=19, linerange={19-22}]{code/pylorenz.cpp}
                         \end{minipage}

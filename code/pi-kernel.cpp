@@ -110,6 +110,7 @@ void philox_uint_4_10
   ctr[2] = m[0] ^ ctr[3] ^ key[1];
   ctr[3] = m[1];
 }
+
 double2 random_double2_philox
 (
   ulong prm1,
@@ -133,6 +134,7 @@ double2 random_double2_philox
   ctr.res_f[1] = ctr.res_i[1] / 18446744073709551615.0;
   return ctr.res;
 }
+
 ulong SUM_ulong
 (
   ulong prm1,
@@ -141,6 +143,7 @@ ulong SUM_ulong
 {
   return prm1 + prm2;
 }
+
 kernel void vexcl_reductor_kernel
 (
   ulong n,
@@ -154,8 +157,10 @@ kernel void vexcl_reductor_kernel
   ulong mySum = (ulong)0;
   for(ulong idx = get_global_id(0); idx < n; idx += get_global_size(0))
   {
-    mySum = SUM_ulong(mySum, ( length( random_double2_philox( (prm_1 + idx), prm_2 ) ) < prm_3 ));
+    mySum = SUM_ulong(mySum,
+            ( length( random_double2_philox( (prm_1 + idx), prm_2 ) ) < prm_3 ));
   }
+
   local ulong * sdata = smem;
   size_t tid = get_local_id(0);
   size_t block_size = get_local_size(0);
@@ -193,4 +198,3 @@ kernel void vexcl_reductor_kernel
   }
   if (tid == 0) g_odata[get_group_id(0)] = sdata[0];
 }
-
