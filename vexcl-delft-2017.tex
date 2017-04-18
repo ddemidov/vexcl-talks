@@ -24,7 +24,7 @@
         language=C++,
         basicstyle=\footnotesize\ttfamily,
         keywordstyle=\color{chameleon4}\bfseries,
-        commentstyle=\color{chameleon1}\it\rmfamily,
+        commentstyle=\color{chameleon1}\it\ttfamily,
         stringstyle=\color{chameleon4},
         numbers=left,
         numberstyle=\tiny,
@@ -254,9 +254,40 @@
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello VexCL}
-    \begin{exampleblock}{}
-        \lstinputlisting{code/hello-vexcl.cpp}
-    \end{exampleblock}
+    \vspace{-1\baselineskip}
+    \begin{columns}
+        \begin{column}[t]{0.5\textwidth}
+            \begin{exampleblock}{hello.cpp}
+                \begin{adjustbox}{width=0.9\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \lstinputlisting{code/hello-vexcl.cpp}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}[t]{0.45\textwidth}
+            \begin{exampleblock}{CMakeLists.txt}
+                \begin{adjustbox}{width=0.9\textwidth, height=\textheight, keepaspectratio}
+                    \begin{minipage}{\textwidth}
+                        \begin{lstlisting}[language=sh,
+                        morekeywords={cmake_minimum_required,project,find_package,add_subdirectory,add_executable,target_link_libraries}]
+cmake_minimum_required(VERSION 3.1)
+project(hello)
+
+# When VexCL is installed system wide:
+find_package(VexCL)
+
+# When VexCL is copied into a subfolder:
+# add_subdirectory(vexcl)
+
+add_executable(hello hello.cpp)
+target_link_libraries(hello VexCL::OpenCL)
+                        \end{lstlisting}
+                    \end{minipage}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \note[itemize]{

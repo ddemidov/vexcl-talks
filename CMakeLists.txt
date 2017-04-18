@@ -36,11 +36,11 @@ function(add_slides BEAMER_FILE)
     function(add_document SOURCE SUFFIX)
         configure_file(
             ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}.tex
-            ${CMAKE_CURRENT_BINARY_DIR}/${SOURCE}_${SUFFIX}.tex
+            ${CMAKE_CURRENT_BINARY_DIR}/${SOURCE}-${SUFFIX}.tex
             )
 
         add_latex_document(
-            ${BEAMER_FILE}_${SUFFIX}.tex
+            ${BEAMER_FILE}-${SUFFIX}.tex
             INPUTS  ribbon.tex
             DEPENDS beamerthemeTorino.sty
                     beamercolorthemechameleon.sty
