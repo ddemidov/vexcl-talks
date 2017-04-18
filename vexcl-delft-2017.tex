@@ -6,6 +6,7 @@
     \setbeamertemplate{note page}[plain]
     \setbeamertemplate{caption}{\insertcaption}
 
+    \hypersetup{colorlinks,linkcolor=,urlcolor=chameleon3}
     \usepackage{graphicx}
     \usepackage{subfigure}
     \usepackage{xspace}
@@ -23,9 +24,9 @@
     \lstset{
         language=C++,
         basicstyle=\footnotesize\ttfamily,
-        keywordstyle=\color{chameleon4}\bfseries,
-        commentstyle=\color{chameleon1}\it\ttfamily,
-        stringstyle=\color{chameleon4},
+        keywordstyle=\color{chameleon3}\bfseries,
+        commentstyle=\color{chameleon3}\it\ttfamily,
+        stringstyle=\color{chameleon3},
         numbers=left,
         numberstyle=\tiny,
         aboveskip=-0.02\baselineskip,
@@ -42,7 +43,7 @@
     \newcommand{\www}[1]{\href{#1}{#1}}
 
     \input{ribbon}
-    \newcommand{\forkme}{\ribbon{east}{chameleon1}{white}{\href{https://github.com/ddemidov/vexcl}{Fork me on GitHub}}}
+    \newcommand{\forkme}{\ribbon{east}{chameleon1}{white}{\href{https://github.com/ddemidov/vexcl}{\color{white}Fork me on GitHub}}}
     \newcommand{\footnoteline}{\begin{beamercolorbox}[wd=\textwidth,ht=.1ex,dp=0ex]{linemid}\end{beamercolorbox}}
     \renewcommand{\footnoterule}{\footnoteline\kern 2pt}
 
@@ -638,13 +639,13 @@ kernel void vexcl_vector_kernel(
         \end{lstlisting}
     \end{exampleblock}
     \begin{tikzpicture}[overlay,scale=0.6]
-        \draw (16,8) node(sub)[draw,fill=white,ellipse,drop shadow]{$-$};
+        \draw (16,8) node(sub)[draw,fill=chameleon4,ellipse]{$-$};
 
-        \draw (sub) +(-2.00,-1) node(mul)[draw,fill=white,drop shadow,ellipse]{$*$};
-        \draw (sub) +( 2.00,-1) node(sin)[draw,fill=white,drop shadow,ellipse]{sin};
-        \draw (mul) +(-2.00,-1) node(two)[draw,fill=white,drop shadow,minimum size=0.5cm]{2};
-        \draw (mul) +( 2.00,-1) node(y)  [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
-        \draw (sin) +( 1.75,-1) node(z)  [draw,fill=white,drop shadow,minimum size=0.5cm]{z};
+        \draw (sub) +(-2.00,-1) node(mul)[draw,fill=chameleon4,ellipse]{$*$};
+        \draw (sub) +( 2.00,-1) node(sin)[draw,fill=chameleon4,ellipse]{sin};
+        \draw (mul) +(-2.00,-1) node(two)[draw,fill=chameleon4,minimum size=0.5cm]{2};
+        \draw (mul) +( 2.00,-1) node(y)  [draw,fill=chameleon4,minimum size=0.5cm]{y};
+        \draw (sin) +( 1.75,-1) node(z)  [draw,fill=chameleon4,minimum size=0.5cm]{z};
 
         \draw (sub) -- (mul);
         \draw (sub) -- (sin);
@@ -714,12 +715,12 @@ kernel void vexcl_vector_kernel(
         \end{lstlisting}
     \end{exampleblock}
     \begin{tikzpicture}[overlay,scale=0.6]
-        \draw (16,8.75) node(sqrt)[draw,fill=white,ellipse,drop shadow]{sqrt};
+        \draw (16,8.75) node(sqrt)[draw,fill=chameleon4,ellipse]{sqrt};
 
-        \draw (sqrt) +(0.00,-2) node(sqr)[draw,fill=white,ellipse,drop shadow]{sqr};
+        \draw (sqrt) +(0.00,-2) node(sqr)[draw,fill=chameleon4,ellipse]{sqr};
 
-        \draw (sqr) +(-2.00,-1) node(x) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-        \draw (sqr) +( 2.20,-1) node(y) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
+        \draw (sqr) +(-2.00,-1) node(x) [draw,fill=chameleon4,minimum size=0.5cm]{x};
+        \draw (sqr) +( 2.20,-1) node(y) [draw,fill=chameleon4,minimum size=0.5cm]{y};
 
         \draw (sqrt) -- (sqr);
         \draw (sqr)  -- (x);
