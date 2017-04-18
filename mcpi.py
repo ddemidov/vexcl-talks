@@ -30,7 +30,7 @@ plot(x[i==1], y[i==1], 'o', markersize=3, markeredgecolor=chameleon4, markerface
 x = np.linspace(0, 1, 100)
 y = np.sqrt(1 - x * x)
 
-plot(x, y, '-', color=chameleon1, linewidth=2)
+#plot(x, y, '-', color=chameleon2, linewidth=2)
 
 xticks([0, 0.5, 1])
 yticks([   0.5, 1])

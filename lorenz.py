@@ -19,7 +19,7 @@ from pylab import *
 
 def lorenz_system(x, t):
     sigma = 10
-    R     = 28
+    R     = 50
     b     = 8.0/3
     return [
         -sigma * (x[0] - x[1]),
