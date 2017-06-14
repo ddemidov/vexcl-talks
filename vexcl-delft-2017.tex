@@ -818,7 +818,7 @@ double d = max( sqrt(x * x + y * y) );
     \end{itemize}
     \begin{exampleblock}{Construct matrix}
         \begin{lstlisting}
-vex::sparse::matrix<double> A(ctx, n, n, row, col, val);
+vex::sparse::matrix<double> A(ctx, n, n, ptr, col, val);
         \end{lstlisting}
     \end{exampleblock}
 
