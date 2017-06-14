@@ -1098,7 +1098,8 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \end{frame}
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Performance}{NVIDIA Tesla K40c, Intel Core i7 920}
+\begin{frame}[fragile]{Performance}{NVIDIA Tesla K40c, Intel Core i7 920
+    \vspace{0.25\baselineskip}}
     \begin{figure}
         \includegraphics[width=0.9\textwidth]{perf}
     \end{figure}
@@ -1117,8 +1118,8 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                         \item The performance is often on-par with manually
                             written kernels.
                             \vspace{0.5\baselineskip}
-                        \item \emph{Using custom kernels or third-party codes is
-                            still possible.}
+                        \item \emph{Using custom kernels or third-party
+                            functionality is still possible.}
                     \end{itemize}
                     \vspace{\baselineskip}
                     \pause
