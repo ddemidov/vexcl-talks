@@ -335,13 +335,18 @@ vex::Context ctx( vex::Filter::GPU );
 vex::Context ctx(vex::Filter::Name("Intel"));
         \end{lstlisting}
         \end{onlyenv}
+        \begin{onlyenv}<4|handout:0>
+        \begin{lstlisting}
+vex::Context ctx(vex::Filter::GPU && vex::Filter::Platform("AMD"));
+        \end{lstlisting}
+        \end{onlyenv}
     \end{exampleblock}
     \end{overlayarea}
     \begin{figure}
         \uncover<1,2>{
             \includegraphics[width=0.2\textwidth]{tesla.png}\quad
         }
-        \uncover<1,2>{
+        \uncover<1,2,4>{
             \includegraphics[width=0.2\textwidth]{radeon.png}\quad
         }
         \uncover<1,3>{
