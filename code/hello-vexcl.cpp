@@ -7,7 +7,7 @@ int main() {
     if (!ctx) throw std::runtime_error("No GPUs");
 
     size_t n = 1024 * 1024;
-    std::vector<double> a(n, 1), b(n, 2);
+    std::vector<double> a(n, 1.5), b(n, 2.7);
 
     vex::vector<double> A(ctx, a);
     vex::vector<double> B(ctx, b);
