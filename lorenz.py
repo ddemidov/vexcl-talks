@@ -36,7 +36,7 @@ rc('font', size=22)
 
 fig = figure(num=1, figsize=(9,7))
 ax = fig.gca(projection='3d')
-ax.plot(x[:,0], x[:,1], x[:,2], color=chameleon4, alpha=0.75)
+ax.plot(x[:,0], x[:,1], x[:,2], color=chameleon1, alpha=0.75)
 title('Lorenz attractor trajectory')
 locator_params(nbins=5)
 
