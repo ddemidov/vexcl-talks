@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(delft)
+project(toulouse)
 include(UseLATEX.cmake)
 
 #set(BEAMER_OPTIONS "compress,unicode,smaller,aspectratio=169")
@@ -62,6 +62,6 @@ function(add_slides BEAMER_FILE)
     endif ()
 endfunction()
 
-add_slides(vexcl-delft-2017)
+add_slides(vexcl-toulouse-2018)
 
 add_subdirectory(code)
