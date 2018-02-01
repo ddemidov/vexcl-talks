@@ -12,13 +12,7 @@ if (len(sys.argv[1:]) > 0):
 else:
     outdir = '.'
 
-rc('font',  size=18)
-rc('text',  color=chameleon2)
-rc('axes',  labelcolor=chameleon2)
-rc('axes',  edgecolor=chameleon2)
-rc('axes',  facecolor=chameleon6)
-rc('xtick', color=chameleon2)
-rc('ytick', color=chameleon2)
+rc('font',   size=18)
 
 #----------------------------------------------------------------------------
 class display_params:
@@ -30,8 +24,8 @@ class display_params:
 
 #----------------------------------------------------------------------------
 prm = {
-        'cpu'             : display_params('OpenMP',     'o-', chameleon3, chameleon4),
-        'vexcl_naive'     : display_params('VexCL',      'o-', chameleon4, chameleon3),
+        'cpu'             : display_params('OpenMP',     'o-', chameleon2, chameleon4),
+        'vexcl_naive'     : display_params('VexCL',      'o-', chameleon4, chameleon2),
         }
 
 def get_data(fname):
@@ -75,4 +69,4 @@ ylim([5e-2, 3e1])
 
 tight_layout()
 
-savefig("{}/perf.pdf".format(outdir), facecolor=chameleon6)
+savefig("{}/perf.pdf".format(outdir))

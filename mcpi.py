@@ -16,13 +16,7 @@ else:
 from pylab import *
 style.use('seaborn-white')
 
-rc('font',  size=22)
-rc('axes',  labelcolor=chameleon2)
-rc('axes',  edgecolor=chameleon2)
-rc('axes',  facecolor=chameleon6)
-rc('xtick', color=chameleon2)
-rc('ytick', color=chameleon2)
-
+rc('font',   size=22)
 figure(figsize=(7,7))
 
 x = np.random.uniform(0, 1, 3000)
@@ -44,6 +38,6 @@ xlim([0,1])
 ylim([0,1])
 show()
 
-if quiet: savefig(outfile, facecolor=chameleon6)
+if quiet: savefig(outfile)
 else:     show()
 
