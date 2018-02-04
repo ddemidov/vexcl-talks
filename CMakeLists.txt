@@ -49,7 +49,7 @@ function(add_slides BEAMER_FILE)
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
                     ${CMAKE_BINARY_DIR}/lorenz.pdf
                     ${CMAKE_BINARY_DIR}/perf.pdf
-            IMAGES tesla.png radeon.png intel.png compiling.png tudelft.eps
+            IMAGES tesla.png radeon.png intel.png compiling.png lpt.pdf
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 
