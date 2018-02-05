@@ -123,13 +123,13 @@
             \end{itemize}
             \vspace{\baselineskip}
         \item Overview of (any) OpenCL solution:
-            \begin{enumerate}
+            \begin{itemize}
                 \item Initialize OpenCL context
                 \item Allocate memory
                 \item Transfer input data
                 \item Run computations
                 \item Get the results
-            \end{enumerate}
+            \end{itemize}
     \end{itemize}
 \end{frame}
 
@@ -564,49 +564,7 @@ d[0] = 0;
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{What vector expressions are supported?}
-    \begin{itemize}
-        \item All vectors in an expression have to be \emph{compatible}:
-            \begin{itemize}
-                \item Have same size
-                \item Located on same devices
-            \end{itemize}
-        \item What may be used:
-            \begin{columns}
-                \begin{column}{0.4\textwidth}
-                    \begin{itemize}
-                        \item Vectors, scalars, constants
-                        \item Arithmetic, logical operators
-                        \item Built-in functions
-                        \item User-defined functions
-                        \item Random number generators
-                        \item Slicing and permutations
-                    \end{itemize}
-                \end{column}
-                \begin{column}{0.42\textwidth}
-                    \begin{itemize}
-                        \item Reduce to a scalar (sum, min, max)
-                        \item Reduce across chosen dimensions
-                        \item Stencil operations
-                        \item Sparse matrix~-- vector products
-                        \item Fast Fourier Transform
-                        \item Sort, scan, reduce by key
-                    \end{itemize}
-                \end{column}
-            \end{columns}
-    \end{itemize}
-\end{frame}
-
-\note[itemize]{
-\item So, what kind of expressions can you use in VexCL?
-\item First, any vectors used in an expression have to be compatible.
-\item If this requirement is satisfied, then expressions may combine
-    vectors and scalars with almost any binary operators. OpenCL math functions
-    and user-defined functions are also available.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Builtin operations and functions}
+\begin{frame}[fragile]{Expressions are translated into compute kernels}
     \begin{columns}
         \begin{column}{0.38\textwidth}
             \begin{exampleblock}{This expression:}
@@ -658,247 +616,50 @@ kernel void vexcl_vector_kernel(
 \note{ }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{User-defined functions}
-    \begin{exampleblock}{Defining a function:}
-        \begin{lstlisting}
-VEX_FUNCTION( double, sqr, (double, x)(double, y),
-    return x * x + y * y;
-    );
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{Using the function:}
-        \begin{lstlisting}
-Z = sqrt( sqr(X, Y) );
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note[itemize]{
-\item It is possible to define an OpenCL function that may be used with vector
-    expressions. You need to provide function body, parameter types, and return
-    type.
-\item Function body has to be of \code{extern const char} type, to allow it's
-    use as a template parameter. And it has to be defined at global scope.
-\item Inside the body function parameters are always named prm1, prm2, etc.
-\item Here we define 'between' function that returns true if it's second
-    parameter is between it's first and third parameters. The UserFunction
-    object is stateless, so it may be good idea to define it at global scope
-    as well, next to it's body.
-\item Now we may use the function in expressions. Any vector expression may be
-    used as a parameter for a user-defined (or builtin) function.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{User functions are translated to OpenCL functions}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-Z = sqrt( sqr(X, Y) );
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{\ldots gets translated to:}
-        \begin{lstlisting}
-double sqr(double x, double y) {
-    return x * x + y * y;
-}
-
-kernel void vexcl_vector_kernel(
-    ulong n,
-    global double * prm_1,
-    global double * prm_2,
-    global double * prm_3
-)
-{
-    for(size_t idx = get_global_id(0); idx < n; idx += get_global_size(0)) {
-        prm_1[idx] = sqrt( sqr( prm_2[idx], prm_3[idx] ) );
-    }
-}
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{tikzpicture}[overlay,scale=0.6]
-        \draw (16,8.75) node(sqrt)[draw,fill=white,ellipse,drop shadow]{sqrt};
-
-        \draw (sqrt) +(0.00,-2) node(sqr)[draw,fill=white,ellipse,drop shadow]{sqr};
-
-        \draw (sqr) +(-2.00,-1) node(x) [draw,fill=white,drop shadow,minimum size=0.5cm]{x};
-        \draw (sqr) +( 2.20,-1) node(y) [draw,fill=white,drop shadow,minimum size=0.5cm]{y};
-
-        \draw (sqrt) -- (sqr);
-        \draw (sqr)  -- (x);
-        \draw (sqr)  -- (y);
-    \end{tikzpicture}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Random number generation}
+\begin{frame}[fragile]{What vector expressions are supported?}
     \begin{itemize}
-        \item VexCL provides\footnote{Contributed by
-            \href{https://github.com/neapel}{Pascal Germroth}
-            $\langle$\href{mailto:pascal@ensieve.org}{pascal@ensieve.org}$\rangle$}
-            \emph{counter-based} random number generators from
-            Random123\footnote{D. E. Shaw Research,
-                \href{http://www.deshawresearch.com/resources\_random123.html}{http://www.deshawresearch.com/resources\_random123.html}}
-            suite.
+        \item All vectors in an expression have to be \emph{compatible}:
             \begin{itemize}
-                \item The generators are \emph{stateless}; mixing functions are
-                    applied to element indices.
-                \item Implemented families: \code{threefry} and \code{philox}.
-                \item Both pass TestU01/BigCrush; up to \alert{$2^{64}$}
-                    independent streams with a period of \alert{$2^{128}$}.
-                \item Performance: \alert{$\approx 10^{10}$}~Samples/sec (Tesla
-                    K20c).
+                \item Have same size
+                \item Located on same devices
             \end{itemize}
-        \item \code{vex::Random<T,G>}~--- uniform distribution.
-        \item \code{vex::RandomNormal<T,G>}~--- normal distribution.
+            \vspace{\baselineskip}
+        \item What may be used:
+            \begin{columns}
+                \begin{column}{0.4\textwidth}
+                    \begin{itemize}
+                        \item Vectors, scalars, constants
+                        \item Arithmetic, logical operators
+                        \item Built-in functions
+                        \item User-defined functions
+                        \item Random number generators
+                        \item Slicing and permutations
+                    \end{itemize}
+                \end{column}
+                \begin{column}{0.42\textwidth}
+                    \begin{itemize}
+                        \item Reduce to a scalar (sum, min, max)
+                        \item Reduce across chosen dimensions
+                        \item Stencil operations
+                        \item Sparse matrix~-- vector products
+                        \item Fast Fourier Transform
+                        \item Sort, scan, reduce by key
+                    \end{itemize}
+                \end{column}
+            \end{columns}
     \end{itemize}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-vex::Random<double> rnd;
-vex::vector<double> x(ctx, n);
-
-x = rnd(vex::element_index(), std::rand());
-        \end{lstlisting}
-    \end{exampleblock}
 \end{frame}
 
 \note[itemize]{
-\item Random number generation is a useful feature that is used often in, e.g.,
-    molecular dynamics.
-\item Random number generators in VexCL are stateless, so they don't require
-    additional storage or global memory interactions. Randomness is obtained by
-    applying mixing functions to element indices.
+\item So, what kind of expressions can you use in VexCL?
+\item First, any vectors used in an expression have to be compatible.
+\item If this requirement is satisfied, then expressions may combine
+    vectors and scalars with almost any binary operators. OpenCL math functions
+    and user-defined functions are also available.
 }
 
 %----------------------------------------------------------------------------
-\begin{frame}[fragile]{Reductions}
-    \begin{itemize}
-        \item Class \code{vex::Reductor<T, kind>} allows to reduce arbitrary
-            \emph{vector expression} to a\\ single value of type \code{T}.
-        \item Supported reduction kinds: \code{SUM}, \code{SUM_Kahan},
-            \code{MIN}, \code{MAX}
-    \end{itemize}
-    \begin{exampleblock}{Inner product}
-        \begin{lstlisting}
-vex::Reductor<double, vex::SUM> sum(ctx);
-double s = sum(x * y);
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{Number of elements in x between 0 and 1}
-        \begin{lstlisting}
-vex::Reductor<size_t, vex::SUM> sum(ctx);
-size_t n = sum( (x > 0) && (x < 1) );
-        \end{lstlisting}
-    \end{exampleblock}
-    \begin{exampleblock}{Maximum distance from origin}
-        \begin{lstlisting}
-vex::Reductor<double, vex::MAX> max(ctx);
-double d = max( sqrt(x * x + y * y) );
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note[itemize]{
-\item Reduction is an operation of reducing a vector to a single value.
-\item The most frequent types are summation and finding minimum or maximum
-    element of a vector.
-\item VexCL provides Reductor functor that accepts any valid vector expression
-    as a parameter.
-\item For example, to compute an inner product of two vectors we compute sum of
-    their elementwise product.
-\item To find number of elements in vector x that are greater than zero and
-    less than one, we compute sum of the corresponding boolean expression.
-\item And to find the maximum distance from axis origin for a set of
-    two-dimensional points, we compute exactly that: max of their radius.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Sparse matrix~-- vector products}
-    \begin{itemize}
-        \item Class \code{vex::sparse::matrix<T>} holds representation of a
-            sparse matrix on compute devices.
-        \item Constructor accepts matrix in common CRS format:
-            \begin{itemize}
-                \item row indices, columns and values of nonzero entries.
-            \end{itemize}
-    \end{itemize}
-    \begin{exampleblock}{Construct matrix}
-        \begin{lstlisting}
-vex::sparse::matrix<double> A(ctx, n, n, ptr, col, val);
-        \end{lstlisting}
-    \end{exampleblock}
-
-    \begin{exampleblock}{Compute residual value}
-        \begin{lstlisting}[firstnumber=last]
-// vex::vector<double> u, f, r;
-r = f - A * u;
-double res = max( fabs(r) );
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note[itemize]{
-\item Sparse matrix -- vector operation is also provided. A matrix is imported
-    from commonly used compressed row storage format.
-\item Note that matrix-vector product is not a first-class citizen in vector
-    expressions. It uses neighbor values; and neighbors may reside on a
-    different compute device. So extra work is needed to exchange data between
-    devices. That is why matrix-vector products may only be used in additive
-    expressions.
-}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Raw pointer arithmetic}
-    \begin{itemize}
-        \item \code{raw_pointer(const vector<T>&)} function returns pointer to
-            vector's data\\ inside vector expression.
-            \begin{itemize}
-                \item May be used to implement complex access patterns.
-            \end{itemize}
-    \end{itemize}
-    \begin{exampleblock}{1D Laplace operator:}
-        \begin{lstlisting}[keepspaces=true]
-auto ptr   = vex::raw_pointer(x);
-auto idx   = vex::element_index();
-
-auto left  = if_else(idx > 0,     i - 1, i);
-auto right = if_else(idx + 1 < n, i + 1, i);
-
-y = 2 * ptr[idx] - ptr[left] - ptr[right];\end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{N-body problem with raw pointers}
-    \begin{equation*}
-        y_i = \sum_{j \neq i} e^{-|x_i - x_j|}
-    \end{equation*}
-    \begin{exampleblock}{}
-        \begin{lstlisting}
-VEX_FUNCTION(double, nbody, (size_t, n)(size_t, i)(double*, x),
-    double sum = 0, myval = x[i];
-    for(size_t j = 0; j < n; ++j)
-        if (j != i) sum += exp(-fabs(x[j] - myval));
-    return sum;
-    );
-
-y = nbody(x.size(), vex::element_index(), raw_pointer(x));
-        \end{lstlisting}
-    \end{exampleblock}
-\end{frame}
-
-\note{ }
-
-%----------------------------------------------------------------------------
-\section{Usage examples}
-\begin{frame}
-    \sectionpage
-\end{frame}
-
-%----------------------------------------------------------------------------
-\begin{frame}[fragile]{Monte Carlo $\pi$}
+\begin{frame}[fragile]{Example: Monte Carlo $\pi$}
     \vspace{-1\baselineskip}
     \begin{columns}
         \begin{column}{0.55\textwidth}
@@ -982,6 +743,12 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \end{frame}
 
 \note{}
+
+%----------------------------------------------------------------------------
+\section{Solving ODEs on GPUs}
+\begin{frame}
+    \sectionpage
+\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}{Solving ODEs on GPUs}
@@ -1125,7 +892,7 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{What if we did this manually?}
     \begin{columns}
-        \begin{column}{0.45\textwidth}
+        \begin{column}{0.5\textwidth}
             \begin{itemize}
                 \item Create monolithic kernel for a single step of the
                     Runge-Kutta method.
@@ -1133,10 +900,11 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
                     \vspace{\baselineskip}
                 \item This would be 10x faster!
                     \begin{itemize}
-                        \item<2|alert@2> \emph{At the expense of odeint's generality.}
+                        \item \alert{At the expense of odeint's generality.}
                     \end{itemize}
             \end{itemize}
         \end{column} \quad \quad
+        \hspace{-3em}
         \begin{column}{0.45\textwidth}
             \begin{exampleblock}{Monolithic OpenCL kernel for RK4}
                 \begin{adjustbox}{width=\textwidth,height=\textheight,keepaspectratio}
@@ -1147,7 +915,7 @@ double3 lorenz_system(double r, double sigma, double b, double3 s) {
                        s.x * s.y - b * s.z);
 }
 kernel void lorenz_ensemble(
-    ulong  n, double dt, double sigma, double b,
+    ulong n, double dt, double sigma, double b,
     const global double *R,
     global double *X,
     global double *Y,
@@ -1198,7 +966,7 @@ kernel void lorenz_ensemble(
             arithmetic operations applied to it:
     \end{itemize}
     \begin{columns}
-        \begin{column}{0.45\textwidth}
+        \begin{column}{0.4\textwidth}
             \begin{exampleblock}{}
                 \begin{lstlisting}
 vex::symbolic<double> x = 6, y = 7;
@@ -1213,7 +981,7 @@ var1 = sin( ( var1 * var2 ) );
                 \end{verbatim}
             \end{small}
         \end{column}
-        \begin{column}<2>{0.45\textwidth}
+        \begin{column}{0.45\textwidth}
             \begin{exampleblock}{}
                 \begin{lstlisting}
 template <class T>
