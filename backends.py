@@ -24,13 +24,13 @@ class display_params:
 
 #----------------------------------------------------------------------------
 prm = {
-        'lorenz_vexcl_symb_cl_cpu'   : display_params('OpenCL',        'o-', chameleon2, chameleon4),
-        'lorenz_vexcl_symb_comp_cpu' : display_params('Boost.Compute', 'o-', chameleon4, chameleon2),
-        'lorenz_vexcl_symb_jit_cpu'  : display_params('JIT',           'o-', chameleon4, chameleon1),
+        'lorenz_vexcl_symb_cl_cpu'   : display_params('OpenCL',        'o-', chameleon4, chameleon2),
+        'lorenz_vexcl_symb_comp_cpu' : display_params('Boost.Compute', 'o-', chameleon4, chameleon1),
+        'lorenz_vexcl_symb_jit_cpu'  : display_params('JIT',           'o-', chameleon2, chameleon4),
 
-        'lorenz_vexcl_symb_cl_gpu'   : display_params('OpenCL',        'o-', chameleon2, chameleon4),
-        'lorenz_vexcl_symb_comp_gpu' : display_params('Boost.Compute', 'o-', chameleon4, chameleon2),
-        'lorenz_vexcl_symb_cuda_gpu' : display_params('CUDA',          'o-', chameleon4, chameleon1),
+        'lorenz_vexcl_symb_cl_gpu'   : display_params('OpenCL',        'o-', chameleon4, chameleon2),
+        'lorenz_vexcl_symb_comp_gpu' : display_params('Boost.Compute', 'o-', chameleon4, chameleon1),
+        'lorenz_vexcl_symb_cuda_gpu' : display_params('CUDA',          'o-', chameleon2, chameleon4),
         }
 
 cpu_sets = [
