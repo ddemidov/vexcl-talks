@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 project(toulouse)
 include(UseLATEX.cmake)
 
@@ -22,13 +22,26 @@ mplfigure(lorenz)
 
 add_custom_command(
     OUTPUT
-        ${CMAKE_BINARY_DIR}/perf.pdf
+        ${CMAKE_BINARY_DIR}/cpu_vs_gpu_1.pdf
+        ${CMAKE_BINARY_DIR}/cpu_vs_gpu_2.pdf
     COMMAND
-        ${CMAKE_CURRENT_SOURCE_DIR}/make_plots.py ${CMAKE_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/cpu_vs_gpu.py ${CMAKE_BINARY_DIR}
     WORKING_DIRECTORY
         ${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/make_plots.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/cpu_vs_gpu.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/chameleon.py
+    )
+
+add_custom_command(
+    OUTPUT
+        ${CMAKE_BINARY_DIR}/backends.pdf
+    COMMAND
+        ${CMAKE_CURRENT_SOURCE_DIR}/backends.py ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/backends.py
         ${CMAKE_CURRENT_SOURCE_DIR}/chameleon.py
     )
 
@@ -48,7 +61,9 @@ function(add_slides BEAMER_FILE)
                     beamerinnerthemefancy.sty
                     ${CMAKE_BINARY_DIR}/mcpi.pdf
                     ${CMAKE_BINARY_DIR}/lorenz.pdf
-                    ${CMAKE_BINARY_DIR}/perf.pdf
+                    ${CMAKE_BINARY_DIR}/cpu_vs_gpu_1.pdf
+                    ${CMAKE_BINARY_DIR}/cpu_vs_gpu_2.pdf
+                    ${CMAKE_BINARY_DIR}/backends.pdf
             IMAGES tesla.png radeon.png intel.png compiling.png lpt.pdf
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()

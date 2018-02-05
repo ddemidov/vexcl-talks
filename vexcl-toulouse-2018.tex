@@ -65,7 +65,8 @@
     \institute{Institute of System Analysis / Russian Academy of Sciences,\\
     Kazan Federal University
     }
-    \date{March 2018, \vspace{-2\baselineskip}\raisebox{-0.95\baselineskip}{\includegraphics[height=3\baselineskip]{lpt.pdf}}}
+    \date{March 2018,
+    \vspace{-1.9\baselineskip}\raisebox{-0.8\baselineskip}{\includegraphics[height=2.5\baselineskip]{lpt.pdf}}}
 
 \begin{document}
 
@@ -1106,7 +1107,201 @@ double pi = 4.0 * sum( length( rnd(vex::element_index(0, n), seed) ) < 1 ) / n;
 \begin{frame}[fragile]{Performance}{NVIDIA Tesla K40c, Intel Core i7 920
     \vspace{0.25\baselineskip}}
     \begin{figure}
-        \includegraphics[width=0.9\textwidth]{perf}
+        \includegraphics[width=0.8\textwidth]{cpu_vs_gpu_1}
+    \end{figure}
+    \vspace{-2\baselineskip}
+    \begin{uncoverenv}<2>
+        \begin{itemize}
+            \item Problems:
+                \begin{itemize}
+                    \item Runge-Kutta method uses 4 temporary vectors.
+                    \item Single Runge-Kutta step is translated into several
+                        kernels.
+                \end{itemize}
+        \end{itemize}
+    \end{uncoverenv}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{What if we did this manually?}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{itemize}
+                \item Create monolithic kernel for a single step of the
+                    Runge-Kutta method.
+                \item Launch the kernel in a loop.
+                    \vspace{\baselineskip}
+                \item This would be 10x faster!
+                    \begin{itemize}
+                        \item<2|alert@2> \emph{At the expense of odeint's generality.}
+                    \end{itemize}
+            \end{itemize}
+        \end{column} \quad \quad
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{Monolithic OpenCL kernel for RK4}
+                \begin{adjustbox}{width=\textwidth,height=\textheight,keepaspectratio}
+                    \begin{lstlisting}
+double3 lorenz_system(double r, double sigma, double b, double3 s) {
+    return (double3)( sigma * (s.y - s.x),
+                       r * s.x - s.y - s.x * s.z,
+                       s.x * s.y - b * s.z);
+}
+kernel void lorenz_ensemble(
+    ulong  n, double dt, double sigma, double b,
+    const global double *R,
+    global double *X,
+    global double *Y,
+    global double *Z
+    )
+{
+    for(size_t i = get_global_id(0); i < n; i += get_global_size(0)) {
+        double  r = R[i];
+        double3 s = (double3)(X[i], Y[i], Z[i]);
+        double3 k1, k2, k3, k4;
+
+        k1 = dt * lorenz_system(r, sigma, b, s);
+        k2 = dt * lorenz_system(r, sigma, b, s + 0.5 * k1);
+        k3 = dt * lorenz_system(r, sigma, b, s + 0.5 * k2);
+        k4 = dt * lorenz_system(r, sigma, b, s + k3);
+
+        s += (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+
+        X[i] = s.x; Y[i] = s.y; Z[i] = s.z;
+    }
+}
+                    \end{lstlisting}
+                \end{adjustbox}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\note[itemize]{
+\item So, what if we did this manually?
+\item We would create a single kernel that would do complete Runge-Kutta
+    integration step. By the way, here is the kernel that does just that. It's
+    very nice-looking kernel in fact.
+\item If we run this kernel in a loop, it would give us our solution. And it
+    would be ten times faster than our previous variant. So a hundred times
+    faster than a CPU! That's an acceleration!
+\item But, odeint has 20 different steppers. We don't want to reimplement all
+    of those. Let Karsten here do the job, right?
+}
+
+\subsection{Kernel generator}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{VexCL symbolic types}
+    \begin{itemize}
+        \item VexCL provides \code{vex::symbolic<T>} class template.
+        \item An instance of the type dumps any arithmetic operations applied to output
+            stream:
+    \end{itemize}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+vex::symbolic<double> x = 6, y = 7;
+x = sin(x * y);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+        \begin{column}<2>{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+template <class T>
+T sum(T a, T b) {
+    T s = a + b;
+    return s;
+}
+
+vex::symbolic<double> x = 2, y = 3;
+vex::symbolic<double> z = sum(x, y);
+                \end{lstlisting}
+            \end{exampleblock}
+        \end{column}
+    \end{columns}
+    \begin{columns}
+        \begin{column}{0.45\textwidth}
+            \begin{small}
+                \begin{verbatim}
+double var1 = 6;
+double var2 = 7;
+var1 = sin( ( var1 * var2 ) );
+                \end{verbatim}
+            \end{small}
+        \end{column}
+        \begin{column}<2>{0.45\textwidth}
+            \begin{small}
+                \begin{verbatim}
+double var1 = 2;
+double var2 = 3;
+double var3 = ( var1 + var2 );
+                \end{verbatim}
+            \end{small}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\note[itemize]{
+\item VexCL allows to achieve same effect without manual coding.
+\item The idea is very simple:
+    \begin{itemize}
+        \item An algorithm (any algorithm) is just a sequence of arithmetic
+            expressions.
+        \item VexCL symbolic types allow to record such expressions.
+    \end{itemize}
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Generate monolithic kernel using Boost.odeint algorithm}
+    \begin{itemize}
+        \item Overview (see \alert{[1]} for more details):
+        \begin{itemize}
+            \item Use \code{vex::symbolic<T>} or
+                \code{boost::array<vex::symbolic<T>, N>} as state type.
+            \item Provide generic system functor.
+            \item Record single step of a Boost.odeint stepper.
+            \item Generate and use monolithic kernel. 
+        \end{itemize}
+        \vspace{\baselineskip}
+    \item<2> Restrictions:
+        \begin{itemize}
+            \item Algorithms have to be embarrassingly parallel.
+            \item Only linear flow is allowed (no conditionals or
+                data-dependent loops).
+            \item Some precision may be lost when converting constants to
+                strings.
+        \end{itemize}
+    \end{itemize}
+    \footnoteline
+    \begin{footnotesize}
+        \begin{itemize}
+            \item[{[1]}] K. Ahnert, D. Demidov, and M. Mulansky.  Solving
+                ordinary differential equations on GPUs.\\
+                In \emph{Numerical Computations with GPUs} (pp. 125-157).
+                Springer, 2014.
+                \href{http://dx.doi.org/10.1007/978-3-319-06548-9\_7}{doi:10.1007/978-3-319-06548-9\_7}
+        \end{itemize}
+    \end{footnotesize}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]{Performance of the generated kernel}
+    \begin{figure}
+        \includegraphics[width=0.9\textwidth]{cpu_vs_gpu_2}
+    \end{figure}
+\end{frame}
+
+\note[itemize]{
+\item But, as you can see from this slide, the technique allows to achieve same
+    acceleration we got from manually coded kernel (Both for CPU and GPU).
+}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Comparing backends performance}
+    \begin{figure}
+        \includegraphics[width=0.9\textwidth]{backends}
     \end{figure}
 \end{frame}
 
