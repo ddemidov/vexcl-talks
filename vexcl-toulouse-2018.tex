@@ -1194,8 +1194,8 @@ kernel void lorenz_ensemble(
 \begin{frame}[fragile]{VexCL symbolic types}
     \begin{itemize}
         \item VexCL provides \code{vex::symbolic<T>} class template.
-        \item An instance of the type dumps any arithmetic operations applied to output
-            stream:
+        \item Its instance dumps to an \code{std::ostream} any
+            arithmetic operations applied to it:
     \end{itemize}
     \begin{columns}
         \begin{column}{0.45\textwidth}
@@ -1205,24 +1205,6 @@ vex::symbolic<double> x = 6, y = 7;
 x = sin(x * y);
                 \end{lstlisting}
             \end{exampleblock}
-        \end{column}
-        \begin{column}<2>{0.45\textwidth}
-            \begin{exampleblock}{}
-                \begin{lstlisting}
-template <class T>
-T sum(T a, T b) {
-    T s = a + b;
-    return s;
-}
-
-vex::symbolic<double> x = 2, y = 3;
-vex::symbolic<double> z = sum(x, y);
-                \end{lstlisting}
-            \end{exampleblock}
-        \end{column}
-    \end{columns}
-    \begin{columns}
-        \begin{column}{0.45\textwidth}
             \begin{small}
                 \begin{verbatim}
 double var1 = 6;
@@ -1232,11 +1214,25 @@ var1 = sin( ( var1 * var2 ) );
             \end{small}
         \end{column}
         \begin{column}<2>{0.45\textwidth}
+            \begin{exampleblock}{}
+                \begin{lstlisting}
+template <class T>
+T radius(T x, T y) {
+    T x2 = x * x;
+    T y2 = y * y;
+    return sqrt(x2 + y2);
+}
+vex::symbolic<double> a = 3, b = 4;
+vex::symbolic<double> c = radius(a, b);
+                \end{lstlisting}
+            \end{exampleblock}
             \begin{small}
                 \begin{verbatim}
-double var1 = 2;
-double var2 = 3;
-double var3 = ( var1 + var2 );
+double var1 = 3;
+double var2 = 4;
+double var3 = ( var1 * var1 );
+double var4 = ( var2 * var2 );
+double var5 = sqrt( ( var3 + var4 ) );
                 \end{verbatim}
             \end{small}
         \end{column}
