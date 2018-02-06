@@ -966,10 +966,11 @@ kernel void lorenz_ensemble(
             arithmetic operations applied to it:
     \end{itemize}
     \begin{columns}
-        \begin{column}{0.4\textwidth}
+        \begin{column}{0.35\textwidth}
             \begin{exampleblock}{}
                 \begin{lstlisting}
-vex::symbolic<double> x = 6, y = 7;
+vex::symbolic<double> x = 6;
+vex::symbolic<double> y = 7;
 x = sin(x * y);
                 \end{lstlisting}
             \end{exampleblock}
@@ -981,14 +982,16 @@ var1 = sin( ( var1 * var2 ) );
                 \end{verbatim}
             \end{small}
         \end{column}
-        \begin{column}{0.45\textwidth}
+        \begin{column}<2>{0.5\textwidth}
             \begin{exampleblock}{}
                 \begin{lstlisting}
 template <class T>
-T radius(T x, T y) {
-    T x2 = x * x;
-    T y2 = y * y;
-    return sqrt(x2 + y2);
+T squared_radius(const T &x, const T &y) {
+    return x * x + y * y;
+}
+template <class T>
+T radius(const T &x, const T &y) {
+    return sqrt(squared_radius(x, y));
 }
 vex::symbolic<double> a = 3, b = 4;
 vex::symbolic<double> c = radius(a, b);
@@ -998,9 +1001,8 @@ vex::symbolic<double> c = radius(a, b);
                 \begin{verbatim}
 double var1 = 3;
 double var2 = 4;
-double var3 = ( var1 * var1 );
-double var4 = ( var2 * var2 );
-double var5 = sqrt( ( var3 + var4 ) );
+double var3 = ( ( var1 * var1 ) + ( var2 * var2 ) );
+double var4 = sqrt( var3 );
                 \end{verbatim}
             \end{small}
         \end{column}
@@ -1034,8 +1036,6 @@ double var5 = sqrt( ( var3 + var4 ) );
             \item Algorithms have to be embarrassingly parallel.
             \item Only linear flow is allowed (no conditionals or
                 data-dependent loops).
-            \item Some precision may be lost when converting constants to
-                strings.
         \end{itemize}
     \end{itemize}
     \footnoteline
