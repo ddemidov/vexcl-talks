@@ -5,7 +5,7 @@ find_package(VexCL)
 find_package(CUDA)
 
 foreach(f hello-opencl.cpp hello-vexcl.cpp lorenz.cpp pi.cpp pi-kernel.cpp
-        pylorenz.cpp lorenz.ipynb)
+        pylorenz.cpp)
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/${f}
         ${CMAKE_CURRENT_BINARY_DIR}/${f}
