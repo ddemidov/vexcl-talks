@@ -7,6 +7,7 @@
     \setbeamertemplate{caption}{\insertcaption}
 
     \usepackage{graphicx}
+    \usepackage{tabularx}
     \usepackage{subfigure}
     \usepackage{xspace}
     \usepackage{adjustbox}
@@ -73,6 +74,31 @@
 %----------------------------------------------------------------------------
 \begin{frame}{}
     \titlepage
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Why GPUs?}
+    \begin{itemize}
+        \item November 2017:
+            \begin{description}
+                \item[Top500] - 6 out of top 10 systems use accelerators/GPUs
+                \item[Green500] - 6 out of top 10 systems use GPUs
+            \end{description}
+    \end{itemize}
+
+    \vspace{\baselineskip}
+
+    \begin{block}{PizDaint system (No 3 in Top500)}
+        \begin{tabularx}{\textwidth}{X|XX}
+            & CPU & GPU \\
+            \hline
+            Model & Intel Xeon E5-2690 v3 & NVIDIA Tesla P100 16GB \\
+            % https://www.thinkmate.com/inside/promo/save-big-tesla-gpus
+            Price & \$2000 & \$5700 \\
+            Peak performance & 500 GFLOPS & 4.7 TFLOPS \\
+            Memory bandwidth & 68 GB/s & 732 GB/s \\
+        \end{tabularx}
+    \end{block}
 \end{frame}
 
 %----------------------------------------------------------------------------
@@ -275,11 +301,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(hello)
 
-# When VexCL is installed system wide:
 find_package(VexCL)
-
-# When VexCL is copied into a subfolder:
-# add_subdirectory(vexcl)
 
 add_executable(hello hello.cpp)
 target_link_libraries(hello VexCL::OpenCL)
@@ -287,6 +309,11 @@ target_link_libraries(hello VexCL::OpenCL)
                     \end{minipage}
                 \end{adjustbox}
             \end{exampleblock}
+            \begin{itemize}
+                \item Use \code{VexCL::Compute}, \code{VexCL::CUDA}, or
+                    \code{VexCL::JIT} for use with Boost.Compute, CUDA, or
+                    OpenMP backend
+            \end{itemize}
         \end{column}
     \end{columns}
 \end{frame}
@@ -316,6 +343,10 @@ target_link_libraries(hello VexCL::OpenCL)
 \begin{frame}[fragile]{Initialization}
     \begin{itemize}
         \item Multi-device and multi-platform computations are supported.
+            \begin{itemize}
+                \item Some operations are restricted to single-device
+                    contexts.
+            \end{itemize}
         \item VexCL context is initialized from combination of device filters.
     \end{itemize}
     \vspace{-0.5\baselineskip}
