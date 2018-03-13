@@ -77,6 +77,48 @@
 \end{frame}
 
 %----------------------------------------------------------------------------
+\begin{frame}{Why GPUs?}
+    \begin{itemize}
+        \item November 2017:
+            \begin{description}
+                \item[Top500] - 6 out of top 10 systems use accelerators/GPUs
+                \item[Green500] - 6 out of top 10 systems use GPUs
+            \end{description}
+    \end{itemize}
+
+    \vspace{\baselineskip}
+
+    \begin{block}{PizDaint system (No 3 in Top500)}
+        \begin{tabularx}{\textwidth}{X|XX}
+            & CPU & GPU \\
+            \hline
+            Model & Intel Xeon E5-2690 v3 & NVIDIA Tesla P100 16GB \\
+            Peak performance & 500 GFLOPS & 4.7 TFLOPS \\
+            Memory bandwidth & 68 GB/s & 732 GB/s \\
+            % https://www.thinkmate.com/inside/promo/save-big-tesla-gpus
+            Price & \$2000 & \$5700 \\
+            Max power consumption & 135 W & 250 W \\
+        \end{tabularx}
+    \end{block}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Peak performance for CPUs and GPUs%
+    \footnote{\www{https://www.karlrupp.net/2013/06/cpu-gpu-and-mic-hardware-characteristics-over-time/}}}
+    \begin{figure}
+        \includegraphics[height=0.8\textheight]{gflops-dp.png}
+    \end{figure}
+\end{frame}
+
+%----------------------------------------------------------------------------
+\begin{frame}{Memory bandwidth for CPUs and GPUs%
+    \footnote{\www{https://www.karlrupp.net/2013/06/cpu-gpu-and-mic-hardware-characteristics-over-time/}}}
+    \begin{figure}
+        \includegraphics[height=0.8\textheight]{mem-bw.png}
+    \end{figure}
+\end{frame}
+
+%----------------------------------------------------------------------------
 \begin{frame}{VexCL~--- a vector expression template library for OpenCL/CUDA}
     \forkme
 
@@ -113,32 +155,6 @@
     source code of the library is available on GitHub under very liberal
     MIT license.
 }
-
-%----------------------------------------------------------------------------
-\begin{frame}{Why GPUs?}
-    \begin{itemize}
-        \item November 2017:
-            \begin{description}
-                \item[Top500] - 6 out of top 10 systems use accelerators/GPUs
-                \item[Green500] - 6 out of top 10 systems use GPUs
-            \end{description}
-    \end{itemize}
-
-    \vspace{\baselineskip}
-
-    \begin{block}{PizDaint system (No 3 in Top500)}
-        \begin{tabularx}{\textwidth}{X|XX}
-            & CPU & GPU \\
-            \hline
-            Model & Intel Xeon E5-2690 v3 & NVIDIA Tesla P100 16GB \\
-            Peak performance & 500 GFLOPS & 4.7 TFLOPS \\
-            Memory bandwidth & 68 GB/s & 732 GB/s \\
-            % https://www.thinkmate.com/inside/promo/save-big-tesla-gpus
-            Price & \$2000 & \$5700 \\
-            Max power consumption & 135 W & 250 W \\
-        \end{tabularx}
-    \end{block}
-\end{frame}
 
 %----------------------------------------------------------------------------
 \begin{frame}[fragile]{Hello OpenCL}

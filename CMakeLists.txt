@@ -65,6 +65,7 @@ function(add_slides BEAMER_FILE)
                     ${CMAKE_BINARY_DIR}/cpu_vs_gpu_2.pdf
                     ${CMAKE_BINARY_DIR}/backends.pdf
             IMAGES tesla.png radeon.png intel.png compiling.png lpt.pdf
+                    gflops-dp.png mem-bw.png
             DEFAULT_PDF MANGLE_TARGET_NAMES)
     endfunction()
 
